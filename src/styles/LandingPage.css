@@ -63,7 +63,7 @@
 /* 모달 컨텐츠 */
 .modal-content {
     width: 400px;
-    height: 50%;
+    height: 60%;
     background-color: white;
     padding: 2rem;
     border-radius: 10px;
@@ -110,10 +110,10 @@
 
 /* 회원가입 및 비밀번호 찾기 버튼 */
 .modal-actions {
-    display: flex; /* 가로 정렬 */
-    justify-content: space-between; /* 좌우 배치 */
-    width: 80%; /* 입력 필드와 정렬 맞추기 */
-    margin: 10px auto 0; /* 중앙 정렬 */
+    display: flex;
+    justify-content: space-between;
+    width: 80%;
+    margin: 10px auto 0;
 }
 
 .register-button, .forgot-password-button {
@@ -129,7 +129,7 @@
     text-decoration: underline;
 }
 
-/* 로그인 버튼, 모달 종료 버튼 */
+/* 로그인 버튼 */
 .login-button {
     padding: 1rem;
     background-color: #646cff;
