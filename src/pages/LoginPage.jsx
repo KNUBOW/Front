@@ -68,7 +68,7 @@ const LoginPage = () => {
               아이디 찾기
             </button>
             <span className="divider" aria-hidden>│</span>
-            <button type="button" className="text-link" onClick={() => alert("비밀번호 찾기 이동")}>
+            <button type="button" className="text-link" onClick={() => navigate('/forgot-password')}>
               비밀번호 찾기
             </button>
             <span className="divider" aria-hidden>│</span>
