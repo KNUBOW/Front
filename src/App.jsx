@@ -5,13 +5,15 @@ import FindId from './pages/FindId'
 import FindIdResult from './pages/FindIdResult'
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import TodayWhatEat from './pages/TodayWhatEat'
 import './App.css'
 
 function App() {
   return (
     <Router>
       <Routes>
-       <Route path="/" element={<LoginPage/>}/>
+       <Route path="/" element={<TodayWhatEat/>}/>
+       <Route path="/login" element={<LoginPage/>}/>
        <Route path="/register" element={<Register/>}/>
        <Route path="/find-id" element={<FindId/>}/>
        <Route path="/find-id/result" element={<FindIdResult/>}/>

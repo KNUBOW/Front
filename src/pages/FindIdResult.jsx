@@ -22,7 +22,7 @@ const FindIdResult = () => {
         </div>
 
         <div className="result-actions">
-          <button className="btn-primary" onClick={() => navigate("/")}>확인</button>
+          <button className="btn-primary" onClick={() => navigate("/login")}>확인</button>
           <button className="btn-primary" onClick={() => navigate("/reset-password", { state: { email } })}>
             비밀번호 재설정
           </button>
