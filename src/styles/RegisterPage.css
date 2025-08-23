@@ -1,0 +1,90 @@
+/* 모바일 퍼스트 (<= 430px) */
+:root{
+  --bg:#f6f1e8;
+  --ink:#111;
+  --muted:#6b6b6b;
+  --input-bg:#ffffff;
+  --input-bd:#e8e3da;
+  --shadow:0 6px 18px rgba(0,0,0,.06);
+  --brand:#000000;
+}
+
+*{ box-sizing:border-box; }
+html, body, #root { height:100%; }
+
+body{
+  margin:0;
+  font-family: system-ui, -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", Roboto, Arial, sans-serif;
+  background:var(--bg);
+  color:var(--ink);
+  font-size:16px;
+}
+
+.register-page{
+  min-height:100dvh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding: 24px 16px 40px;
+}
+
+.register-wrap{ width:100%; max-width:430px; }
+
+.logo-box{
+  display:flex; align-items:center; justify-content:center;
+  margin: 12vh auto 24px;
+}
+.logo-img{
+  width:min(68%, 330px); height:auto; display:block;
+  user-select:none; -webkit-user-drag:none;
+}
+
+.register-form{
+  display:flex; flex-direction:column; gap:16px;
+  padding: 0 10px;
+}
+.register-form input{
+  width:100%; height:56px; border-radius:14px;
+  border:1px solid var(--input-bd); background:var(--input-bg);
+  padding:0 18px; font-size:16px; outline:none; box-shadow:var(--shadow);
+}
+.register-form input:focus{
+  border-color:#c9c1b4;
+  box-shadow:0 0 0 3px rgba(0,0,0,.04), var(--shadow);
+}
+
+.gender-row{
+  display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:4px;
+}
+.gender-btn{
+  height:56px; border-radius:14px; border:1px solid var(--input-bd);
+  background:#fff; color:var(--muted); font-weight:600; font-size:16px;
+  box-shadow:var(--shadow); cursor:pointer;
+}
+.gender-btn.active{ border-color:#111; color:#111; background:#f0efea; }
+.gender-btn:active{ transform:translateY(1px); }
+
+.btn-register{
+  height:58px; border-radius:14px; border:0; background:var(--brand);
+  color:#fff; font-weight:700; font-size:18px; letter-spacing:.02em;
+  cursor:pointer; margin-top:6px; box-shadow:var(--shadow);
+}
+.btn-register:active{ transform:translateY(1px); }
+
+.sr-only{
+  position:absolute !important; width:1px; height:1px; padding:0; margin:-1px;
+  overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;
+}
+
+/* 반응형 (사용자 가이드 적용) */
+@media (min-width: 768px){
+  body{ font-size:18px; max-width:720px; margin:0 auto; }
+  .logo-box{ margin-top:10vh; }
+  .btn-register{ height:62px; font-size:19px; }
+}
+@media (min-width: 1024px){
+  body{ font-size:18px; max-width:960px; margin:0 auto; }
+}
+@media (min-width: 1440px){
+  body{ font-size:20px; max-width:1200px; margin:0 auto; }
+}

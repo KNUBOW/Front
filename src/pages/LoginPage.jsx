@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../styles/LoginPage.css';
 import logo from "./../assets/foodthing-logo.png"
 
 const LoginPage = () => {
     const [form, setForm] = useState({ username: '', password: '' });
+    const navigate = useNavigate();
     
     const onChange = (e) => {
         const { name, value } = e.target;
@@ -70,7 +72,7 @@ const LoginPage = () => {
               비밀번호 찾기
             </button>
             <span className="divider" aria-hidden>│</span>
-            <button type="button" className="text-link" onClick={() => alert("회원가입 이동")}>
+            <button type="button" className="text-link" onClick={() => navigate('/register')}>
               회원가입
             </button>
           </div>
