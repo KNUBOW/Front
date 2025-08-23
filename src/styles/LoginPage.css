@@ -1,0 +1,180 @@
+/* 모바일 퍼스트 (<= 430px) */
+:root{
+  --bg:#f6f1e8;        /* 배경(스크린샷 톤) */
+  --ink:#111;          /* 텍스트/버튼 */
+  --muted:#6b6b6b;     /* 서브 텍스트 */
+  --input-bg:#ffffff;  /* 입력 배경 */
+  --input-bd:#e8e3da;  /* 입력 테두리 */
+  --shadow:0 6px 18px rgba(0,0,0,.06);
+}
+
+*{ box-sizing: border-box; }
+html, body, #root{ height:100%; }
+body{
+  margin:0;
+  font-family: system-ui, -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", Roboto, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  font-size:16px; /* 안내된 모바일 기본값 */
+}
+
+.login-page{
+  min-height:100dvh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding: 24px 16px 40px;
+}
+
+.login-wrap{
+  width:100%;
+  max-width:430px; /* 모바일 기준 폭 */
+}
+
+.logo-box{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin: 24vh auto 28px; /* 스크린샷처럼 상단 여백 크게 */
+}
+.logo-img{
+  width:min(72%, 340px);
+  height:auto;
+  display:block;
+  user-select:none;
+  -webkit-user-drag:none;
+}
+
+.login-form{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+  padding: 0 10px;
+}
+
+.login-form input{
+  width:100%;
+  height:56px;
+  border-radius:14px;
+  border:1px solid var(--input-bd);
+  background: var(--input-bg);
+  padding: 0 18px;
+  font-size:16px;
+  outline: none;
+  box-shadow: var(--shadow);
+}
+
+.login-form input:focus{
+  border-color:#c9c1b4;
+  box-shadow: 0 0 0 3px rgba(0,0,0,.04), var(--shadow);
+}
+
+.helper-links{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  margin: 4px 0 6px;
+  color: var(--muted);
+  flex-wrap:wrap;
+}
+
+.text-link{
+  appearance:none;
+  border:0;
+  background:transparent;
+  padding:4px 2px;
+  color: var(--muted);
+  font-size:14px;
+  cursor:pointer;
+}
+.text-link:hover{ text-decoration: underline; }
+
+.divider{ color:#c9c1b4; }
+
+.btn-login{
+  height:58px;
+  border-radius:14px;
+  border:0;
+  background:#000;
+  color:#fff;
+  font-weight:700;
+  font-size:18px;
+  letter-spacing:.02em;
+  cursor:pointer;
+  margin-top:6px;
+  box-shadow: var(--shadow);
+}
+.btn-login:active{ transform: translateY(1px); }
+
+.social-row{
+  display:flex;
+  justify-content:center;
+  gap:28px;
+  margin-top:22px;
+}
+
+.social-btn{
+  width:68px;
+  height:68px;
+  border-radius:50%;
+  border:0;
+  display:grid;
+  place-items:center;
+  font-weight:800;
+  font-size:30px;
+  cursor:pointer;
+  box-shadow: var(--shadow);
+  user-select:none;
+}
+.social-btn:active{ transform: translateY(1px); }
+
+/* 브랜드 컬러 */
+.social-btn.naver{ background:#03C75A; color:#fff; }
+.social-btn.google{
+  /* 심플 텍스트형. 아이콘 이미지 쓰면 background 대신 <img>로 교체하세요 */
+  background:#ffffff;
+  color:#EA4335;
+  border:1px solid #e9e9e9;
+}
+
+/* 스크린 리더 전용 라벨 */
+.sr-only{
+  position:absolute !important;
+  width:1px; height:1px;
+  padding:0; margin:-1px;
+  overflow:hidden; clip:rect(0,0,0,0);
+  white-space:nowrap; border:0;
+}
+
+/* ────────────────────────────────────────────── */
+/* 반응형: 사용자 고정 미디어쿼리 가이드 반영 */
+/* 태블릿 (>= 768px) */
+@media (min-width: 768px) {
+  body {
+    font-size: 18px;
+    max-width: 720px;
+    margin: 0 auto;
+  }
+  .logo-box { margin-top: 18vh; }
+  .btn-login { height: 62px; font-size: 19px; }
+}
+
+/* 작은 데스크탑 (>= 1024px) */
+@media (min-width: 1024px) {
+  body {
+    font-size: 18px;
+    max-width: 960px;
+    margin: 0 auto;
+  }
+  .logo-box { margin-top: 16vh; }
+}
+
+/* 큰 데스크탑 (>= 1440px) */
+@media (min-width: 1440px) {
+  body {
+    font-size: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+}
