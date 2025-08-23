@@ -1,71 +1,79 @@
-/* 리셋(버튼 기본 스타일 때문에 검은 버튼으로 보이는 문제 방지) */
-button{ all: unset; display:inline-block; }
+/* 버튼 초기화 */
+button{ all: unset; display:inline-block; cursor:pointer; }
 button:focus{ outline: none; }
 
 /* 모바일 퍼스트 */
 :root{
-  --bg:#f6f1e8;        /* 화면 배경 */
-  --top:#d8cfc3;       /* 상단/하단 바 배경 */
-  --panel:#ddd3c5;     /* 카드 배경 */
-  --ink:#111;          /* 기본 텍스트 */
-  --muted:#6f6a60;     /* 서브 텍스트 */
-  --accent:#F2B705;    /* 강조(노랑) */
+  --bg:#f6f1e8;     /* 흰색 화면(앱) 배경 */
+  --outer:#1e1e1e;  /* 앱 바깥 배경(검정/회색) - 원하는 색으로 */
+  --top:#d8cfc3;    /* 상/하단 바 배경 */
+  --panel:#ddd3c5;
+  --ink:#111;
+  --muted:#6f6a60;
+  --accent:#F2B705;
   --shadow:0 8px 24px rgba(0,0,0,.08);
+
+  /* 컨테이너 최대폭 (모바일 430 → 미디어쿼리에서 확장) */
+  --container: 430px;
 }
 
+/* 앱 바깥쪽도 색을 지정 - 검정 영역 방지 */
+html, body, #root{ height:100%; background: var(--outer); }
 *{ box-sizing:border-box; }
-html, body, #root{ height:100%; }
-body{
-  margin:0;
-  font-family: system-ui, -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", Roboto, Arial, sans-serif;
-  background:var(--bg);
-  color:var(--ink);
-  font-size:16px;
+
+.today-page{
+  width: 100%;
+  min-height:100dvh;
+  display:flex;
+  flex-direction:column;
 }
 
-.today-page{ min-height:100dvh; display:flex; flex-direction:column; }
+/* 중앙 컨테이너(흰색 화면) */
+.app-shell{
+  width:100%;
+  max-width: var(--container);
+  margin: 0 auto;                 /* 중앙 정렬 */
+  background: var(--bg);
+  min-height:100dvh;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.02);
+}
 
-/* ── 상단 바 ───────────────────────────────────── */
+/* ── 상단 바: 컨테이너 폭만 사용 ── */
 .topbar{
-  position:sticky; top:0; z-index:10;
-  background:var(--top);
-  border-bottom:1px solid rgba(0,0,0,.06);
+  position: sticky;
+  top: 0; z-index: 50;
+  width: 100%;                    /* app-shell 기준 100% */
+  background: var(--top);
+  border-bottom: 1px solid rgba(0,0,0,.06);
+  padding: 8px 16px 10px;
 }
 .brand{
   display:flex; justify-content:center; align-items:center;
-  height:64px;
+  height:56px;
 }
 .brand img{ height:44px; width:auto; user-select:none; -webkit-user-drag:none; }
-
 .topnav{
-  display:flex; gap:22px; padding: 8px 18px 12px;
+  display:flex; gap:18px;
   overflow-x:auto; white-space:nowrap;
 }
-.topnav-item{
-  cursor:pointer; padding:4px 2px;
-  color:#222; font-weight:700; font-size:22px;
-}
-.topnav-item.active{ color:var(--accent); }
+.topnav-item{ font-size:22px; font-weight:700; color:#222; padding:4px 2px; }
+.topnav-item.active{ color: var(--accent); }
 
-/* ── 콘텐츠 ────────────────────────────────────── */
+/* ── 본문 ── */
 .content{
-  padding: 18px 16px 120px; /* 하단 탭 여유 */
-  max-width: 960px; margin: 0 auto;
+  padding: 18px 16px 120px;   /* 하단 탭에 안가리도록 여백 */
 }
 .search-card{
   margin-top: 18vh;
-  background:var(--panel);
+  background: var(--panel);
   border-radius: 18px;
   box-shadow: var(--shadow);
   padding: 28px 18px 22px;
 }
 .card-icon{ text-align:center; font-size:46px; }
-.card-title{
-  margin: 10px 0 18px;
-  text-align:center; font-size:32px; font-weight:800;
-}
+.card-title{ text-align:center; margin: 10px 0 18px; font-size:32px; font-weight:800; }
 
-/* 검색 바(아이콘 + 입력 + 추천버튼) */
+/* 검색 행 */
 .search-row{
   display:flex; align-items:center; gap:10px;
   background:#efe7dc; padding:8px; border-radius:16px;
@@ -75,16 +83,15 @@ body{
   background:#fff; border:1px solid #e8e3da; border-radius:12px;
   padding: 0 12px;
 }
-.search-input svg{ color:#666; flex:0 0 auto; }
+.search-input svg{ color:#666; }
 .search-input input{
   border:0; outline:none; background:transparent;
   height:48px; width:100%; font-size:16px;
 }
 .btn-recommend{
-  cursor:pointer; flex:0 0 auto;
-  height:48px; padding:0 18px;
-  background:var(--accent); color:#000; font-weight:800;
-  border-radius:22px; box-shadow: 0 3px 10px rgba(0,0,0,.07);
+  height:48px; padding:0 18px; border-radius:22px;
+  background: var(--accent); color:#000; font-weight:800;
+  box-shadow: 0 3px 10px rgba(0,0,0,.07);
 }
 
 /* 팁 */
@@ -92,17 +99,22 @@ body{
 .tip-title{ font-weight:700; margin:10px 0 8px; }
 .tip-body{ color:#5b564e; line-height:1.7; }
 
-/* ── 하단 탭바 ─────────────────────────────────── */
+/* ── 하단 탭바: 컨테이너 폭으로 고정 + 화면 기준 중앙 배치 ── */
 .tabbar{
-  position:fixed; left:0; right:0; bottom:0; z-index:10;
-  background:var(--top);
-  border-top:1px solid rgba(0,0,0,.06);
+  position: sticky;
+  top: 0; z-index: 50;
+  width: 100%;                    /* app-shell 기준 100% */
+  background: var(--top);
+  border-bottom: 1px solid rgba(0,0,0,.06);
+  padding: 8px 16px 10px;
+}
+.tab-inner{
   padding: 10px 14px calc(12px + env(safe-area-inset-bottom));
   display:flex; justify-content:space-between; align-items:flex-end;
 }
 .tab-item{
   display:flex; flex-direction:column; align-items:center; gap:8px;
-  min-width:64px; color:#000; cursor:pointer;
+  min-width:64px; color:#000;
 }
 .tab-item span{ font-size:13px; }
 .tab-icon{
@@ -111,14 +123,14 @@ body{
 }
 .home-hex{ filter: drop-shadow(0 4px 10px rgba(0,0,0,.15)); }
 
-/* 반응형 (네가 준 가이드) */
-@media (min-width:768px){
-  body{ font-size:18px; max-width:720px; margin:0 auto; }
+/* ── 반응형: 컨테이너 폭만 단계적으로 변경 ── */
+@media (min-width: 768px){
+  :root{ --container: 720px; }
   .card-title{ font-size:34px; }
 }
-@media (min-width:1024px){
-  body{ font-size:18px; max-width:960px; margin:0 auto; }
+@media (min-width: 1024px){
+  :root{ --container: 960px; }
 }
-@media (min-width:1440px){
-  body{ font-size:20px; max-width:1200px; margin:0 auto; }
+@media (min-width: 1440px){
+  :root{ --container: 1200px; }
 }
