@@ -1,6 +1,8 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import LoginPage from './pages/LoginPage'
 import Register from './pages/RegisterPage'
+import FindId from './pages/FindId'
+import FindIdResult from './pages/FindIdResult'
 import './App.css'
 
 function App() {
@@ -8,7 +10,9 @@ function App() {
     <Router>
       <Routes>
        <Route path="/" element={<LoginPage/>}/>
-        <Route path="/register" element={<Register/>}/>
+       <Route path="/register" element={<Register/>}/>
+       <Route path="/find-id" element={<FindId/>}/>
+       <Route path="/find-id/result" element={<FindIdResult/>}/>
       </Routes>
     </Router>
   )

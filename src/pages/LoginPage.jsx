@@ -64,7 +64,7 @@ const LoginPage = () => {
 
           {/* 하단 링크들 */}
           <div className="helper-links" aria-label="도움 링크">
-            <button type="button" className="text-link" onClick={() => alert("아이디 찾기 이동")}>
+            <button type="button" className="text-link" onClick={() => navigate('/find-id')}>
               아이디 찾기
             </button>
             <span className="divider" aria-hidden>│</span>
