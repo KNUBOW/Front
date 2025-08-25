@@ -5,7 +5,7 @@ button:focus{ outline: none; }
 /* 모바일 퍼스트 */
 :root{
   --bg:#f6f1e8;     /* 흰색 화면(앱) 배경 */
-  --outer:#1e1e1e;  /* 앱 바깥 배경(검정/회색) - 원하는 색으로 */
+  --outer:#1e1e1e;  /* 앱 바깥 배경 */
   --top:#d8cfc3;    /* 상/하단 바 배경 */
   --panel:#ddd3c5;
   --ink:#111;
@@ -15,56 +15,72 @@ button:focus{ outline: none; }
 
   /* 컨테이너 최대폭 (모바일 430 → 미디어쿼리에서 확장) */
   --container: 430px;
+
+  /* 무스크롤 레이아웃용 고정 높이 값 */
+  --top-h: 72px;     /* 상단바 높이 */
+  --tab-h: 92px;     /* 하단탭 높이 */
 }
 
-/* 앱 바깥쪽도 색을 지정 - 검정 영역 방지 */
-html, body, #root{ height:100%; background: var(--outer); }
-*{ box-sizing:border-box; }
+/* 앱 바깥쪽 배경 */
+html, body, #root{
+  height:100%;
+  background: var(--outer);
+  margin:0;
+}
 
+/* 전체 페이지 래퍼 */
 .today-page{
   width: 100%;
-  min-height:100dvh;
+  height:100dvh;                 /* ← 뷰포트 높이에 고정 */
   display:flex;
   flex-direction:column;
 }
 
-/* 중앙 컨테이너(흰색 화면) */
+/* 흰색 화면 컨테이너 */
 .app-shell{
   width:100%;
   max-width: var(--container);
-  margin: 0 auto;                 /* 중앙 정렬 */
+  margin: 0 auto;
   background: var(--bg);
-  min-height:100dvh;
+  height:100dvh;                 /* ← 뷰포트 높이에 고정 */
   box-shadow: 0 0 0 1px rgba(0,0,0,.02);
+  display:flex;                  /* 상/하/본문 3분할 */
+  flex-direction:column;
+  overflow:hidden;               /* 스크롤 방지 */
 }
 
-/* ── 상단 바: 컨테이너 폭만 사용 ── */
+/* ── 상단 바: 고정 높이, 스크롤 없음 ── */
 .topbar{
-  position: sticky;
-  top: 0; z-index: 50;
-  width: 100%;                    /* app-shell 기준 100% */
+  flex: 0 0 var(--top-h);
+  height: var(--top-h);
   background: var(--top);
   border-bottom: 1px solid rgba(0,0,0,.06);
   padding: 8px 16px 10px;
 }
 .brand{
   display:flex; justify-content:center; align-items:center;
-  height:56px;
+  height: calc(var(--top-h) - 18px);
 }
 .brand img{ height:44px; width:auto; user-select:none; -webkit-user-drag:none; }
 .topnav{
   display:flex; gap:18px;
-  overflow-x:auto; white-space:nowrap;
+  overflow:hidden;               /* 가로 스크롤도 차단 (필요 시 auto로 변경) */
+  white-space:nowrap;
 }
 .topnav-item{ font-size:22px; font-weight:700; color:#222; padding:4px 2px; }
 .topnav-item.active{ color: var(--accent); }
 
-/* ── 본문 ── */
+/* ── 본문: 남은 높이를 딱 채움 ── */
 .content{
-  padding: 18px 16px 120px;   /* 하단 탭에 안가리도록 여백 */
+  flex: 1 1 auto;                /* 남는 공간 모두 사용 */
+  padding: 18px 16px 16px;       /* 하단탭을 fixed로 쓰는게 아니라서 여분 패딩 줄임 */
+  overflow:hidden;               /* 내부 스크롤도 방지 */
 }
+
+/* 콘텐츠 카드 및 요소 (필요 시 내부 스크롤 금지) */
 .search-card{
-  margin-top: 18vh;
+  /* 큰 여백이 화면을 넘치면 잘리므로 vh 대신 px 단위 권장 */
+  margin-top: 24px;              /* 기존 18vh -> 24px로 변경 */
   background: var(--panel);
   border-radius: 18px;
   box-shadow: var(--shadow);
@@ -73,7 +89,6 @@ html, body, #root{ height:100%; background: var(--outer); }
 .card-icon{ text-align:center; font-size:46px; }
 .card-title{ text-align:center; margin: 10px 0 18px; font-size:32px; font-weight:800; }
 
-/* 검색 행 */
 .search-row{
   display:flex; align-items:center; gap:10px;
   background:#efe7dc; padding:8px; border-radius:16px;
@@ -94,23 +109,22 @@ html, body, #root{ height:100%; background: var(--outer); }
   box-shadow: 0 3px 10px rgba(0,0,0,.07);
 }
 
-/* 팁 */
 .tips{ text-align:center; margin-top:18px; color:#3f3a33; }
 .tip-title{ font-weight:700; margin:10px 0 8px; }
 .tip-body{ color:#5b564e; line-height:1.7; }
 
-/* ── 하단 탭바: 컨테이너 폭으로 고정 + 화면 기준 중앙 배치 ── */
+/* ── 하단 탭바: 고정 높이, 컨테이너 내부 하단 배치 ── */
 .tabbar{
-  position: sticky;
-  top: 0; z-index: 50;
-  width: 100%;                    /* app-shell 기준 100% */
+  flex: 0 0 var(--tab-h);
+  height: var(--tab-h);
   background: var(--top);
-  border-bottom: 1px solid rgba(0,0,0,.06);
+  border-top: 1px solid rgba(0,0,0,.06);
   padding: 8px 16px 10px;
 }
 .tab-inner{
-  padding: 10px 14px calc(12px + env(safe-area-inset-bottom));
-  display:flex; justify-content:space-between; align-items:flex-end;
+  height: 100%;
+  display:flex; justify-content:space-between; align-items:center;
+  padding: 0 14px;
 }
 .tab-item{
   display:flex; flex-direction:column; align-items:center; gap:8px;
