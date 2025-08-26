@@ -7,41 +7,74 @@
   --input-bd:#e8e3da;
   --shadow:0 6px 18px rgba(0,0,0,.06);
   --brand:#000;
+  --vh:1vh; /* App.jsx에서 window.innerHeight로 세팅 권장 */
 }
 
 *{ box-sizing:border-box; }
 html, body, #root{ height:100%; }
+
+/* iOS 텍스트 자동확대 방지 */
+html{ -webkit-text-size-adjust:100%; }
+
 body{
   margin:0;
   font-family: system-ui, -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", Roboto, Arial, sans-serif;
   background:var(--bg);
   color:var(--ink);
   font-size:16px;
+  overflow-x:hidden; /* 좌우 여백/스크롤 방지 */
 }
 
+/* ===== 레이아웃: 페이지 자체가 스크롤 컨테이너 ===== */
 .findid-page{
+  background:var(--bg);
+  width:100%;
+  max-width:100%;
   min-height:100dvh;
   display:flex;
+  flex-direction:column;
   align-items:center;
-  justify-content:center;
-  padding:24px 16px 40px;
+  justify-content:flex-start;           /* 상단부터 채움 */
+  overflow-y:auto;                      /* 콘텐츠 넘치면 스크롤 */
+  padding: clamp(16px, calc(var(--vh) * 6), 40px) 16px
+           calc(16px + env(safe-area-inset-bottom, 0px));
 }
-.findid-wrap{ width:100%; max-width:430px; }
+@supports not (height:100dvh){ .findid-page{ min-height:100svh; } }
+@supports not (height:100svh){ .findid-page{ min-height:calc(var(--vh) * 100); } }
+@supports (-webkit-touch-callout:none){ body{ min-height:-webkit-fill-available; } }
 
+/* 컨테이너 상한 */
+.findid-wrap{ width:100%; max-width:430px; margin:0 auto; }
+
+/* 로고: 위쪽 margin 금지(상단 패딩이 담당), shrink 방지, 조금 더 작게 */
 .logo-box{
   display:flex; align-items:center; justify-content:center;
-  margin: 18vh auto 24px;
+  margin: 0 auto 12px;   /* 상단 여백은 .findid-page padding-top이 담당 */
+  flex-shrink:0;
 }
-.logo-img{ width:min(68%, 330px); height:auto; display:block; user-select:none; -webkit-user-drag:none; }
+.logo-img{
+  width:min(72%, 340px);             /* 기존보다 조금 작게 */
+  height:auto;
+  max-height:min(18vh, 120px);       /* 화면 작아도 로고 전체 보이도록 상한 */
+  display:block;
+  object-fit:contain;
+  user-select:none; -webkit-user-drag:none;
+}
 
+/* 폼 */
 .findid-form{
-  display:flex; flex-direction:column; gap:18px; padding:0 10px;
+  display:flex; flex-direction:column; gap:18px;
+  padding:0 10px;
+  width:100%; max-width:100%;        /* 우발적 넘침 방지 */
 }
+
 .findid-form input,
 .result-input input{
-  width:100%; height:56px; border-radius:14px;
+  width:100%; max-width:100%;
+  height:56px; border-radius:14px;
   border:1px solid var(--input-bd); background:var(--input-bg);
   padding:0 18px; font-size:16px; outline:none; box-shadow:var(--shadow);
+  color:var(--ink); caret-color:var(--ink);
 }
 .findid-form input:focus,
 .result-input input:focus{
@@ -49,10 +82,25 @@ body{
   box-shadow:0 0 0 3px rgba(0,0,0,.04), var(--shadow);
 }
 
+/* 크롬/사파리 자동완성 텍스트 보정 */
+.findid-form input:-webkit-autofill,
+.findid-form input:-webkit-autofill:hover,
+.findid-form input:-webkit-autofill:focus,
+.result-input input:-webkit-autofill,
+.result-input input:-webkit-autofill:hover,
+.result-input input:-webkit-autofill:focus{
+  -webkit-text-fill-color: var(--ink) !important;
+  transition: background-color 9999s ease-out 0s;
+}
+
+/* 공통 버튼 */
 .btn-primary{
   height:58px; border-radius:14px; border:0; background:var(--brand);
   color:#fff; font-weight:700; font-size:18px; letter-spacing:.02em;
   cursor:pointer; margin-top:6px; box-shadow:var(--shadow);
+  display:flex;
+  align-items:center;
+  justify-content:center;
 }
 .btn-primary:active{ transform:translateY(1px); }
 
@@ -74,14 +122,4 @@ body{
   overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;
 }
 
-/* 반응형 - 사용자 가이드 */
-@media (min-width: 768px){
-  body{ font-size:18px; max-width:720px; margin:0 auto; }
-  .logo-box{ margin-top: 14vh; }
-}
-@media (min-width: 1024px){
-  body{ font-size:18px; max-width:960px; margin:0 auto; }
-}
-@media (min-width: 1440px){
-  body{ font-size:20px; max-width:1200px; margin:0 auto; }
-}
+/* 반응형 미디어쿼리 삭제(모바일 퍼스트 유지) */

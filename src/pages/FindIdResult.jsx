@@ -1,7 +1,7 @@
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "./../styles/findid.css";
-import logo from "./../assets/foodthing-logo.png";
+import logo from "./../assets/FoodThing.png";
 
 const FindIdResult = () => {
   const { state } = useLocation();
