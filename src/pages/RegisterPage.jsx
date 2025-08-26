@@ -1,7 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import "../styles/RegisterPage.css";
-import logo from "./../assets/foodthing-logo.png"; // 로고 경로 맞추기
+import logo from "./../assets/FoodThing.png"; // 로고 경로 맞추기
 
 const Register = () => {
   const [form, setForm] = useState({

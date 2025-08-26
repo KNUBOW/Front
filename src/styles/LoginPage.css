@@ -5,29 +5,39 @@
   --input-bg:#ffffff;
   --input-bd:#e8e3da;
   --shadow:0 6px 18px rgba(0,0,0,.06);
-  --vh:1vh; /* JS에서 실제 값 세팅용 폴백 */
+  --vh:1vh;  /* JS에서 실제 값 세팅용 (없으면 1vh 폴백) */
+  /* --vw는 App.jsx에서 세팅 권장. 없으면 아래에서 1vw로 폴백 사용 */
 }
 
 *{ box-sizing: border-box; }
 html, body, #root{ height:100%; }
+
+/* iOS의 텍스트 자동확대 방지(초기 스케일 왜곡 방지) */
+html{ -webkit-text-size-adjust: 100%; }
+
 body{
   margin:0;
   font-family: system-ui, -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", Roboto, Arial, sans-serif;
   background: var(--bg);
   color: var(--ink);
   font-size:16px;
+  overflow-x:hidden; /* 우발적 가로 스크롤 방지 → 초기 스케일 흔들림 방지 */
 }
 
-/* ===== 레이아웃: 100dvh → 100svh → var(--vh) 순 폴백 ===== */
-.login-page{
+/* ===== 레이아웃: 가로/세로 모두 뷰포트 기준 + dvh/svh/--vh 폴백 ===== */
+.login-page {
   background: var(--bg);
+  width: 100%;             /* ✅ 화면 가로폭에 정확히 맞춤 */
+  max-width: 100%;         /* ✅ 절대 넘치지 않도록 */
   min-height: 100dvh;
   display:flex;
   align-items:center;
   justify-content:center;
-  /* 하단 안전영역 고려 */
-  padding: 24px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+  padding: clamp(12px, calc(var(--vh) * 3), 24px)
+           16px
+           calc(16px + env(safe-area-inset-bottom, 0px));
 }
+
 @supports not (height: 100dvh){
   .login-page{ min-height: 100svh; }
 }
@@ -40,46 +50,53 @@ body{
   body{ min-height: -webkit-fill-available; }
 }
 
+/* 컨테이너: 모바일은 100%, 큰 화면에서는 430px 상한 */
 .login-wrap{
   width:100%;
   max-width:430px;
+  margin: 0 auto;
 }
 
-/* ✅ 24vh → --vh 기반으로 변환 */
+/* 로고: 컨테이너 기준 폭 */
 .login-page .logo-box{
   display:flex;
   align-items:center;
   justify-content:center;
-  margin: 0 auto 8px
+  width: min(72%, 340px);
+  margin: 0 auto 12px;
 }
 
 .logo-img{
-  width:min(72%, 340px);
+  width: 100%;
   height:auto;
+  max-height: 140px;
   display:block;
+  object-fit: contain;
   user-select:none;
   -webkit-user-drag:none;
 }
 
+/* 폼 */
 .login-form{
   display:flex;
   flex-direction:column;
   gap:14px;
   padding: 0 10px;
+  width:100%;
+  max-width:100%;  /* ★ 내부 패딩으로 인한 우발적 넘침 방지 */
 }
 
 .login-form input{
   width:100%;
+  max-width:100%;  /* ★ 우발적 가로 넘침 방지 */
   height:56px;
   border-radius:14px;
   border:1px solid var(--input-bd);
   background: var(--input-bg);
   padding: 0 18px;
-  font-size:16px;
+  font-size:16px; /* iOS 포커스 확대 방지: 16px 이상 유지 */
   outline: none;
   box-shadow: var(--shadow);
-
-  /* 글자 안 보임/자동완성 이슈 방어 */
   color: var(--ink);
   caret-color: var(--ink);
 }

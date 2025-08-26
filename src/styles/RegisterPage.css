@@ -7,13 +7,12 @@
   --input-bd:#e8e3da;
   --shadow:0 6px 18px rgba(0,0,0,.06);
   --brand:#000000;
-
-  /* JS에서 세팅하는 뷰포트 폴백 단위 (main.jsx에 --vh 세팅 코드 필수) */
   --vh:1vh;
 }
 
 *{ box-sizing:border-box; }
 html, body, #root { height:100%; }
+html{ -webkit-text-size-adjust:100%; }
 
 body{
   margin:0;
@@ -21,90 +20,83 @@ body{
   background:var(--bg);
   color:var(--ink);
   font-size:16px;
+  overflow-x:hidden;
 }
 
-/* ===== 레이아웃: 100dvh → 100svh → var(--vh) 순 폴백 ===== */
+/* 페이지 자체 스크롤 + 상단부터 배치 */
 .register-page{
-  min-height: 100dvh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  /* 하단 안전영역 고려 */
-  padding: 24px 16px 40px;
-  background: var(--bg);
+  background:var(--bg);
+  width:100%; max-width:100%;
+  min-height:100dvh;
+  display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
+  overflow-y:auto;
+  padding: clamp(16px, calc(var(--vh) * 6), 40px) 16px 40px;
 }
-@supports not (height: 100dvh){
-  .register-page{ min-height: 100svh; }
-}
-@supports not (height: 100svh){
-  .register-page{ min-height: calc(var(--vh) * 100); }
+@supports not (height:100dvh){ .register-page{ min-height:100svh; } }
+@supports not (height:100svh){ .register-page{ min-height:calc(var(--vh) * 100); } }
+@supports (-webkit-touch-callout:none){ body{ min-height:-webkit-fill-available; } }
+
+.register-wrap{
+  width:100%; max-width:430px; margin:0 auto;
 }
 
-/* iOS 사파리 안정화 */
-@supports (-webkit-touch-callout: none){
-  body{ min-height: -webkit-fill-available; }
-}
-
-.register-wrap{ width:100%; max-width:430px; }
-
-/* vh → --vh 기반으로 치환 (원래 12vh → calc(var(--vh)*12)) */
+/* 로고: 위 margin 금지, shrink 금지 */
 .register-page .logo-box{
+  width:min(35%, 330px);
   display:flex; align-items:center; justify-content:center;
-  margin: 0 auto 8px
+  margin:0 auto 4px;
+  position: sticky; top: 0; background: var(--bg); z-index: 10; padding-top: 6px; padding-bottom: 6px;
 }
-.logo-img{
-  width:min(68%, 330px); height:auto; display:block;
+.register-page .logo-img{
+  height:auto; max-height:min(22vh, 160px);
+  display:block; object-fit:contain;
   user-select:none; -webkit-user-drag:none;
 }
 
+/* 폼 */
 .register-form{
-  display:flex; flex-direction:column; gap:16px;
-  padding: 0 10px;
-  color: var(--ink);
-  caret-color: var(--ink);
+  display:flex; flex-direction:column; gap:10px;
+  width:100%; max-width:100%; padding:0 5px;
+  color:var(--ink); caret-color:var(--ink);
 }
 .register-form input{
-  width:100%; height:56px; border-radius:14px;
+  width:100%; max-width:100%;
+  height:48px; border-radius:14px;
   border:1px solid var(--input-bd); background:var(--input-bg);
   padding:0 18px; font-size:16px; outline:none; box-shadow:var(--shadow);
-  color: var(--ink);
-  opacity: 1;
+  color:var(--ink); opacity:1;
 }
-.register-form input::placeholder{
-  color: var(--muted);
-  opacity: 1;
-}
+.register-form input::placeholder{ color:var(--muted); opacity:1; }
 .register-form input:focus{
-  border-color:#c9c1b4;
-  box-shadow:0 0 0 3px rgba(0,0,0,.04), var(--shadow);
+  border-color:#c9c1b4; box-shadow:0 0 0 3px rgba(0,0,0,.04), var(--shadow);
 }
-
-/* 브라우저 자동완성(크롬/사파리) 글자색 강제 */
 .register-form input:-webkit-autofill,
 .register-form input:-webkit-autofill:hover,
-.register-form input:-webkit-autofill:focus {
-  -webkit-text-fill-color: var(--ink) !important;
-  transition: background-color 9999s ease-out 0s; /* autofill 노란 배경 숨김용 */
+.register-form input:-webkit-autofill:focus{
+  -webkit-text-fill-color:var(--ink) !important;
+  transition: background-color 9999s ease-out 0s;
 }
 
-.gender-row{
-  display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:4px;
-}
+/* 성별 버튼 */
+.gender-row{ display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:4px; }
 .gender-btn{
   height:56px; border-radius:14px; border:1px solid var(--input-bd);
   background:#fff; color:var(--muted); font-weight:600; font-size:16px;
-  box-shadow:var(--shadow); cursor:pointer;
+  box-shadow:var(--shadow); cursor:pointer; display:flex; align-items:center; justify-content:center;
 }
 .gender-btn.active{ border-color:#111; color:#111; background:#f0efea; }
 .gender-btn:active{ transform:translateY(1px); }
 
+/* 제출 버튼 */
 .btn-register{
   height:58px; border-radius:14px; border:0; background:var(--brand);
   color:#fff; font-weight:700; font-size:18px; letter-spacing:.02em;
   cursor:pointer; margin-top:6px; box-shadow:var(--shadow);
+  display:flex; align-items:center; justify-content:center;
 }
 .btn-register:active{ transform:translateY(1px); }
 
+/* 스크린 리더 전용 라벨 */
 .sr-only{
   position:absolute !important; width:1px; height:1px; padding:0; margin:-1px;
   overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;

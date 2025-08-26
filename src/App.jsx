@@ -11,10 +11,12 @@ import TodayWhatEat from './pages/TodayWhatEat';
 import './App.css';
 
 function App() {
-  // 모바일 100vh 이슈 대응: --vh 변수 설정
+  // 모바일 100vh / 100vw 이슈 대응: --vh / --vw 변수 설정
   const setScreenSize = () => {
     const vh = window.innerHeight * 0.01;
+    const vw = window.innerWidth * 0.01;
     document.documentElement.style.setProperty('--vh', `${vh}px`);
+    document.documentElement.style.setProperty('--vw', `${vw}px`);
   };
 
   useEffect(() => {

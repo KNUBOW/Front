@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/LoginPage.css';
-import logo from "./../assets/foodthing-logo.png"
+import logo from "./../assets/FoodThing.png"
 
 const LoginPage = () => {
     const [form, setForm] = useState({ username: '', password: '' });
