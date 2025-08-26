@@ -29,7 +29,7 @@ const LoginPage = () => {
     };
 
     return (
-           <div className="login-page">
+    <div className="login-page">
       <div className="login-wrap">
 
         {/* 상단 로고 영역 */}

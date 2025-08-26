@@ -7,6 +7,9 @@
   --input-bd:#e8e3da;
   --shadow:0 6px 18px rgba(0,0,0,.06);
   --brand:#000000;
+
+  /* JS에서 세팅하는 뷰포트 폴백 단위 (main.jsx에 --vh 세팅 코드 필수) */
+  --vh:1vh;
 }
 
 *{ box-sizing:border-box; }
@@ -20,19 +23,34 @@ body{
   font-size:16px;
 }
 
+/* ===== 레이아웃: 100dvh → 100svh → var(--vh) 순 폴백 ===== */
 .register-page{
-  min-height:100dvh;
+  min-height: 100dvh;
   display:flex;
   align-items:center;
   justify-content:center;
+  /* 하단 안전영역 고려 */
   padding: 24px 16px 40px;
+  background: var(--bg);
+}
+@supports not (height: 100dvh){
+  .register-page{ min-height: 100svh; }
+}
+@supports not (height: 100svh){
+  .register-page{ min-height: calc(var(--vh) * 100); }
+}
+
+/* iOS 사파리 안정화 */
+@supports (-webkit-touch-callout: none){
+  body{ min-height: -webkit-fill-available; }
 }
 
 .register-wrap{ width:100%; max-width:430px; }
 
-.logo-box{
+/* vh → --vh 기반으로 치환 (원래 12vh → calc(var(--vh)*12)) */
+.register-page .logo-box{
   display:flex; align-items:center; justify-content:center;
-  margin: 12vh auto 24px;
+  margin: 0 auto 8px
 }
 .logo-img{
   width:min(68%, 330px); height:auto; display:block;
@@ -50,6 +68,10 @@ body{
   border:1px solid var(--input-bd); background:var(--input-bg);
   padding:0 18px; font-size:16px; outline:none; box-shadow:var(--shadow);
   color: var(--ink);
+  opacity: 1;
+}
+.register-form input::placeholder{
+  color: var(--muted);
   opacity: 1;
 }
 .register-form input:focus{
@@ -86,17 +108,4 @@ body{
 .sr-only{
   position:absolute !important; width:1px; height:1px; padding:0; margin:-1px;
   overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;
-}
-
-/* 반응형 (사용자 가이드 적용) */
-@media (min-width: 768px){
-  body{ font-size:18px; max-width:720px; margin:0 auto; }
-  .logo-box{ margin-top:10vh; }
-  .btn-register{ height:62px; font-size:19px; }
-}
-@media (min-width: 1024px){
-  body{ font-size:18px; max-width:960px; margin:0 auto; }
-}
-@media (min-width: 1440px){
-  body{ font-size:20px; max-width:1200px; margin:0 auto; }
 }
