@@ -42,15 +42,27 @@ body{
 .register-form{
   display:flex; flex-direction:column; gap:16px;
   padding: 0 10px;
+  color: var(--ink);
+  caret-color: var(--ink);
 }
 .register-form input{
   width:100%; height:56px; border-radius:14px;
   border:1px solid var(--input-bd); background:var(--input-bg);
   padding:0 18px; font-size:16px; outline:none; box-shadow:var(--shadow);
+  color: var(--ink);
+  opacity: 1;
 }
 .register-form input:focus{
   border-color:#c9c1b4;
   box-shadow:0 0 0 3px rgba(0,0,0,.04), var(--shadow);
+}
+
+/* 브라우저 자동완성(크롬/사파리) 글자색 강제 */
+.register-form input:-webkit-autofill,
+.register-form input:-webkit-autofill:hover,
+.register-form input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--ink) !important;
+  transition: background-color 9999s ease-out 0s; /* autofill 노란 배경 숨김용 */
 }
 
 .gender-row{
