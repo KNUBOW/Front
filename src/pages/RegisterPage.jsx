@@ -1,18 +1,27 @@
 import { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import "../styles/RegisterPage.css";
-import logo from "./../assets/FoodThing.png"; // 로고 경로 맞추기
+import logo from "./../assets/FoodThing.png";
+
+// axios 인스턴스: Vite 프록시(/api)로 보냄
+const api = axios.create({
+  baseURL: "/api",           // vite.config.js에서 /api → target 으로 프록시
+  // withCredentials: true,  // 쿠키가 필요하면 주석 해제 + 서버 CORS도 맞춰야 함
+});
 
 const Register = () => {
+  const navigate = useNavigate();
+
   const [form, setForm] = useState({
     email: "",
     password: "",
-    checked_password: "", // 확인용
+    checked_password: "",
     name: "",
     nickname: "",
     phone: "",
     birth8: "",
-    gender: "", // "male" | "female"
+    gender: "", // "M" | "F"
   });
 
   const onChange = (e) => {
@@ -43,35 +52,39 @@ const Register = () => {
     e.preventDefault();
     if (!validate()) return;
 
-    // YYYYMMDD → YYYY-MM-DD 변환
-    const birth =
-      form.birth8.slice(0, 4) +
-      "-" +
-      form.birth8.slice(4, 6) +
-      "-" +
-      form.birth8.slice(6, 8);
+    // YYYYMMDD → YYYY-MM-DD
+    const birth = `${form.birth8.slice(0, 4)}-${form.birth8.slice(4, 6)}-${form.birth8.slice(6, 8)}`;
 
     try {
-      const res = await axios.post("https://augustzero.mooo.com/users/sign-up", {
+      const res = await api.post("/users/sign-up", {
         email: form.email,
         password: form.password,
-        checked_password: form.checked_password,
+        // 서버 스키마에 따라 ↓ 둘 중 하나 맞추기
+        checked_password: form.checked_password, // ← 서버가 이 키를 받으면 그대로
+        // password_confirm: form.checked_password, // ← 서버가 이 키를 받는다면 이걸로
         name: form.name,
         nickname: form.nickname,
+        // phone vs phone_num 중 서버 스키마에 맞추기
         phone_num: form.phone,
-        birth,
-        gender: form.gender === "M" ? "male" : "female", // 백엔드 조건 맞추기
+        birth, // 서버가 YYYYMMDD를 요구하면 birth8 전송
+        // gender도 서버 기대값에 맞추기: "male"/"female" 또는 "M"/"F"
+        gender: form.gender === "M" ? "male" : "female",
       });
 
       console.log("[회원가입 성공]", res.data);
       alert("회원가입 성공! 로그인 페이지로 이동합니다.");
-      // TODO: react-router-dom의 useNavigate 사용
-      // navigate("/login");
+      navigate("/login");
     } catch (err) {
       console.error("[회원가입 실패]", err);
+
+      if (!err?.response) {
+        alert("네트워크 오류 또는 프록시 설정을 확인해 주세요.");
+        return;
+      }
+
       const msg =
-        err?.response?.data?.detail ||
-        err?.response?.data?.message ||
+        err.response.data?.detail ||
+        err.response.data?.message ||
         "회원가입 중 오류가 발생했습니다.";
       alert(msg);
     }
@@ -157,6 +170,6 @@ const Register = () => {
       </div>
     </div>
   );
-}
+};
 
 export default Register;
