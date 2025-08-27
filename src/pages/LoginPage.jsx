@@ -1,34 +1,55 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import '../styles/LoginPage.css';
 import logo from "./../assets/FoodThing.png"
 
+const api = axios.create({
+  baseURL: "/api",           // vite.config.js에서 /api → target 으로 프록시
+})
+
 const LoginPage = () => {
-    const [form, setForm] = useState({ username: '', password: '' });
-    const navigate = useNavigate();
-    
-    const onChange = (e) => {
-        const { name, value } = e.target;
-        setForm((prev) => ({ ...prev, [name]: value }));
-    };
+  const [form, setForm] = useState({ username: '', password: '' });
+  const navigate = useNavigate();
 
-    const onSubmit = (e) => {
-        e.preventDefault();
-        // Handle login logic here
-        console.log('Logging in with:', form);
-    };
+  const onChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
 
-    const handleNaverLogin = () => {
-        // TODO: 네이버 OAuth 연결
-        console.log("naver login");
-    };
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    // validate 나중에 추가하기
 
-    const handleGoogleLogin = () => {
-        // TODO: 구글 OAuth 연결
-        console.log("google login");
-    };
+    try {
+      const res = await api.post("/users/log-in", {
+        email: form.email,
+        password: form.password,
+      });
+      console.log(res.data);
+      alert("로그인 성공!");
+      navigate("/"); // 메인 페이지로 이동
+    } catch (err) {
+      console.error("[로그인 실패]", err);
 
-    return (
+      if (!err?.response) {
+        alert("네트워크 오류 또는 프록시 설정을 확인해 주세요.");
+        return;
+      }
+    }
+  };
+
+  const handleNaverLogin = () => {
+    // TODO: 네이버 OAuth 연결
+    console.log("naver login");
+  };
+
+  const handleGoogleLogin = () => {
+    // TODO: 구글 OAuth 연결
+    console.log("google login");
+  };
+
+  return (
     <div className="login-page">
       <div className="login-wrap">
 
@@ -39,14 +60,14 @@ const LoginPage = () => {
 
         {/* 입력 폼 */}
         <form className="login-form" onSubmit={onSubmit} autoComplete="on">
-          <label className="sr-only" htmlFor="username">아이디</label>
+          <label className="sr-only" htmlFor="email">아이디</label>
           <input
-            id="username"
-            name="username"
+            id="email"
+            name="email"
             type="text"
             inputMode="text"
             placeholder="아이디"
-            value={form.username}
+            value={form.email}
             onChange={onChange}
             required
           />

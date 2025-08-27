@@ -59,15 +59,11 @@ const Register = () => {
       const res = await api.post("/users/sign-up", {
         email: form.email,
         password: form.password,
-        // 서버 스키마에 따라 ↓ 둘 중 하나 맞추기
-        checked_password: form.checked_password, // ← 서버가 이 키를 받으면 그대로
-        // password_confirm: form.checked_password, // ← 서버가 이 키를 받는다면 이걸로
+        checked_password: form.checked_password,
         name: form.name,
         nickname: form.nickname,
-        // phone vs phone_num 중 서버 스키마에 맞추기
         phone_num: form.phone,
-        birth, // 서버가 YYYYMMDD를 요구하면 birth8 전송
-        // gender도 서버 기대값에 맞추기: "male"/"female" 또는 "M"/"F"
+        birth, 
         gender: form.gender === "M" ? "male" : "female",
       });
 
