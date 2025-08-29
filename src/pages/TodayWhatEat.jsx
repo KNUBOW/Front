@@ -1,11 +1,20 @@
 import React, { useState } from "react";
 import TopBar from "../components/TopBar";
+import TopNav from "../components/TopNav";     // ⬅️ 분리한 TopNav 사용
 import TabBar from "../components/TabBar";
 import "../styles/TopShell.css";
 import "../styles/TodayWhatEat.css";
 
 export default function TodayWhatEat() {
   const [q, setQ] = useState("");
+
+  // 상단 탭 항목
+  const navItems = [
+    { label: "오늘 뭐 해먹지?", to: "/" },
+    { label: "추천 요리", to: "/recommend" },
+    { label: "게시판", to: "/board" },
+    { label: "랭킹", to: "/rank" },
+  ];
 
   const onSubmit = (e) => {
     e.preventDefault();
@@ -18,16 +27,8 @@ export default function TodayWhatEat() {
       <div className="today-wrap">
         <TopBar />
 
-        <nav className="topnav-bar" aria-label="상단 메뉴">
-          <div className="topnav" role="tablist" aria-label="탭 메뉴">
-            <button type="button" className="topnav-item active" aria-current="page">
-              오늘 뭐 해먹지?
-            </button>
-            <button type="button" className="topnav-item">추천 요리</button>
-            <button type="button" className="topnav-item">게시판</button>
-            <button type="button" className="topnav-item">랭킹</button>
-          </div>
-        </nav>
+        {/* ⬇️ 기존 inline topnav 제거하고 컴포넌트로 대체 */}
+        <TopNav items={navItems} />
 
         <main className="content" role="main">
           <section className="search-card" aria-labelledby="todayTitle">
