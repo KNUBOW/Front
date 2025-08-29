@@ -161,3 +161,26 @@ body{
   width:44px; height:44px; border-radius:50%;
   background:#F2B70555; display:grid; place-items:center;
 }
+.home-hex {
+  width: 64px;              /* 크기 */
+  aspect-ratio: 1 / 1;      /* 정사각형 비율 유지 */
+  background: #F9BA00;
+  clip-path: polygon(
+    50% 0%,   /* 위쪽 꼭짓점 */
+    93% 25%,  /* 오른쪽 위 */
+    93% 75%,  /* 오른쪽 아래 */
+    50% 100%, /* 아래쪽 꼭짓점 */
+    7% 75%,   /* 왼쪽 아래 */
+    7% 25%    /* 왼쪽 위 */
+  );
+  display: grid;
+  place-items: center;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.home-hex img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
