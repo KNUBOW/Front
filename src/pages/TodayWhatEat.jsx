@@ -1,8 +1,14 @@
-// src/pages/TodayWhatEat.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./../styles/todayWhatEat.css";
+
+// icons
 import logo from "./../assets/FoodThing.png";
+import recipeIcon from "./../assets/recipe.svg";
+import boxIcon from "./../assets/box.svg";
+import homeIcon from "./../assets/home.svg";
+import likeIcon from "./../assets/like.svg";
+import settingsIcon from "./../assets/settings.svg";
 
 const TodayWhatEat = () => {
   const navigate = useNavigate();
@@ -117,12 +123,7 @@ const TodayWhatEat = () => {
               onClick={() => navigate("/box")}
             >
               <div className="tab-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" width="24" height="24">
-                  <path
-                    d="M6 2h12a2 2 0 012 2v16a2 2 0 01-2 2H6a2 2 0 01-2-2V4a2 2 0 012-2zm0 6h12V4H6v4z"
-                    fill="currentColor"
-                  />
-                </svg>
+                <img src={boxIcon} alt="" width="24" height="24" />
               </div>
               <span>Box</span>
             </button>
@@ -133,12 +134,7 @@ const TodayWhatEat = () => {
               onClick={() => navigate("/recipes")}
             >
               <div className="tab-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" width="24" height="24">
-                  <path
-                    d="M6 3h12a1 1 0 011 1v16l-4-2-4 2-4-2-4 2V4a1 1 0 011-1h2z"
-                    fill="currentColor"
-                  />
-                </svg>
+                <img src={recipeIcon} alt="" width="24" height="24" />
               </div>
               <span>Recipe</span>
             </button>
@@ -149,13 +145,7 @@ const TodayWhatEat = () => {
               onClick={() => navigate("/")}
             >
               <div className="home-hex" aria-hidden="true">
-                <svg viewBox="0 0 100 100" width="44" height="44">
-                  <polygon points="50,5 90,28 90,72 50,95 10,72 10,28" fill="#F2B705" />
-                  <path
-                    d="M30 50l20-14 20 14h-6l-14-9.5L36 50h-6z M35 68V52h30v16h-6V58H41v10h-6z"
-                    fill="#000"
-                  />
-                </svg>
+                <img src={homeIcon} alt="" width="24" height="24" />
               </div>
               <span>Home</span>
             </button>
@@ -166,12 +156,7 @@ const TodayWhatEat = () => {
               onClick={() => navigate("/likes")}
             >
               <div className="tab-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" width="24" height="24">
-                  <path
-                    d="M12 21s-7-4.3-9.3-8A5.3 5.3 0 0112 6.7 5.3 5.3 0 0121.3 13c-2.3 3.7-9.3 8-9.3 8z"
-                    fill="currentColor"
-                  />
-                </svg>
+                <img src={likeIcon} alt="" width="24" height="24" />
               </div>
               <span>Like</span>
             </button>
@@ -182,9 +167,7 @@ const TodayWhatEat = () => {
               onClick={() => navigate("/settings")}
             >
               <div className="tab-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" width="24" height="24">
-                  <path d="M12 8a4 4 0 110 8 4 4 0 010-8z" fill="currentColor" />
-                </svg>
+                <img src={settingsIcon} alt="" width="24" height="24" />
               </div>
               <span>Settings</span>
             </button>
