@@ -145,9 +145,8 @@ const TodayWhatEat = () => {
               onClick={() => navigate("/")}
             >
               <div className="home-hex" aria-hidden="true">
-                <img src={homeIcon} alt="" width="24" height="24" />
+                <img src={homeIcon} alt="" width="48" height="48" />
               </div>
-              <span>Home</span>
             </button>
 
             <button

@@ -161,4 +161,3 @@ body{
   width:44px; height:44px; border-radius:50%;
   background:#F2B70555; display:grid; place-items:center;
 }
-.home-hex{ filter: drop-shadow(0 4px 10px rgba(0,0,0,.12)); }
