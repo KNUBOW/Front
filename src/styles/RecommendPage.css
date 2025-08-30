@@ -1,28 +1,78 @@
-.recommend-page {
-    min-height:100dvh;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:flex-start;
-    overflow-y:auto;
-    background:var(--bg);
+.recommend-page{
+  min-height:100svh;
+  display:flex;
+  flex-direction:column;
+  align-items:stretch;
+  justify-content:flex-start;
+  overflow:hidden;
+  background:var(--bg);
 }
-@supports not (height:100dvh){ .today-page{ min-height:100svh; } }
-@supports not (height:100svh){ .today-page{ min-height:calc(var(--vh)*100); } }
-@supports (-webkit-touch-callout:none){ body{ min-height:-webkit-fill-available; } }
+@supports (height:100dvh){ .recommend-page{ min-height:100dvh; } }
 
-.recommend-wrap
-{
-    width:100%;
-    max-width:430px;
-    margin:0 auto;
-    display:flex;
-    flex-direction:column;
-    min-height:100%;
+.recommend-wrap{
+  width:100%;
+  max-width: var(--container-w);
+  margin:0 auto;
+  display:flex;
+  flex-direction:column;
+  align-items:stretch;          /* 명시 */
+  box-sizing:border-box;
+  padding-top: calc(var(--top-h) + var(--nav-h) + var(--safe-top));
+  padding-bottom: calc(var(--tab-h) + var(--safe-bottom));
 }
 
-.content{
+.recommend-content{
+  display:block;
+  width:100% !important;        /* 충돌 여지 제거 */
+  max-width:100%;
+  align-self:stretch;
   flex:1 1 auto;
-  padding:16px 12px 12px;
-  overflow-y:auto;
+  min-width:0;                  /* flex 축소 방지 */
+  min-height: calc(
+    100dvh - (var(--top-h) + var(--safe-top)) - var(--nav-h)
+    - (var(--tab-h) + var(--safe-bottom))
+  );
+  overflow:auto;
+  -webkit-overflow-scrolling:touch;
+  padding:16px;
+  box-sizing:border-box;
 }
+
+/* 내부 UI도 100% */
+.rec-hero, .rec-section, .rec-card{
+  width:100%;
+  max-width:100%;
+  box-sizing:border-box;
+}
+
+.rec-hero{
+  width: var(--container-w);
+  background: var(--panel);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  padding: 18px 14px 16px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+.rec-title{ margin:0 0 6px; font-size:20px; font-weight:800; color:var(--ink); }
+.rec-desc{ margin:0; font-size:14px; color:#5b564e; }
+
+.rec-section{
+  display:grid;
+  grid-template-columns: 1fr;
+  gap:12px;
+}
+.rec-card{
+  background:#fff;
+  border:1px solid #e8e3da;
+  border-radius:12px;
+  padding:14px;
+  box-shadow: 0 3px 10px rgba(0,0,0,.04);
+  font-size:14px;
+  color:#333;
+}
+
+/* (디버그용, 필요 시 잠깐만 켜기)
+.recommend-wrap{ outline:2px dashed red; }
+.recommend-page .recommend-wrap > .recommend-content{ outline:2px dashed blue; }
+*/

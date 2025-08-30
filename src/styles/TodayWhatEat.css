@@ -1,18 +1,16 @@
-/* 페이지 컨테이너 */
 .today-page{
   min-height:100svh;
   display:flex;
   flex-direction:column;
-  align-items:center;
+  align-items:stretch;
   justify-content:flex-start;
   overflow:hidden;                 /* 상위 스크롤 제거 */
-  background:var(--base-bg);
+  background:var(--bg);
 }
 @supports (height:100dvh){
   .today-page{ min-height:100dvh; }
 }
 
-/* 래퍼: 고정 바 높이만큼 안전 패딩 */
 .today-wrap{
   width:100%;
   max-width:430px;
@@ -21,7 +19,6 @@
   flex-direction:column;
   box-sizing:border-box;
 
-  /* ⬇️ 핵심: 고정 바 + safe-area 만큼 띄우기 */
   padding-top: calc(var(--top-h) + var(--nav-h) + var(--safe-top));
   padding-bottom: calc(var(--tab-h) + var(--safe-bottom));
 }

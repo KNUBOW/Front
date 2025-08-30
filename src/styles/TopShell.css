@@ -8,7 +8,7 @@ button:focus{ outline:none; }
 /* 모바일 퍼스트 공통 변수 */
 :root{
   --bar-bg:#E0D8CB;
-  --bg: #FEFBF2;
+  --bg:#FEFBF2;
   --ink:#111;
   --muted:#6f6a60;
   --accent:#F2B705;
@@ -19,9 +19,13 @@ button:focus{ outline:none; }
   --radius-lg:14px;
   --font-base:16px;
 
-  --top-h:72px;   /* 상단 바 고정 높이 */
-  --nav-h:56px;   /* 상단 내비 고정 높이 */
-  --tab-h:72px;   /* 하단 탭바 고정 높이 */
+  /* 컨테이너 폭 (모바일 기본) */
+  --container-w: 430px;
+
+  /* 고정 바 높이 */
+  --top-h:72px;
+  --nav-h:56px;
+  --tab-h:72px;
 
   /* 모바일 safe-area */
   --safe-top: env(safe-area-inset-top, 0px);
@@ -41,19 +45,20 @@ body{
   overflow-x:hidden;
 }
 
-/* 430px 컨테이너 중앙 정렬 공통 */
+/* 컨테이너 중앙 정렬 공통 */
 .app-shell,
 .today-wrap,
+.recommend-wrap,
 .page-shell{
   width:100%;
-  max-width:430px;
+  max-width: var(--container-w);
   min-height:100dvh;
   margin:0 auto;
   position:relative;
   background:var(--bg);
 }
 
-/* ===== 전역: 고정 바들 ===== */
+/* ===== 고정 바들 ===== */
 .topbar,
 .topnav-bar,
 .tabbar{
@@ -61,18 +66,19 @@ body{
   left: 50%;
   transform: translateX(-50%);
   width: 100%;
-  max-width: 430px;
+  max-width: var(--container-w);
   z-index: 1000;
   padding-left: calc(12px + var(--safe-left));
   padding-right: calc(12px + var(--safe-right));
-  box-sizing: border-box;
+  box-sizing: border-box; /* 표시 높이 안정화 */
 }
 
 /* 상단 바 */
 .topbar{
   top: 0;
   height: var(--top-h);
-  padding-top: calc(8px + var(--safe-top));
+  padding-top: var(--safe-top);  /* safe-area만 반영 */
+  padding-bottom: 0;
   background: var(--bar-bg);
   border-bottom:1px solid rgba(0,0,0,.06);
   display:flex; align-items:center; justify-content:center;
@@ -87,15 +93,15 @@ body{
 .topnav-bar{
   top: calc(var(--top-h) + var(--safe-top));
   height: var(--nav-h);
-  background: transparent;
-  background-color: var(--bg);
+  padding-top: 0; padding-bottom: 0;
+  background: var(--bg);
   border-bottom:1px solid rgba(0,0,0,.06);
   display:flex; align-items:center;
 }
 .topnav{
   display:flex; justify-content:center; gap:18px;
   white-space: nowrap;
-  overflow-x: auto;            /* 좁은 화면에서 가로 스크롤 */
+  overflow-x: auto;                 /* 좁은 화면에서 가로 스크롤 */
   -webkit-overflow-scrolling: touch;
   width:100%;
   scrollbar-width: thin;
@@ -108,11 +114,11 @@ body{
 
 /* 하단 탭바 */
 .tabbar{
-  bottom: calc(0px + var(--safe-bottom));
+  bottom: var(--safe-bottom);
   height: var(--tab-h);
+  padding-top: 0; padding-bottom: 0; /* 표시 높이 = --tab-h */
   background: var(--bar-bg);
   border-top:1px solid rgba(0,0,0,.06);
-  padding-top:8px; padding-bottom:8px;
 }
 .tab-inner{
   height:100%;
