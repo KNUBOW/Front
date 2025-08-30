@@ -49,6 +49,7 @@ body{
 .app-shell,
 .today-wrap,
 .recommend-wrap,
+.rank-wrap,
 .page-shell{
   width:100%;
   max-width: var(--container-w);

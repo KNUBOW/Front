@@ -1,4 +1,6 @@
 .today-page{
+  width: 100%;
+  max-width: var(--container-w);
   min-height:100svh;
   display:flex;
   flex-direction:column;
@@ -7,9 +9,7 @@
   overflow:hidden;                 /* 상위 스크롤 제거 */
   background:var(--bg);
 }
-@supports (height:100dvh){
-  .today-page{ min-height:100dvh; }
-}
+@supports (height:100dvh){ .today-page{ min-height:100dvh; }}
 
 .today-wrap{
   width:100%;
