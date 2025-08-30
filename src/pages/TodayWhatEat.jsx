@@ -1,6 +1,6 @@
 import { useState } from "react";
 import TopBar from "../components/TopBar";
-import TopNav from "../components/TopNav";     // ⬅️ 분리한 TopNav 사용
+import TopNav from "../components/TopNav";
 import TabBar from "../components/TabBar";
 import "../styles/TopShell.css";
 import "../styles/TodayWhatEat.css";
@@ -24,12 +24,13 @@ const TodayWhatEat = () => {
 
   return (
     <div className="today-page">
-      <div className="today-wrap">
+      {/* ✅ Grid 레이아웃 적용 */}
+      <div className="today-wrap layout-grid">
         <TopBar />
-
-        {/* ⬇️ 기존 inline topnav 제거하고 컴포넌트로 대체 */}
+        {/* TopNav 루트 엘리먼트 className="topnav-bar" 여야 함 */}
         <TopNav items={navItems} />
 
+        {/* 중앙(남은 영역) 전용 */}
         <main className="content" role="main">
           <section className="search-card" aria-labelledby="todayTitle">
             <div className="card-icon" aria-hidden="true">🍳</div>
