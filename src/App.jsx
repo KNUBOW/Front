@@ -1,4 +1,3 @@
-// src/App.jsx
 import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
@@ -8,6 +7,9 @@ import FindIdResult from './pages/FindIdResult';
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import TodayWhatEat from './pages/TodayWhatEat';
+import Recommend from './pages/RecommendPage';
+import Board from './pages/BoardPage';
+import Ranking from './pages/RankingPage';
 import './App.css';
 
 function App() {
@@ -39,6 +41,9 @@ function App() {
         <Route path="/find-id/result" element={<FindIdResult />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/recommend" element={<Recommend />} />
+        <Route path="/board" element={<Board />} />
+        <Route path="/rank" element={<Ranking />} />
       </Routes>
     </Router>
   );

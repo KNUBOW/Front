@@ -1,11 +1,11 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import TopBar from "../components/TopBar";
 import TopNav from "../components/TopNav";     // ⬅️ 분리한 TopNav 사용
 import TabBar from "../components/TabBar";
 import "../styles/TopShell.css";
 import "../styles/TodayWhatEat.css";
 
-export default function TodayWhatEat() {
+const TodayWhatEat = () => {
   const [q, setQ] = useState("");
 
   // 상단 탭 항목
@@ -72,3 +72,5 @@ export default function TodayWhatEat() {
     </div>
   );
 }
+
+export default TodayWhatEat;
