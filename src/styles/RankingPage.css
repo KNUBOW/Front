@@ -6,7 +6,7 @@
     flex-direction:column;
     align-items:stretch;
     justify-content:flex-start;
-    overflow:hidden;                 /* 상위 스크롤 제거 */
+    overflow:hidden;
     background:var(--bg);
 }
 @supports (height:100dvh){ .rank-page{ min-height:100dvh; }}

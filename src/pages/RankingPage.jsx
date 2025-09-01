@@ -5,7 +5,7 @@ import '../styles/TopShell.css';
 import '../styles/RankingPage.css';
 
 const RankingPage = () => {
-  // 상단 탭 항목
+  
   const navItems = [
     { label: "오늘 뭐 해먹지?", to: "/" },
     { label: "추천 요리", to: "/recommend" },
