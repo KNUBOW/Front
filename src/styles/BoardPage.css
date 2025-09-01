@@ -1,0 +1,24 @@
+.board-page{
+    width: 100%;
+    max-width: var(--container-w);
+    min-height:100svh;
+    display:flex;
+    flex-direction:column;
+    align-items:stretch;
+    justify-content:flex-start;
+    overflow:hidden;                 /* 상위 스크롤 제거 */
+    background:var(--bg);
+}
+@supports (height:100dvh){ .board-page{ min-height:100dvh; }}
+
+.board-wrap{
+    width:100%;
+    max-width:430px;
+    margin:0 auto;
+    display:flex;
+    flex-direction:column;
+    box-sizing:border-box;
+
+    padding-top: calc(var(--top-h) + var(--nav-h) + var(--safe-top));
+    padding-bottom: calc(var(--tab-h) + var(--safe-bottom));
+}
