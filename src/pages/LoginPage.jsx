@@ -5,7 +5,7 @@ import '../styles/LoginPage.css';
 import logo from "./../assets/FoodThing.png"
 
 const api = axios.create({
-  baseURL: "/api",           // vite.config.js에서 /api → target 으로 프록시
+  baseURL: "/api",           
 })
 
 const LoginPage = () => {

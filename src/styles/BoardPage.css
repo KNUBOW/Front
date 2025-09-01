@@ -137,16 +137,25 @@
   font-size:16px; line-height:1;
 }
 
+.write-area {
+  padding: 4px 0 8px;
+  display: flex;
+  justify-content: center; /* 수평 중앙 */
+}
+
 /* 글쓰기 버튼 */
 .write-area{ padding: 4px 0 8px; }
 .write-btn{
-  width:100%;
-  height:56px;
+  width:60%;
+  height:36px;
   border-radius:14px;
   border:1px solid var(--bd);
   background:#e7cc7a; /* 프로젝트 톤에 맞게 */
   font-size:18px; font-weight:700;
   cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
 }
 
 /* ── 반응형 (모바일 퍼스트) ── */
