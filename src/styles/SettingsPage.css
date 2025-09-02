@@ -16,6 +16,8 @@
 /* 컨테이너 */
 .settings-page{
   min-height: 100dvh;
+  width: 100%;
+  max-width: var(--container);
   background: var(--bg);
   color: var(--ink);
   display: flex;
@@ -158,11 +160,17 @@
 .btn-ghost{
   background: var(--white);
   border: 1px solid #cfc8bb;
+  display:flex;
+  align-items:center;
+  justify-content:center;
 }
 .btn-solid{
   background: var(--black);
   color: #fff;
   border: 1px solid #000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
 }
 
 /* 로그아웃 */
