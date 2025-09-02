@@ -10,6 +10,7 @@ import TodayWhatEat from './pages/TodayWhatEat';
 import Recommend from './pages/RecommendPage';
 import Board from './pages/BoardPage';
 import Ranking from './pages/RankingPage';
+import SettingsPage from './pages/SettingsPage';
 import './App.css';
 
 function App() {
@@ -44,6 +45,7 @@ function App() {
         <Route path="/recommend" element={<Recommend />} />
         <Route path="/board" element={<Board />} />
         <Route path="/rank" element={<Ranking />} />
+        <Route path="/settings" element={<SettingsPage />} />
       </Routes>
     </Router>
   );
