@@ -25,8 +25,7 @@ const LoginPage = () => {
     }
     try {
       setSubmitting(true);
-      await login(form.email.trim(), form.password); // 쿠키 심기 + /me 갱신
-      // 원래 가려던 곳이 있으면 거기로, 없으면 홈으로
+      await login(form.email.trim(), form.password); // ★ 쿠키 세션 심기
       const dest = location.state?.from?.pathname || "/";
       navigate(dest, { replace: true });
     } catch (err) {
@@ -41,22 +40,13 @@ const LoginPage = () => {
     }
   };
 
-  const handleNaverLogin = () => {
-    console.log("naver login"); // TODO: OAuth 연결
-  };
-  const handleGoogleLogin = () => {
-    console.log("google login"); // TODO: OAuth 연결
-  };
-
   return (
     <div className="login-page">
       <div className="login-wrap">
-        {/* 상단 로고 영역 */}
         <div className="logo-box" role="img" aria-label="FoodThing 로고">
           <img src={logo} alt="FoodThing" className="logo-img" />
         </div>
 
-        {/* 입력 폼 */}
         <form className="login-form" onSubmit={onSubmit} autoComplete="on">
           <label className="sr-only" htmlFor="email">아이디</label>
           <input
@@ -93,12 +83,6 @@ const LoginPage = () => {
             {submitting ? "로그인 중..." : "로그인"}
           </button>
         </form>
-
-        {/* 소셜 로그인 */}
-        <div className="social-row" aria-label="소셜 로그인">
-          <button type="button" className="social-btn naver" onClick={handleNaverLogin} aria-label="네이버로 로그인" title="네이버로 로그인">N</button>
-          <button type="button" className="social-btn google" onClick={handleGoogleLogin} aria-label="Google로 로그인" title="Google로 로그인">G</button>
-        </div>
       </div>
     </div>
   );
