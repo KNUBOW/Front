@@ -1,17 +1,24 @@
+// src/App.jsx
 import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
 import LoginPage from './pages/LoginPage';
 import Register from './pages/RegisterPage';
 import FindId from './pages/FindId';
 import FindIdResult from './pages/FindIdResult';
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+
 import TodayWhatEat from './pages/TodayWhatEat';
 import Recommend from './pages/RecommendPage';
 import Board from './pages/BoardPage';
 import Ranking from './pages/RankingPage';
 import SettingsPage from './pages/SettingsPage';
 import BoxPage from './pages/BoxPage';
+
+import { AuthProvider } from './context/AuthContext';
+import ProtectedRoute from './routes/ProtectedRoute';
+
 import './App.css';
 
 function App() {
@@ -34,22 +41,31 @@ function App() {
   }, []);
 
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<TodayWhatEat />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/find-id" element={<FindId />} />
-        <Route path="/find-id/result" element={<FindIdResult />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="/recommend" element={<Recommend />} />
-        <Route path="/board" element={<Board />} />
-        <Route path="/rank" element={<Ranking />} />
-        <Route path="/settings" element={<SettingsPage />} />
-        <Route path="/box" element={<BoxPage />} />
-      </Routes>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <Routes>
+          {/* 공개 라우트 */}
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/find-id" element={<FindId />} />
+          <Route path="/find-id/result" element={<FindIdResult />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+
+          {/* 보호 라우트(로그인 필요) */}
+          <Route element={<ProtectedRoute />}>
+            <Route path="/" element={<TodayWhatEat />} />
+            <Route path="/recommend" element={<Recommend />} />
+            <Route path="/board" element={<Board />} />
+            <Route path="/rank" element={<Ranking />} />
+            <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/box" element={<BoxPage />} />
+          </Route>
+
+          {/* 404 등 필요시 추가 */}
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }
 
