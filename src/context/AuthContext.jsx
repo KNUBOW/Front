@@ -2,29 +2,42 @@
 import React, { createContext, useContext, useMemo, useState } from "react";
 import api from "../lib/api";
 
-/**
- * 쿠키 세션만 사용하는 간소 버전
- * - 앱 시작 시 서버에 세션 확인 호출을 하지 않음(엔드포인트 부재)
- * - 로그인 성공(200) 시에만 authed=true로 전환
- * - 새로고침하면 상태가 초기화되므로, 서버에 /auth/check 같은 엔드포인트가 생기면 그때 재도입
- */
-
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [authed, setAuthed] = useState(false);
 
-  // 로그인: 서버가 Set-Cookie(HttpOnly)를 내려준다는 가정
+  // 로그인: 서버가 body 또는 header로 토큰을 주는 모든 케이스 대응
   const login = async (email, password) => {
-    await api.post("/users/log-in", { email, password });
+    const res = await api.post("/users/log-in", { email, password });
+
+    // 1) body 케이스
+    const bodyToken =
+      res.data?.access_token ||
+      res.data?.accessToken ||
+      res.data?.token ||
+      res.data?.jwt;
+
+    // 2) 헤더 케이스 (Authorization: Bearer xxx)
+    const headerAuth = res.headers?.authorization || res.headers?.Authorization;
+    const headerToken = headerAuth?.startsWith("Bearer ")
+      ? headerAuth.slice("Bearer ".length)
+      : null;
+
+    const token = bodyToken || headerToken;
+    if (token) {
+      localStorage.setItem("accessToken", token);
+    }
+
+    // 쿠키 기반도 병행한다면(서버가 Set-Cookie 내려줄 때) withCredentials로 전송됨
     setAuthed(true);
   };
 
-  // 로그아웃: 서버가 쿠키 삭제(clearCookie) 수행
   const logout = async () => {
     try {
       await api.post("/users/log-out");
     } catch {/* ignore */}
+    localStorage.removeItem("accessToken");
     setAuthed(false);
   };
 
