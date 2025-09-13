@@ -12,6 +12,8 @@
 
   /* TopBar 실제 높이에 맞게 조정 (56~72px 권장) */
   --topbar-h: 64px;
+  /* TabBar 실제 높이 */
+  --tabbar-h: 72px;
 }
 
 .box-page{
@@ -29,10 +31,10 @@
   max-width: var(--container);
   margin:0 auto;
   padding-top: var(--topbar-h);   /* TopBar 공간 확보 */
-  padding-bottom: 90px;           /* TabBar 공간 확보 */
-  display: flex;                  /* ✅ 세로 플렉스 */
+  padding-bottom: var(--tabbar-h);/* TabBar 공간 확보 */
+  display: flex;
   flex-direction: column;
-  flex: 1;                        /* ✅ 남는 공간 채우기 */
+  flex: 1;                        /* 남는 공간 채우기 */
 }
 
 /* 검색 영역 */
@@ -43,7 +45,7 @@
   gap:10px;
   padding: 8px 16px 6px;
 
-  /* TopBar 바로 아래에 고정(스크롤 시 유지) */
+  /* TopBar 바로 아래 고정 */
   position: sticky;
   top: var(--topbar-h);
   z-index: 10;
@@ -150,10 +152,10 @@
 }
 .count{ min-width:18px; text-align:center; }
 
-/* 유통기한 지난 재료 */
+/* 유통기한 지난 재료: 항상 하단(TabBar 위) */
 .expired{
   border-top:1px solid #333;
-  margin-top: auto;   /* ✅ 항상 하단에 고정 */
+  margin-top: auto;   /* 남은 공간을 위에 두고 하단으로 밀착 */
 }
 .expired-head{
   width:100%;
@@ -186,14 +188,22 @@
   color: var(--muted);
 }
 
-/* 모달 */
+/* ───────────── 모달(중앙 정렬 & Bar 색상 변화 방지) ───────────── */
+
 .modal-backdrop{
-  position:fixed; inset:0;
-  background: rgba(0,0,0,.25);
-  display:flex; align-items:flex-end; justify-content:center;
-  padding: 0 16px 100px; /* 하단에서 떠오르는 느낌 */
+  position:fixed;
+  left:0; right:0;
+  top: var(--topbar-h);          /* TopBar 아래부터 */
+  bottom: var(--tabbar-h);       /* TabBar 위까지 */
+  display:flex;
+  align-items:center;            /* 수직 중앙 */
+  justify-content:center;        /* 수평 중앙 */
+  padding: 0 16px;               /* 좌우 여백만 */
   z-index: 999;
+  overscroll-behavior: contain;  /* 스크롤 체이닝 방지 */
 }
+
+/* 중앙 카드 */
 .modal{
   width: 100%;
   max-width: 420px;
@@ -201,7 +211,10 @@
   border-radius: 26px;
   box-shadow: var(--shadow);
   padding: 18px 16px 0;
+  max-height: calc(100% - 32px); /* 작은 화면에서도 잘림 방지 */
+  overflow: auto;                 /* 내부 스크롤 */
 }
+
 .modal .row{
   display:flex; align-items:center; gap:10px;
   padding: 10px 12px;
