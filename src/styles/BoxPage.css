@@ -203,7 +203,19 @@
   overscroll-behavior: contain;  /* 스크롤 체이닝 방지 */
 }
 
-/* 중앙 카드 */
+/* 모달 */
+.modal-backdrop{
+  position:fixed;
+  left:0; right:0;
+  top: var(--topbar-h);
+  bottom: var(--tabbar-h);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding: 0 16px;
+  z-index: 999;
+}
+
 .modal{
   width: 100%;
   max-width: 420px;
@@ -211,8 +223,8 @@
   border-radius: 26px;
   box-shadow: var(--shadow);
   padding: 18px 16px 0;
-  max-height: calc(100% - 32px); /* 작은 화면에서도 잘림 방지 */
-  overflow: auto;                 /* 내부 스크롤 */
+  max-height: calc(100% - 32px);
+  overflow: auto;
 }
 
 .modal .row{
@@ -222,7 +234,11 @@
 .modal label{
   width: 90px; font-weight:700;
 }
-.modal input{
+
+/* ✅ 모든 입력칸 글씨 색상을 검은색으로 */
+.modal input,
+.modal select,
+.modal textarea {
   flex:1;
   height: 38px;
   border-radius: 12px;
@@ -231,7 +247,9 @@
   padding: 0 12px;
   font-size: 16px;
   outline:none;
+  color: #000;         /* 글자색 검은색 */
 }
+
 .modal-actions{
   display:grid; grid-template-columns: 1fr 1fr;
   border-top:1px solid #d1b863;

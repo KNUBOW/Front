@@ -2,14 +2,32 @@
 import { useEffect, useMemo, useState } from "react";
 import TopBar from "../components/TopBar";
 import TabBar from "../components/TabBar";
-import api from "../lib/api"; // ← 토큰 포함된 axios 인스턴스
+import api from "../lib/api"; // 토큰 포함된 axios 인스턴스
 import "../styles/TopShell.css";
 import "../styles/BoxPage.css";
 
+const CATEGORIES = [
+  { id: "1", name: "곡류·빵류" },
+  { id: "2", name: "채소류" },
+  { id: "3", name: "과일류" },
+  { id: "4", name: "육류" },
+  { id: "5", name: "어패류" },
+  { id: "6", name: "달걀·난류" },
+  { id: "7", name: "유제품" },
+  { id: "8", name: "콩·두부·견과류" },
+  { id: "9", name: "가공·즉석식품" },
+  { id: "10", name: "양념·조미료" },
+  { id: "11", name: "기름·드레싱" },
+  { id: "12", name: "음료류" },
+  { id: "13", name: "간식·디저트" },
+  { id: "14", name: "건어물·저장식품" },
+  { id: "15", name: "기타" },
+];
+
 const BoxPage = () => {
   // 서버 데이터
-  const [items, setItems] = useState([]);           // 정상(미만료) + 만료 모두 일단 원천 저장
-  const [expiredItems, setExpiredItems] = useState([]); // 만료 항목 분리 저장
+  const [items, setItems] = useState([]);              // 미만료
+  const [expiredItems, setExpiredItems] = useState([]); // 만료
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -19,36 +37,20 @@ const BoxPage = () => {
   const [showModal, setShowModal] = useState(false);
   const [expiredOpen, setExpiredOpen] = useState(false);
 
-  // 모달 폼 상태 (로컬 추가는 일단 클라이언트 상태에만 반영)
+  // 모달 폼 상태 (API 규격에 맞춤)
   const [form, setForm] = useState({
-    name: "",
-    category: "",
-    date: "",
-    qty: "",
+    ingredient_name: "",  // 재료 이름
+    category_id: "",      // 카테고리 id (select)
+    purchase_date: "",    // YYYY-MM-DD (date input)
   });
+  const [submitting, setSubmitting] = useState(false);
 
-  // 날짜 문자열 → 만료 판정 (가능한 포맷: ISO 또는 'YYMMDD'/'YYYYMMDD')
+  // 날짜 문자열 → 만료 판정
   const isDateExpired = (v) => {
     if (!v) return false;
     try {
-      let d;
-      const s = String(v).trim();
-      if (/^\d{8}$/.test(s)) {
-        // YYYYMMDD
-        d = new Date(
-          Number(s.slice(0, 4)),
-          Number(s.slice(4, 6)) - 1,
-          Number(s.slice(6, 8))
-        );
-      } else if (/^\d{6}$/.test(s)) {
-        // YYMMDD → 20YY 가정
-        const year = 2000 + Number(s.slice(0, 2));
-        d = new Date(year, Number(s.slice(2, 4)) - 1, Number(s.slice(4, 6)));
-      } else {
-        d = new Date(s); // ISO 등
-      }
+      const d = new Date(String(v).trim());
       if (Number.isNaN(d.getTime())) return false;
-      // 오늘 23:59:59 기준 만료
       const now = new Date();
       now.setHours(23, 59, 59, 999);
       return d.getTime() < now.getTime();
@@ -57,22 +59,17 @@ const BoxPage = () => {
     }
   };
 
-  // 서버 → 클라이언트 UI용 정규화
+  // 서버 → 클라이언트 UI 정규화
   const normalize = (rows) =>
     (rows ?? []).map((r, i) => {
-      const id =
-        r.id ??
-        r.ingredientId ??
-        r.uuid ??
-        `item-${Date.now()}-${i}`;
-      const name = r.name ?? r.title ?? "재료";
-      const qty =
-        r.qty ?? r.quantity ?? r.count ?? 1;
+      const id = r.id ?? r.ingredientId ?? r.uuid ?? `item-${Date.now()}-${i}`;
+      const name = r.name ?? r.ingredient_name ?? r.title ?? "재료";
+      const qty = r.qty ?? r.quantity ?? r.count ?? 1;
       const expired =
         r.expired ??
         r.isExpired ??
-        isDateExpired(r.expirationDate ?? r.expireDate ?? r.date);
-      const alert = r.alert ?? expired; // 만료시 강조
+        isDateExpired(r.expirationDate ?? r.expireDate ?? r.purchase_date ?? r.date);
+      const alert = r.alert ?? expired;
       return { id, name, qty: Number(qty) || 1, expired: !!expired, alert: !!alert };
     });
 
@@ -87,7 +84,6 @@ const BoxPage = () => {
     setLoading(true);
     setErrorMsg("");
     try {
-      // 토큰은 api 인스턴스에서 자동 첨부됨
       const { data } = await api.get("/ingredients", {
         headers: { accept: "application/json" },
       });
@@ -112,12 +108,12 @@ const BoxPage = () => {
 
   // 검색 필터 (미만료만)
   const filtered = useMemo(() => {
-    const q = query.trim();
+    const q = query.trim().toLowerCase();
     if (!q) return items;
-    return items.filter((it) => it.name?.toLowerCase().includes(q.toLowerCase()));
+    return items.filter((it) => it.name?.toLowerCase().includes(q));
   }, [items, query]);
 
-  // 수량 증가/감소/삭제 (로컬 상태만 변경 — 서버 연동은 추후)
+  // 수량 컨트롤(로컬)
   const inc = (id, isExpired = false) => {
     if (isExpired) {
       setExpiredItems((prev) =>
@@ -129,49 +125,72 @@ const BoxPage = () => {
       );
     }
   };
-
   const dec = (id, isExpired = false) => {
     if (isExpired) {
       setExpiredItems((prev) =>
-        prev.map((it) =>
-          it.id === id ? { ...it, qty: Math.max(0, it.qty - 1) } : it
-        )
+        prev.map((it) => (it.id === id ? { ...it, qty: Math.max(0, it.qty - 1) } : it))
       );
     } else {
       setItems((prev) =>
-        prev.map((it) =>
-          it.id === id ? { ...it, qty: Math.max(0, it.qty - 1) } : it
-        )
+        prev.map((it) => (it.id === id ? { ...it, qty: Math.max(0, it.qty - 1) } : it))
       );
     }
   };
-
   const removeItem = (id, isExpired = false) => {
-    if (isExpired) {
-      setExpiredItems((prev) => prev.filter((it) => it.id !== id));
-    } else {
-      setItems((prev) => prev.filter((it) => it.id !== id));
-    }
+    if (isExpired) setExpiredItems((prev) => prev.filter((it) => it.id !== id));
+    else setItems((prev) => prev.filter((it) => it.id !== id));
   };
 
-  const openModal = () => setShowModal(true);
+  const openModal = () => {
+    setForm({ ingredient_name: "", category_id: "", purchase_date: "" });
+    setShowModal(true);
+  };
   const closeModal = () => {
     setShowModal(false);
-    setForm({ name: "", category: "", date: "", qty: "" });
+    setSubmitting(false);
   };
 
-  const submitAdd = (e) => {
+  // ✅ POST 성공 시 항상 최신 목록을 다시 GET 해서 보여주기
+  const submitAdd = async (e) => {
     e.preventDefault();
-    if (!form.name.trim()) return;
-    // 지금은 클라 상태만 추가 (POST 연동 필요 시 알려줘!)
-    const newItem = {
-      id: `item-${Date.now()}`,
-      name: form.name.trim(),
-      qty: Number(form.qty) || 1,
-      expired: false,
-    };
-    setItems((prev) => [newItem, ...prev]);
-    closeModal();
+    if (!form.ingredient_name.trim()) return;
+    if (!form.category_id) return;
+    if (!form.purchase_date) return;
+
+    try {
+      setSubmitting(true);
+      const res = await api.post(
+        "/ingredients",
+        {
+          ingredient_name: form.ingredient_name.trim(),
+          category_id: String(form.category_id),
+          purchase_date: form.purchase_date, // YYYY-MM-DD
+        },
+        {
+          headers: {
+            accept: "application/json",
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      // 2xx 응답만 성공으로 간주
+      if (res?.status >= 200 && res?.status < 300) {
+        // 검색어 초기화하여 전체 목록이 바로 보이도록
+        setQuery("");
+        // 최신 목록 재요청
+        await fetchIngredients();
+        // 모달 닫기
+        closeModal();
+      } else {
+        throw new Error(`Unexpected status: ${res?.status}`);
+      }
+    } catch (err) {
+      console.error("[재료 추가 실패]", err);
+      alert("재료 추가에 실패했습니다. 잠시 후 다시 시도해 주세요.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -348,7 +367,7 @@ const BoxPage = () => {
       {/* 하단 탭바 */}
       <TabBar />
 
-      {/* 모달 */}
+      {/* 모달: 카테고리 셀렉트 + 날짜(YYYY-MM-DD) */}
       {showModal && (
         <div className="modal-backdrop" role="dialog" aria-modal="true">
           <form className="modal" onSubmit={submitAdd}>
@@ -356,43 +375,63 @@ const BoxPage = () => {
               <label>재료 이름:</label>
               <input
                 type="text"
-                placeholder="ex) 양파"
-                value={form.name}
-                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                placeholder="ex) 피망"
+                value={form.ingredient_name}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, ingredient_name: e.target.value }))
+                }
                 required
               />
             </div>
+
             <div className="row">
               <label>재료 구분:</label>
-              <input
-                type="text"
-                placeholder="ex) 육류"
-                value={form.category}
-                onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))}
-              />
+              <select
+                value={form.category_id}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, category_id: e.target.value }))
+                }
+                required
+                style={{
+                  flex: 1,
+                  height: 38,
+                  borderRadius: 12,
+                  border: "1px solid #e3d7b5",
+                  background: "#fff",
+                  padding: "0 12px",
+                  fontSize: 16,
+                  outline: "none",
+                  color: "#000",
+                }}
+              >
+                <option value="" disabled>
+                  선택하세요
+                </option>
+                {CATEGORIES.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
             </div>
+
             <div className="row">
               <label>구입 날짜:</label>
               <input
-                type="text"
-                placeholder="ex) 250501"
-                value={form.date}
-                onChange={(e) => setForm((f) => ({ ...f, date: e.target.value }))}
-              />
-            </div>
-            <div className="row">
-              <label>수량:</label>
-              <input
-                type="text"
-                placeholder="ex) 1개"
-                value={form.qty}
-                onChange={(e) => setForm((f) => ({ ...f, qty: e.target.value }))}
+                type="date"
+                value={form.purchase_date}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, purchase_date: e.target.value }))
+                }
+                required
               />
             </div>
 
             <div className="modal-actions">
-              <button type="submit" className="btn left">재료추가</button>
-              <button type="button" className="btn right" onClick={closeModal}>
+              <button type="submit" className="btn left" disabled={submitting}>
+                {submitting ? "추가 중…" : "재료추가"}
+              </button>
+              <button type="button" className="btn right" onClick={closeModal} disabled={submitting}>
                 창 닫기
               </button>
             </div>
