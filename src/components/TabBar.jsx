@@ -30,7 +30,7 @@ const TabBar = () => {
         <button
           type="button"
           className={`tab-item ${isActive("/recipes") ? "active" : ""}`}
-          onClick={() => navigate("/recipes")}
+          onClick={() => navigate("/recipe")}
         >
           <div className="tab-icon" aria-hidden="true">
             <img src={recipeIcon} alt="" width="24" height="24" />

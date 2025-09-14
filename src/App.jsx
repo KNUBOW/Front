@@ -15,6 +15,7 @@ import Board from './pages/BoardPage';
 import Ranking from './pages/RankingPage';
 import SettingsPage from './pages/SettingsPage';
 import BoxPage from './pages/BoxPage';
+import RecipePage from './pages/RecipePage';
 
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './routes/ProtectedRoute';
@@ -60,6 +61,7 @@ function App() {
             <Route path="/rank" element={<Ranking />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/box" element={<BoxPage />} />
+            <Route path="/recipe" element={<RecipePage />} />
           </Route>
 
           {/* 404 등 필요시 추가 */}
