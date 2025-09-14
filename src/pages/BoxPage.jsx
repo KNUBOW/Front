@@ -7,26 +7,16 @@ import "../styles/TopShell.css";
 import "../styles/BoxPage.css";
 
 const CATEGORIES = [
-  { id: "1", name: "곡류·빵류" },
-  { id: "2", name: "채소류" },
-  { id: "3", name: "과일류" },
-  { id: "4", name: "육류" },
-  { id: "5", name: "어패류" },
-  { id: "6", name: "달걀·난류" },
-  { id: "7", name: "유제품" },
-  { id: "8", name: "콩·두부·견과류" },
-  { id: "9", name: "가공·즉석식품" },
-  { id: "10", name: "양념·조미료" },
-  { id: "11", name: "기름·드레싱" },
-  { id: "12", name: "음료류" },
-  { id: "13", name: "간식·디저트" },
-  { id: "14", name: "건어물·저장식품" },
-  { id: "15", name: "기타" },
+  { id: "1", name: "곡류·빵류" }, { id: "2", name: "채소류" }, { id: "3", name: "과일류" },
+  { id: "4", name: "육류" }, { id: "5", name: "어패류" }, { id: "6", name: "달걀·난류" },
+  { id: "7", name: "유제품" }, { id: "8", name: "콩·두부·견과류" }, { id: "9", name: "가공·즉석식품" },
+  { id: "10", name: "양념·조미료" }, { id: "11", name: "기름·드레싱" }, { id: "12", name: "음료류" },
+  { id: "13", name: "간식·디저트" }, { id: "14", name: "건어물·저장식품" }, { id: "15", name: "기타" },
 ];
 
 const BoxPage = () => {
   // 서버 데이터
-  const [items, setItems] = useState([]);              // 미만료
+  const [items, setItems] = useState([]);               // 미만료
   const [expiredItems, setExpiredItems] = useState([]); // 만료
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
@@ -41,11 +31,11 @@ const BoxPage = () => {
   const [form, setForm] = useState({
     ingredient_name: "",  // 재료 이름
     category_id: "",      // 카테고리 id (select)
-    purchase_date: "",    // YYYY-MM-DD (date input)
+    purchase_date: "",    // YYYY-MM-DD
   });
   const [submitting, setSubmitting] = useState(false);
 
-  // 날짜 문자열 → 만료 판정
+  // 날짜 문자열 → 만료 판정 (옵션 필드 대응)
   const isDateExpired = (v) => {
     if (!v) return false;
     try {
@@ -54,14 +44,17 @@ const BoxPage = () => {
       const now = new Date();
       now.setHours(23, 59, 59, 999);
       return d.getTime() < now.getTime();
-    } catch {
-      return false;
-    }
+    } catch { return false; }
   };
 
-  // 서버 → 클라이언트 UI 정규화
-  const normalize = (rows) =>
-    (rows ?? []).map((r, i) => {
+  // ingredient_list 전용 정규화
+  // 각 원소는 { id?, name, qty?, expired?, alert?, expirationDate?, expireDate?, purchase_date? } 라고 가정
+  const normalizeFromIngredientList = (rows) =>
+    (Array.isArray(rows) ? rows : []).map((r, i) => {
+      // 혹시 문자열이 섞여있어도 방어
+      if (typeof r === "string") {
+        return { id: `item-${Date.now()}-${i}`, name: r, qty: 1, expired: false, alert: false };
+      }
       const id = r.id ?? r.ingredientId ?? r.uuid ?? `item-${Date.now()}-${i}`;
       const name = r.name ?? r.ingredient_name ?? r.title ?? "재료";
       const qty = r.qty ?? r.quantity ?? r.count ?? 1;
@@ -69,15 +62,14 @@ const BoxPage = () => {
         r.expired ??
         r.isExpired ??
         isDateExpired(r.expirationDate ?? r.expireDate ?? r.purchase_date ?? r.date);
-      const alert = r.alert ?? expired;
+      const alert = r.alert ?? expired ?? false;
       return { id, name, qty: Number(qty) || 1, expired: !!expired, alert: !!alert };
     });
 
   const splitByExpired = (rows) => {
-    const a = [];
-    const b = [];
-    rows.forEach((it) => (it.expired ? b.push(it) : a.push(it)));
-    return [a, b];
+    const active = [], expired = [];
+    for (const it of rows) (it.expired ? expired : active).push(it);
+    return [active, expired];
   };
 
   const fetchIngredients = async () => {
@@ -87,7 +79,14 @@ const BoxPage = () => {
       const { data } = await api.get("/ingredients", {
         headers: { accept: "application/json" },
       });
-      const normalized = normalize(Array.isArray(data) ? data : data?.items);
+
+      // ▶ 오직 ingredient_list만 사용
+      const list = data?.ingredient_list ?? [];
+      if (!Array.isArray(list)) {
+        throw new Error("Invalid response: ingredient_list is not an array");
+      }
+
+      const normalized = normalizeFromIngredientList(list);
       const [actives, expireds] = splitByExpired(normalized);
       setItems(actives);
       setExpiredItems(expireds);
@@ -150,7 +149,7 @@ const BoxPage = () => {
     setSubmitting(false);
   };
 
-  // ✅ POST 성공 시 항상 최신 목록을 다시 GET 해서 보여주기
+  // ✅ POST 후 최신 목록 재조회
   const submitAdd = async (e) => {
     e.preventDefault();
     if (!form.ingredient_name.trim()) return;
@@ -174,13 +173,9 @@ const BoxPage = () => {
         }
       );
 
-      // 2xx 응답만 성공으로 간주
       if (res?.status >= 200 && res?.status < 300) {
-        // 검색어 초기화하여 전체 목록이 바로 보이도록
         setQuery("");
-        // 최신 목록 재요청
         await fetchIngredients();
-        // 모달 닫기
         closeModal();
       } else {
         throw new Error(`Unexpected status: ${res?.status}`);
@@ -271,7 +266,7 @@ const BoxPage = () => {
         {!loading && !errorMsg && (
           <section className={`grid-area ${view}`}>
             {filtered.length === 0 ? (
-              <p className="empty"></p>
+              <p className="empty">등록된 재료가 없어요. 우측 상단 + 버튼으로 추가하세요.</p>
             ) : (
               filtered.map((it) => (
                 <article key={it.id} className="card">
@@ -313,21 +308,11 @@ const BoxPage = () => {
                 viewBox="0 0 24 24"
                 aria-hidden="true"
               >
-                <path
-                  d="M6 9l6 6 6-6"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
+                <path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </button>
 
-            <div
-              id="expired-panel"
-              className={`expired-panel ${expiredOpen ? "show" : ""}`}
-            >
+            <div id="expired-panel" className={`expired-panel ${expiredOpen ? "show" : ""}`}>
               {expiredItems.length === 0 ? (
                 <p className="empty">지난 재료가 없습니다.</p>
               ) : (
@@ -343,17 +328,11 @@ const BoxPage = () => {
                           ×
                         </button>
                       </div>
-                      <div className={`title ${it.alert ? "danger" : ""}`}>
-                        {it.name}
-                      </div>
+                      <div className={`title ${it.alert ? "danger" : ""}`}>{it.name}</div>
                       <div className="qty-ctrl">
-                        <button className="sq" onClick={() => inc(it.id, true)}>
-                          ＋
-                        </button>
+                        <button className="sq" onClick={() => inc(it.id, true)}>＋</button>
                         <span className="count">{it.qty}</span>
-                        <button className="sq" onClick={() => dec(it.id, true)}>
-                          －
-                        </button>
+                        <button className="sq" onClick={() => dec(it.id, true)}>－</button>
                       </div>
                     </article>
                   ))}
@@ -367,7 +346,7 @@ const BoxPage = () => {
       {/* 하단 탭바 */}
       <TabBar />
 
-      {/* 모달: 카테고리 셀렉트 + 날짜(YYYY-MM-DD) */}
+      {/* 모달 */}
       {showModal && (
         <div className="modal-backdrop" role="dialog" aria-modal="true">
           <form className="modal" onSubmit={submitAdd}>
@@ -377,9 +356,7 @@ const BoxPage = () => {
                 type="text"
                 placeholder="ex) 피망"
                 value={form.ingredient_name}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, ingredient_name: e.target.value }))
-                }
+                onChange={(e) => setForm((f) => ({ ...f, ingredient_name: e.target.value }))}
                 required
               />
             </div>
@@ -388,29 +365,16 @@ const BoxPage = () => {
               <label>재료 구분:</label>
               <select
                 value={form.category_id}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, category_id: e.target.value }))
-                }
+                onChange={(e) => setForm((f) => ({ ...f, category_id: e.target.value }))}
                 required
                 style={{
-                  flex: 1,
-                  height: 38,
-                  borderRadius: 12,
-                  border: "1px solid #e3d7b5",
-                  background: "#fff",
-                  padding: "0 12px",
-                  fontSize: 16,
-                  outline: "none",
-                  color: "#000",
+                  flex: 1, height: 38, borderRadius: 12, border: "1px solid #e3d7b5",
+                  background: "#fff", padding: "0 12px", fontSize: 16, outline: "none", color: "#000",
                 }}
               >
-                <option value="" disabled>
-                  선택하세요
-                </option>
+                <option value="" disabled>선택하세요</option>
                 {CATEGORIES.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
+                  <option key={c.id} value={c.id}>{c.name}</option>
                 ))}
               </select>
             </div>
@@ -420,9 +384,7 @@ const BoxPage = () => {
               <input
                 type="date"
                 value={form.purchase_date}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, purchase_date: e.target.value }))
-                }
+                onChange={(e) => setForm((f) => ({ ...f, purchase_date: e.target.value }))}
                 required
               />
             </div>
