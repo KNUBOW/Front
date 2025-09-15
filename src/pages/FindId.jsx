@@ -7,7 +7,7 @@ import logo from "./../assets/FoodThing.png";
 
 function maskEmail(email) {
   if (!email || typeof email !== "string") return "";
-  if (email.includes("*")) return email; // 서버가 이미 마스킹했으면 그대로 사용
+  if (email.includes("*")) return email;
   const [local, domain] = email.split("@");
   if (!domain) return email;
   if (local.length <= 1) return `*@${domain}`;
@@ -16,16 +16,11 @@ function maskEmail(email) {
   const masked = local.slice(0, keep) + "*".repeat(Math.max(0, local.length - keep));
   return `${masked}@${domain}`;
 }
-
-// 8자리(YYYYMMDD) → YYYY-MM-DD
 function toDashedDate(birth8) {
   if (!/^\d{8}$/.test(birth8)) return "";
   return `${birth8.slice(0, 4)}-${birth8.slice(4, 6)}-${birth8.slice(6, 8)}`;
 }
-
-// 응답에서 email 추출(백엔드 불일치 대비)
 function extractEmail(data) {
-  // 1순위 email, 2순위 user_email
   const cand = data?.email ?? data?.user_email;
   if (typeof cand === "string") return cand;
   if (cand && typeof cand === "object") {
@@ -80,7 +75,7 @@ const FindId = () => {
       const rawEmail = extractEmail(data);
       if (status === 200 && typeof rawEmail === "string" && rawEmail) {
         const masked = rawEmail.includes("*") ? rawEmail : maskEmail(rawEmail);
-        navigate("/find-id/result", { state: { email: masked } }); // 항상 문자열 전달
+        navigate("/find-id/result", { state: { email: masked } });
       } else {
         console.error("[find-id] Unexpected response shape:", data);
         alert("아이디 조회에 실패했습니다. 잠시 후 다시 시도해 주세요.");
@@ -101,23 +96,49 @@ const FindId = () => {
 
   return (
     <div className="findid-page">
-      <div className="findid-wrap">
+      {/* ✅ 가운데 정렬을 담당하는 래퍼 */}
+      <div className="center-wrap" role="main" aria-label="아이디 찾기">
         <div className="logo-box" role="img" aria-label="FoodThing 로고">
           <img src={logo} alt="FoodThing" className="logo-img" />
         </div>
 
         <form className="findid-form" onSubmit={onSubmit}>
           <label className="sr-only" htmlFor="name">이름</label>
-          <input id="name" name="name" type="text" placeholder="이름"
-                 value={form.name} onChange={onChange} required />
+          <input
+            id="name"
+            name="name"
+            type="text"
+            placeholder="이름"
+            value={form.name}
+            onChange={onChange}
+            required
+          />
 
           <label className="sr-only" htmlFor="birth8">생년월일</label>
-          <input id="birth8" name="birth8" type="text" inputMode="numeric" placeholder="생년월일(YYYYMMDD)"
-                 value={form.birth8} onChange={onChange} maxLength={8} required />
+          <input
+            id="birth8"
+            name="birth8"
+            type="text"
+            inputMode="numeric"
+            placeholder="생년월일(YYYYMMDD)"
+            value={form.birth8}
+            onChange={onChange}
+            maxLength={8}
+            required
+          />
 
           <label className="sr-only" htmlFor="phone_num">휴대폰 번호</label>
-          <input id="phone_num" name="phone_num" type="tel" inputMode="numeric" placeholder="휴대폰 번호(하이픈 없이)"
-                 value={form.phone_num} onChange={onChange} maxLength={11} required />
+          <input
+            id="phone_num"
+            name="phone_num"
+            type="tel"
+            inputMode="numeric"
+            placeholder="휴대폰 번호(하이픈 없이)"
+            value={form.phone_num}
+            onChange={onChange}
+            maxLength={11}
+            required
+          />
 
           <button type="submit" className="btn-primary" disabled={loading}>
             {loading ? "조회 중..." : "ID조회"}
