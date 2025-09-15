@@ -22,7 +22,7 @@ const TabBar = () => {
           onClick={() => navigate("/box")}
         >
           <div className="tab-icon" aria-hidden="true">
-            <img src={boxIcon} alt="" width="24" height="24" />
+            <img src={boxIcon} alt="" width="36" height="36" />
           </div>
           <span>Box</span>
         </button>
@@ -33,7 +33,7 @@ const TabBar = () => {
           onClick={() => navigate("/recipe")}
         >
           <div className="tab-icon" aria-hidden="true">
-            <img src={recipeIcon} alt="" width="24" height="24" />
+            <img src={recipeIcon} alt="" width="36" height="36" />
           </div>
           <span>Recipe</span>
         </button>
@@ -44,9 +44,10 @@ const TabBar = () => {
           onClick={() => navigate("/")}
           aria-label="홈으로"
         >
-          <div className="home-hex" aria-hidden="true">
-            <img src={homeIcon} alt="" width="24" height="24" />
+          <div className="tab-icon home-hex" aria-hidden="true">
+            <img src={homeIcon} alt="" width="36" height="36" />
           </div>
+          <span className="home-hex">Home</span>
         </button>
 
         <button
@@ -55,7 +56,7 @@ const TabBar = () => {
           onClick={() => navigate("/likes")}
         >
           <div className="tab-icon" aria-hidden="true">
-            <img src={likeIcon} alt="" width="24" height="24" />
+            <img src={likeIcon} alt="" width="36" height="36" />
           </div>
           <span>Like</span>
         </button>
@@ -66,7 +67,7 @@ const TabBar = () => {
           onClick={() => navigate("/settings")}
         >
           <div className="tab-icon" aria-hidden="true">
-            <img src={settingsIcon} alt="" width="24" height="24" />
+            <img src={settingsIcon} alt="" width="36" height="36" />
           </div>
           <span>Settings</span>
         </button>
