@@ -20,30 +20,31 @@ const TodayWhatEat = () => {
     e.preventDefault();
     if (!q.trim()) return;
     console.log("추천 검색:", q.trim());
+    // TODO: 라우팅/요청 연동
   };
 
   return (
     <div className="today-page">
-      {/* ✅ Grid 레이아웃 적용 */}
-      <div className="today-wrap layout-grid">
+      <div className="today-wrap">
         <TopBar />
-        {/* TopNav 루트 엘리먼트 className="topnav-bar" 여야 함 */}
         <TopNav items={navItems} />
 
-        {/* 중앙(남은 영역) 전용 */}
         <main className="content" role="main">
           <section className="search-card" aria-labelledby="todayTitle">
             <div className="card-icon" aria-hidden="true">🍳</div>
             <h1 id="todayTitle" className="card-title">오늘 뭐 해먹지?</h1>
 
-            <form className="search-row" onSubmit={onSubmit} role="search">
-              <div className="search-input">
-                <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
+            {/* ✅ 네이버/구글 스타일 단일 검색창 */}
+            <form className="search-form" onSubmit={onSubmit} role="search" aria-label="재료 검색">
+              <div className="search-field">
+                {/* 좌측 돋보기 (input 내부, absolute) */}
+                <svg className="icon-left" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
                   <path
                     d="M10 2a8 8 0 015.66 13.66l3.34 3.34a1 1 0 11-1.41 1.41l-3.34-3.34A8 8 0 1110 2zm0 2a6 6 0 100 12A6 6 0 0010 4z"
                     fill="currentColor"
                   />
                 </svg>
+
                 <input
                   type="text"
                   name="ingredients"
@@ -52,9 +53,16 @@ const TodayWhatEat = () => {
                   onChange={(e) => setQ(e.target.value)}
                   autoComplete="off"
                   inputMode="text"
+                  aria-label="재료 입력"
                 />
+
+                {/* 우측 제출 버튼 (input 내부, absolute) */}
+                <button type="submit" className="icon-right" aria-label="레시피 추천 검색">
+                  <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M2 21l19-9L2 3v7l13 2-13 2v7z" fill="currentColor" />
+                  </svg>
+                </button>
               </div>
-              <button type="submit" className="btn-recommend">추천</button>
             </form>
 
             <div className="tips" aria-live="polite">
@@ -72,6 +80,6 @@ const TodayWhatEat = () => {
       </div>
     </div>
   );
-}
+};
 
 export default TodayWhatEat;
