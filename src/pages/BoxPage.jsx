@@ -24,7 +24,15 @@ const BoxPage = () => {
   // UI 상태
   const [query, setQuery] = useState("");
   const [view, setView] = useState("grid"); // 'grid' | 'list'
-  const [showModal, setShowModal] = useState(false);
+
+  // 추가 모달
+  const [showAddModal, setShowAddModal] = useState(false);
+
+  // 삭제 확인 모달
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null); // { id, name }
+  const [deleting, setDeleting] = useState(false);
+
   const [expiredOpen, setExpiredOpen] = useState(false);
 
   // 모달 폼 상태 (API 규격에 맞춤)
@@ -35,35 +43,18 @@ const BoxPage = () => {
   });
   const [submitting, setSubmitting] = useState(false);
 
-  // 날짜 문자열 → 만료 판정 (옵션 필드 대응)
-  const isDateExpired = (v) => {
-    if (!v) return false;
-    try {
-      const d = new Date(String(v).trim());
-      if (Number.isNaN(d.getTime())) return false;
-      const now = new Date();
-      now.setHours(23, 59, 59, 999);
-      return d.getTime() < now.getTime();
-    } catch { return false; }
-  };
+  // 날짜 문자열 → 만료 판정 (현재 정책상 false 권장)
+  const isDateExpired = (_v) => false;
 
-  // ingredient_list 전용 정규화
-  // 각 원소는 { id?, name, qty?, expired?, alert?, expirationDate?, expireDate?, purchase_date? } 라고 가정
-  const normalizeFromIngredientList = (rows) =>
+  // /ingredients/detail 응답 정규화
+  const normalizeFromDetail = (rows) =>
     (Array.isArray(rows) ? rows : []).map((r, i) => {
-      // 혹시 문자열이 섞여있어도 방어
-      if (typeof r === "string") {
-        return { id: `item-${Date.now()}-${i}`, name: r, qty: 1, expired: false, alert: false };
-      }
-      const id = r.id ?? r.ingredientId ?? r.uuid ?? `item-${Date.now()}-${i}`;
-      const name = r.name ?? r.ingredient_name ?? r.title ?? "재료";
-      const qty = r.qty ?? r.quantity ?? r.count ?? 1;
-      const expired =
-        r.expired ??
-        r.isExpired ??
-        isDateExpired(r.expirationDate ?? r.expireDate ?? r.purchase_date ?? r.date);
-      const alert = r.alert ?? expired ?? false;
-      return { id, name, qty: Number(qty) || 1, expired: !!expired, alert: !!alert };
+      const id = r.id ?? `item-${Date.now()}-${i}`;
+      const name = r.ingredient_name ?? "재료";
+      const qty = 1; // 서버 수량 개념 없음 → 표시용
+      const expired = isDateExpired(r.purchase_date);
+      const alert = expired;
+      return { id, name, qty, expired, alert };
     });
 
   const splitByExpired = (rows) => {
@@ -72,21 +63,19 @@ const BoxPage = () => {
     return [active, expired];
   };
 
+  // ✅ 조회: /ingredients/detail
   const fetchIngredients = async () => {
     setLoading(true);
     setErrorMsg("");
     try {
-      const { data } = await api.get("/ingredients", {
+      const { data } = await api.get("/ingredients/detail", {
         headers: { accept: "application/json" },
       });
 
-      // ▶ 오직 ingredient_list만 사용
-      const list = data?.ingredient_list ?? [];
-      if (!Array.isArray(list)) {
-        throw new Error("Invalid response: ingredient_list is not an array");
-      }
+      const list = data?.ingredients ?? [];
+      if (!Array.isArray(list)) throw new Error("Invalid response: ingredients is not an array");
 
-      const normalized = normalizeFromIngredientList(list);
+      const normalized = normalizeFromDetail(list);
       const [actives, expireds] = splitByExpired(normalized);
       setItems(actives);
       setExpiredItems(expireds);
@@ -135,21 +124,56 @@ const BoxPage = () => {
       );
     }
   };
-  const removeItem = (id, isExpired = false) => {
+
+  // ❌ 로컬 제거(미사용). 서버 삭제 성공 후 재조회로 일원화
+  const removeItemLocal = (id, isExpired = false) => {
     if (isExpired) setExpiredItems((prev) => prev.filter((it) => it.id !== id));
     else setItems((prev) => prev.filter((it) => it.id !== id));
   };
 
-  const openModal = () => {
-    setForm({ ingredient_name: "", category_id: "", purchase_date: "" });
-    setShowModal(true);
+  // === 삭제 모달 열기/닫기 ===
+  const openDeleteModal = (id, name) => {
+    setDeleteTarget({ id, name });
+    setShowDeleteModal(true);
   };
-  const closeModal = () => {
-    setShowModal(false);
+  const closeDeleteModal = () => {
+    if (deleting) return; // 진행 중에는 닫기 방지
+    setShowDeleteModal(false);
+    setDeleteTarget(null);
+  };
+
+  // ✅ 삭제 확정: DELETE /ingredients?ingredient_id={id}
+  const confirmDelete = async () => {
+    if (!deleteTarget?.id) return;
+    try {
+      setDeleting(true);
+      await api.delete("/ingredients", {
+        params: { ingredient_id: deleteTarget.id },
+        headers: { accept: "application/json" },
+      });
+      await fetchIngredients();
+      setShowDeleteModal(false);
+      setDeleteTarget(null);
+    } catch (err) {
+      console.error("[재료 삭제 실패]", err);
+      alert("삭제에 실패했습니다. 잠시 후 다시 시도해 주세요.");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  // === 추가 모달 열기/닫기 ===
+  const openAddModal = () => {
+    setForm({ ingredient_name: "", category_id: "", purchase_date: "" });
+    setShowAddModal(true);
+  };
+  const closeAddModal = () => {
+    if (submitting) return;
+    setShowAddModal(false);
     setSubmitting(false);
   };
 
-  // ✅ POST 후 최신 목록 재조회
+  // ✅ 추가: POST /ingredients → 성공 후 재조회
   const submitAdd = async (e) => {
     e.preventDefault();
     if (!form.ingredient_name.trim()) return;
@@ -176,7 +200,7 @@ const BoxPage = () => {
       if (res?.status >= 200 && res?.status < 300) {
         setQuery("");
         await fetchIngredients();
-        closeModal();
+        closeAddModal();
       } else {
         throw new Error(`Unexpected status: ${res?.status}`);
       }
@@ -223,7 +247,7 @@ const BoxPage = () => {
             <button
               className="round-ico"
               aria-label="재료 추가"
-              onClick={openModal}
+              onClick={openAddModal}
               title="재료 추가"
             >
               <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
@@ -253,7 +277,7 @@ const BoxPage = () => {
 
         {/* 재료 추가 큰 버튼 */}
         <div className="add-btn-wrap">
-          <button className="add-btn" onClick={openModal} disabled={loading}>
+          <button className="add-btn" onClick={openAddModal} disabled={loading}>
             재료 추가
           </button>
         </div>
@@ -274,7 +298,8 @@ const BoxPage = () => {
                     <button
                       className="close-x"
                       aria-label="삭제"
-                      onClick={() => removeItem(it.id)}
+                      onClick={() => openDeleteModal(it.id, it.name)}
+                      title="삭제"
                     >
                       ×
                     </button>
@@ -323,7 +348,8 @@ const BoxPage = () => {
                         <button
                           className="close-x"
                           aria-label="삭제"
-                          onClick={() => removeItem(it.id, true)}
+                          onClick={() => openDeleteModal(it.id, it.name)}
+                          title="삭제"
                         >
                           ×
                         </button>
@@ -346,10 +372,12 @@ const BoxPage = () => {
       {/* 하단 탭바 */}
       <TabBar />
 
-      {/* 모달 */}
-      {showModal && (
-        <div className="modal-backdrop" role="dialog" aria-modal="true">
+      {/* ========== 추가 모달 ========== */}
+      {showAddModal && (
+        <div className="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="add-modal-title">
           <form className="modal" onSubmit={submitAdd}>
+            <h2 id="add-modal-title" className="modal-title">재료 추가</h2>
+
             <div className="row">
               <label>재료 이름:</label>
               <input
@@ -393,11 +421,44 @@ const BoxPage = () => {
               <button type="submit" className="btn left" disabled={submitting}>
                 {submitting ? "추가 중…" : "재료추가"}
               </button>
-              <button type="button" className="btn right" onClick={closeModal} disabled={submitting}>
+              <button type="button" className="btn right" onClick={closeAddModal} disabled={submitting}>
                 창 닫기
               </button>
             </div>
           </form>
+        </div>
+      )}
+
+      {/* ========== 삭제 확인 모달 ========== */}
+      {showDeleteModal && (
+        <div className="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="delete-modal-title">
+          <div className="modal">
+            <h2 id="delete-modal-title" className="modal-title">재료 삭제</h2>
+            <p className="modal-desc">
+              <strong>{deleteTarget?.name}</strong> 재료를 삭제할까요? <br />
+              삭제 후에는 복구할 수 없습니다.
+            </p>
+
+            <div className="modal-actions">
+              <button
+                type="button"
+                className="btn left danger"
+                onClick={confirmDelete}
+                disabled={deleting}
+                aria-busy={deleting}
+              >
+                {deleting ? "삭제 중…" : "삭제"}
+              </button>
+              <button
+                type="button"
+                className="btn right"
+                onClick={closeDeleteModal}
+                disabled={deleting}
+              >
+                취소
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
