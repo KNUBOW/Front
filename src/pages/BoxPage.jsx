@@ -1,4 +1,3 @@
-// src/pages/BoxPage.jsx
 import { useEffect, useMemo, useState } from "react";
 import TopBar from "../components/TopBar";
 import TabBar from "../components/TabBar";
