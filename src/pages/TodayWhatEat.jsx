@@ -1,12 +1,17 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import TopBar from "../components/TopBar";
 import TopNav from "../components/TopNav";
 import TabBar from "../components/TabBar";
+import api from "../lib/api";
 import "../styles/TopShell.css";
 import "../styles/TodayWhatEat.css";
 
 const TodayWhatEat = () => {
   const [q, setQ] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState("");
+  const navigate = useNavigate();
 
   // 상단 탭 항목
   const navItems = [
@@ -16,11 +21,36 @@ const TodayWhatEat = () => {
     { label: "랭킹", to: "/rank" },
   ];
 
-  const onSubmit = (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
-    if (!q.trim()) return;
-    console.log("추천 검색:", q.trim());
-    // TODO: 라우팅/요청 연동
+    setErr("");
+    const chat = q.trim();
+    if (!chat) return;
+
+    try {
+      setLoading(true);
+
+      // ✅ 기존 API 주소 + /ingredient-cook 로 POST
+      // 요청 바디 스펙: { chat: "양파, 베이컨, ..." }
+      const res = await api.post(
+        "/ingredient-cook",
+        { chat },
+        {
+          headers: {
+          accept: "application/json",
+          "Content-Type": "application/json",
+          },
+        }
+      );
+
+      // 성공 시 결과 페이지로 이동(state로 전달)
+      navigate("/recommend/result", { state: { result: res.data, query: chat } });
+    } catch (e2) {
+      console.error("[ingredient-cook 실패]", e2);
+      setErr("추천 요청에 실패했어요. 잠시 후 다시 시도해주세요.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -48,28 +78,38 @@ const TodayWhatEat = () => {
                 <input
                   type="text"
                   name="ingredients"
-                  placeholder="재료를 입력해 보세요 (예: 계란, 양파, 햄)"
+                  placeholder="재료를 입력해 보세요 (예: 양파, 베이컨, 새우, 토마토, 마늘)"
                   value={q}
                   onChange={(e) => setQ(e.target.value)}
                   autoComplete="off"
                   inputMode="text"
                   aria-label="재료 입력"
+                  disabled={loading}
                 />
 
                 {/* 우측 제출 버튼 (input 내부, absolute) */}
-                <button type="submit" className="icon-right" aria-label="레시피 추천 검색">
-                  <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M2 21l19-9L2 3v7l13 2-13 2v7z" fill="currentColor" />
-                  </svg>
+                <button type="submit" className="icon-right" aria-label="레시피 추천 검색" disabled={loading}>
+                  {loading ? (
+                    <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" className="spin">
+                      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" fill="none" opacity="0.2" />
+                      <path d="M22 12a10 10 0 00-10-10" stroke="currentColor" strokeWidth="3" fill="none" />
+                    </svg>
+                  ) : (
+                    <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M2 21l19-9L2 3v7l13 2-13 2v7z" fill="currentColor" />
+                    </svg>
+                  )}
                 </button>
               </div>
             </form>
+
+            {err && <p className="error-text" role="alert">{err}</p>}
 
             <div className="tips" aria-live="polite">
               <p className="tip-title">💡 사용 꿀팁</p>
               <p className="tip-body">
                 &quot;오늘 뭐 먹지?&quot; 고민될 때, 집에 있는 재료만 입력해보세요!<br />
-                예: 계란, 양파, 햄 → 오믈렛, 볶음밥 등 추천 요리 등장!<br />
+                예: 양파, 베이컨, 새우, 토마토, 마늘 → 파스타 등 추천 요리 등장!<br />
                 복잡한 재료 이름 몰라도 OK! 떠오르는 재료부터 가볍게 입력해보세요.
               </p>
             </div>

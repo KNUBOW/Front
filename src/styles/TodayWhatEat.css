@@ -2,7 +2,7 @@
   --container: 430px;
   --bg:#ffffff;
   --outer:#d8cfc3;
-  --ink:#171717;
+  --ink:rgba(0, 0, 0, 0.5);
   --muted:#6e6a63;
   --accent:#FFCC33;
   --accent-d:#d0b35e;
