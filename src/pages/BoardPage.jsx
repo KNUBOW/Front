@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, useLayoutEffect } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import TopBar from "../components/TopBar";
 import TopNav from "../components/TopNav";
@@ -29,15 +29,6 @@ const BoardPage = () => {
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState(null);
 
-  // ✅ 실측용 ref
-  const topBarWrapRef = useRef(null);
-  const topNavWrapRef = useRef(null);
-  const tabBarWrapRef = useRef(null);
-  const writeBtnRef = useRef(null);
-
-  const [safeTop, setSafeTop] = useState(0);
-  const [safeBottom, setSafeBottom] = useState(0);
-
   const abortRef = useRef(null);
   const mountedRef = useRef(true);
 
@@ -51,32 +42,7 @@ const BoardPage = () => {
     []
   );
 
-  // ✅ 상/하단 실제 높이 측정
-  const measureSafeArea = () => {
-    const topH = (topBarWrapRef.current?.offsetHeight || 0)
-               + (topNavWrapRef.current?.offsetHeight || 0);
-    const bottomH = (tabBarWrapRef.current?.offsetHeight || 0)
-                  + (writeBtnRef.current?.offsetHeight || 0)
-                  + 16; // 여유
-    setSafeTop(topH);
-    setSafeBottom(bottomH);
-  };
-
-  useLayoutEffect(() => {
-    // 최초 측정
-    measureSafeArea();
-    // 로고/폰트 로딩 후 높이 변동 대비
-    const onResize = () => measureSafeArea();
-    window.addEventListener("resize", onResize);
-    // 약간 지연 호출로 레이아웃 안정화 후 재측정
-    const t = setTimeout(measureSafeArea, 50);
-    return () => {
-      window.removeEventListener("resize", onResize);
-      clearTimeout(t);
-    };
-  }, []);
-
-  // 목록 가져오기
+  /** 목록 가져오기 */
   const fetchList = async ({ skip = 0, limit = 100 } = {}) => {
     if (abortRef.current) abortRef.current.abort();
     const controller = new AbortController();
@@ -90,7 +56,7 @@ const BoardPage = () => {
         params: { skip, limit },
         signal: controller.signal,
       });
-      const list = Array.isArray(res.data) ? res.data : (res.data?.items ?? []);
+      const list = Array.isArray(res.data) ? res.data : res.data?.items ?? [];
       if (!mountedRef.current) return;
       setPosts(list);
     } catch (e) {
@@ -107,7 +73,7 @@ const BoardPage = () => {
     }
   };
 
-  // 라우트 진입/복귀 시마다 갱신
+  // 라우트 진입/복귀 시마다 최신 목록
   useEffect(() => {
     mountedRef.current = true;
     fetchList({ skip: 0, limit: 100 });
@@ -117,89 +83,125 @@ const BoardPage = () => {
     };
   }, [location.pathname]);
 
+  const handleRetry = () => fetchList({ skip: 0, limit: 100 });
+
   return (
     <div className="board-page">
       <div className="board-wrap">
-        {/* 고정 상단 UI (실측을 위해 래퍼 div에 ref) */}
-        <div ref={topBarWrapRef}><TopBar /></div>
-        <div ref={topNavWrapRef}><TopNav items={navItems} /></div>
+        {/* 상단 */}
+        <TopBar />
+        <TopNav items={navItems} />
 
         {/* 중앙 스크롤 영역 */}
         <main className="board-content" role="main" aria-label="게시판 피드">
-          {/* 실측된 상단 비움 */}
-          <div style={{ height: safeTop }} aria-hidden="true" />
-
           {loading && <p>로딩 중…</p>}
 
           {!loading && err && (
             <div className="error-area" role="alert">
               <p>{err}</p>
+              <div className="error-actions">
+                <button className="retry-btn" type="button" onClick={handleRetry}>
+                  다시 시도
+                </button>
+                <button
+                  className="login-btn"
+                  type="button"
+                  onClick={() => navigate("/login")}
+                >
+                  로그인 하러 가기
+                </button>
+              </div>
             </div>
           )}
 
           {!loading && !err && posts.length === 0 && <p>게시글이 없습니다.</p>}
 
-          {!loading && !err && posts.map((post) => {
-            const id = pick(post, ["id", "board_id", "boardId", "_id"], Math.random().toString(36));
-            const title = pick(post, ["title"], "제목 없음");
-            const content = pick(post, ["content", "body"], "");
-            const author = pick(post, ["author", "writer", "nickname"], "익명");
-            const createdAt = formatDate(pick(post, ["created_at", "createdAt", "regDate"], ""));
-            const likeCount = pick(post, ["like_count"], 0);
+          {!loading &&
+            !err &&
+            posts.map((post) => {
+              const id = pick(
+                post,
+                ["id", "board_id", "boardId", "_id"],
+                Math.random().toString(36)
+              );
+              const title = pick(post, ["title"], "제목 없음");
+              const content = pick(post, ["content", "body"], "");
+              const author = pick(post, ["author", "writer", "nickname"], "익명");
+              const createdAt = formatDate(
+                pick(post, ["created_at", "createdAt", "regDate"], "")
+              );
+              const likeCount = pick(post, ["like_count"], 0);
+              const imageUrl = pick(post, ["image", "imgUrl", "photo"], null);
 
-            return (
-              <article key={id} className="post-card" aria-label="피드 게시글">
-                <header className="post-head">
-                  <div className="post-author">
-                    <div className="avatar" aria-hidden="true" />
-                    <div className="meta">
-                      <strong className="name">{author}</strong>
-                      {createdAt && <span className="time">• {createdAt}</span>}
+              return (
+                <article key={id} className="post-card" aria-label="피드 게시글">
+                  {/* 헤더 */}
+                  <header className="post-head">
+                    <div className="post-author">
+                      <div className="avatar" aria-hidden="true" />
+                      <div className="meta">
+                        <strong className="name">{author}</strong>
+                        {createdAt && <span className="time">• {createdAt}</span>}
+                      </div>
+                    </div>
+                    <button className="post-more" aria-label="더보기 메뉴">
+                      •••
+                    </button>
+                  </header>
+
+                  {/* 미디어: 항상 정사각형 */}
+                  <div className="post-media" role="img" aria-label="게시 미디어">
+                    {imageUrl ? (
+                      <img src={imageUrl} alt={title} className="post-img" />
+                    ) : (
+                      <div className="media-inner">
+                        <p className="media-caption">{title}</p>
+                      </div>
+                    )}
+                    <div className="dots" aria-hidden="true">
+                      <span className="dot active" />
+                      <span className="dot" />
+                      <span className="dot" />
+                      <span className="dot" />
                     </div>
                   </div>
-                  <button className="post-more" aria-label="더보기 메뉴">•••</button>
-                </header>
 
-                <div className="post-media" role="img" aria-label="게시 미디어">
-                  <div className="media-inner">
-                    <p className="media-caption">{title}</p>
+                  {/* 본문/액션 */}
+                  <div className="post-body">
+                    <div className="likes" aria-label="좋아요 수">
+                      <span className="heart" role="img" aria-label="좋아요">
+                        ❤️
+                      </span>
+                      <strong>{likeCount}</strong>
+                    </div>
+                    {content && <p className="comment">{content}</p>}
+                    <div className="actions">
+                      <button className="btn-like" type="button" aria-label="좋아요">
+                        ❤️
+                      </button>
+                      <button className="btn-reply" type="button" aria-label="답글">
+                        ⟳
+                      </button>
+                    </div>
                   </div>
-                  <div className="dots" aria-hidden="true">
-                    <span className="dot active" />
-                    <span className="dot" />
-                    <span className="dot" />
-                    <span className="dot" />
-                  </div>
-                </div>
-
-                <div className="post-body">
-                  <div className="likes" aria-label="좋아요 수">
-                    <span className="heart" role="img" aria-label="좋아요">❤️</span>
-                    <strong>{likeCount}</strong>
-                  </div>
-                  {content && <p className="comment">{content}</p>}
-                  <div className="actions">
-                    <button className="btn-like" type="button" aria-label="좋아요">❤️</button>
-                    <button className="btn-reply" type="button" aria-label="답글">⟳</button>
-                  </div>
-                </div>
-              </article>
-            );
-          })}
-
-          {/* 실측된 하단 비움 */}
-          <div style={{ height: safeBottom }} aria-hidden="true" />
+                </article>
+              );
+            })}
         </main>
 
-        {/* TabBar 위에 고정되는 글쓰기 버튼 (실측을 위해 ref) */}
-        <div className="write-area" ref={writeBtnRef}>
-          <button className="write-btn" type="button" onClick={() => navigate("/board/write")}>
+        {/* 하단 */}
+        <div className="write-area">
+          <button
+            className="write-btn"
+            type="button"
+            onClick={() => navigate("/board/write")}
+          >
             글 쓰기
           </button>
         </div>
-
-        {/* 고정 하단 UI (실측을 위해 래퍼 div에 ref) */}
-        <div ref={tabBarWrapRef}><TabBar /></div>
+        <div className="tabbar-fixed">
+          <TabBar />
+        </div>
       </div>
     </div>
   );
