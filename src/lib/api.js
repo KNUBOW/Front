@@ -1,34 +1,23 @@
-// src/lib/api.js
 import axios from "axios";
 
+function getCookie(name) {
+  const m = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
+  return m ? decodeURIComponent(m[1]) : null;
+}
+
 const api = axios.create({
-  baseURL: "/api",         // Vite 프록시 사용
-  withCredentials: true,   // 쿠키도 함께 보낼 수 있게 (혹시 서버가 쿠키도 쓰면 겸용)
-  timeout: 15000,
+  baseURL: "/api",        // Vite 프록시 쓰면 /api
+  timeout: 10000,
 });
 
-// 요청 인터셉터: 로컬스토리지에 토큰 있으면 자동 첨부
+// 요청 인터셉터: 쿠키에서 access_token 읽어 Bearer 붙이기
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("accessToken");
+  const token = getCookie("access_token");
   if (token) {
-    config.headers = config.headers ?? {};
+    config.headers = config.headers || {};
     config.headers.Authorization = `Bearer ${token}`;
-  }
-  if (!config.headers?.accept) {
-    config.headers = { ...config.headers, accept: "application/json" };
   }
   return config;
 });
-
-// 응답 인터셉터: 401 → 로그인 페이지로 유도 (원하면 주석 해제)
-api.interceptors.response.use(
-  (res) => res,
-  (err) => {
-    if (err?.response?.status === 401) {
-      // window.location.replace("/login");
-    }
-    return Promise.reject(err);
-  }
-);
 
 export default api;
