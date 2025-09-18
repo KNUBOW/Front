@@ -33,7 +33,7 @@ const TodayWhatEat = () => {
       // ✅ 기존 API 주소 + /ingredient-cook 로 POST
       // 요청 바디 스펙: { chat: "양파, 베이컨, ..." }
       const res = await api.post(
-        "/ingredient-cook",
+        "/recipe/ingredient-cook",
         { chat },
         {
           headers: {

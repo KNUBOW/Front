@@ -7,7 +7,7 @@ function getCookie(name) {
 
 const api = axios.create({
   baseURL: "/api",        // Vite 프록시 쓰면 /api
-  timeout: 10000,
+  timeout: 1000000,
 });
 
 // 요청 인터셉터: 쿠키에서 access_token 읽어 Bearer 붙이기
