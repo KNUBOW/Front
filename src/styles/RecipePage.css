@@ -21,7 +21,6 @@
   overflow:hidden;
   background: var(--bg);
 }
-@supports (height:100dvh){ .recipe-page{ min-height:100dvh; }}
 
 .recipe-wrap {
   width: 100%;
