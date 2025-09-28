@@ -60,7 +60,6 @@ export default function RecipePage() {
 
         <main className="recipe-content" role="main" aria-label="레시피 콘텐츠 영역">
           <header className="recipe-header">
-            <p className="small">{subtitle}</p>
             <h1 className="title">추천 레시피</h1>
           </header>
 
