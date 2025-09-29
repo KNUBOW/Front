@@ -1,55 +1,76 @@
+/* 모바일 퍼스트 공통 */
 :root {
   --container: 430px;
 
   --bg: #ffffff;
 
-  --top-h: 56px;
-  --nav-h: 44px;
-  --tab-h: 64px;
-  --safe-top: 0px;
-  --safe-bottom: 0px;
+  --top-h: 56px;      /* TopBar 높이 */
+  --nav-h: 44px;      /* TopNav가 있다면 사용 */
+  --tab-h: 64px;      /* TabBar 높이 */
+
+  /* iOS 안전 영역 (viewport-fit=cover 필요) */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+
+  /* JS가 덮어쓸 실제 1vh */
+  --vh: 1vh;
+}
+
+html, body, #root {
+  height: 100%;
 }
 
 .recipe-page {
   width: 100%;
   max-width: var(--container);
-  min-height:100svh;
-  display:flex;
-  flex-direction:column;
-  align-items:stretch;
-  justify-content:flex-start;
-  overflow:hidden;
+  min-height: calc(var(--vh) * 100); /* 100svh/100dvh 대신 실제 화면 높이 */
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  overflow: hidden; /* 실제 스크롤은 내부 main에서만 */
   background: var(--bg);
+  margin: 0 auto;
 }
 
 .recipe-wrap {
   width: 100%;
-  max-width: 430px; /* 모바일 컨테이너 */
+  max-width: var(--container);
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  box-sizing:border-box;
+  box-sizing: border-box;
 
+  /* 상단바 + 안전영역 확보 */
   padding-top: calc(var(--top-h) + var(--safe-top));
+  /* 하단 탭바 + 안전영역 확보 */
   padding-bottom: calc(var(--tab-h) + var(--safe-bottom));
 }
 
+/* 실제 스크롤 영역 */
 .recipe-content {
-  flex:1 1 auto;
+  flex: 1 1 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-height: calc(100dvh - var(--top-h) - var(--tab-h) - var(--safe-top) - var(--safe-bottom));
-  overflow:auto;
-  -webkit-overflow-scrolling:touch;
-  padding:16px;
+  justify-content: flex-start;
+
+  /* 전체 높이에서 상/하 바 + 안전영역 제외 */
+  max-height: calc(
+    (var(--vh) * 100) - var(--top-h) - var(--tab-h) - var(--safe-top) - var(--safe-bottom)
+  );
+
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  padding: 16px;
 }
 
 /* 헤더 */
 .recipe-header .title {
   font-size: 22px;
   font-weight: 800;
-  margin: 6px 0 10px;
+  margin: 6px 0 4px;
 }
 
 /* 상태 */
@@ -65,9 +86,7 @@
 .state.loading .spin { animation: spin 0.9s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-.state.error {
-  color: #b00020;
-}
+.state.error { color: #b00020; }
 .retry-btn {
   margin-left: 10px;
   height: 34px;
@@ -78,9 +97,7 @@
   font-weight: 700;
   cursor: pointer;
 }
-.state.empty {
-  color: var(--muted, #6b6b6b);
-}
+.state.empty { color: var(--muted, #6b6b6b); }
 
 /* 리스트/카드 */
 .recipe-list {
@@ -89,6 +106,7 @@
   margin: 0;
   display: grid;
   gap: 12px;
+  width: 100%;
 }
 
 .recipe-card {
@@ -175,6 +193,5 @@
   border-radius: 999px;
   padding: 6px 10px;
 }
-.muted { color: var(--muted, #6b6b6b); font-size: 14px; }
 
 .bottom-space { height: 24px; }

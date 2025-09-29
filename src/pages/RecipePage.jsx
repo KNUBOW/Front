@@ -1,11 +1,35 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import TopBar from "../components/TopBar";
 import TabBar from "../components/TabBar";
 import api from "../lib/api";
 import "../styles/TopShell.css";
 import "../styles/RecipePage.css";
 
+/** 실제 기기 높이 기반 --vh + safe-area 갱신 */
+function useFixVh() {
+  useEffect(() => {
+    const setVh = () => {
+      const vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty("--vh", `${vh}px`);
+      // iOS에서 env()가 초기에 0으로 들어오는 경우 보정
+      document.documentElement.style.setProperty("--safe-top", "env(safe-area-inset-top, 0px)");
+      document.documentElement.style.setProperty("--safe-bottom", "env(safe-area-inset-bottom, 0px)");
+    };
+    setVh();
+    window.addEventListener("resize", setVh);
+    window.addEventListener("orientationchange", setVh);
+    document.addEventListener("visibilitychange", setVh);
+    return () => {
+      window.removeEventListener("resize", setVh);
+      window.removeEventListener("orientationchange", setVh);
+      document.removeEventListener("visibilitychange", setVh);
+    };
+  }, []);
+}
+
 export default function RecipePage() {
+  useFixVh();
+
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
@@ -20,15 +44,13 @@ export default function RecipePage() {
     return "badge badge-expert";
   };
 
+  // 추천 목록 불러오기
   const fetchSuggest = async () => {
     try {
       setErr("");
       setLoading(true);
-      // ✅ 백엔드: GET /recipe/suggest (권장). 필요 시 POST로 바꿔도 됨.
       const res = await api.get("/recipe/suggest", {
-        headers: {
-          accept: "application/json",
-        },
+        headers: { accept: "application/json" },
       });
       const list = res?.data?.recipes ?? [];
       setRecipes(Array.isArray(list) ? list.slice(0, 5) : []);
@@ -46,7 +68,6 @@ export default function RecipePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // 상단 작은 안내 텍스트
   const subtitle = useMemo(() => {
     if (loading) return "추천 레시피를 불러오는 중…";
     if (err) return "불러오기 실패";
@@ -58,12 +79,13 @@ export default function RecipePage() {
       <div className="recipe-wrap">
         <TopBar />
 
+        {/* 스크롤은 이 main에서만 발생 */}
         <main className="recipe-content" role="main" aria-label="레시피 콘텐츠 영역">
           <header className="recipe-header">
             <h1 className="title">추천 레시피</h1>
           </header>
 
-          {/* 상태 표시 */}
+          {/* 상태 */}
           {loading && (
             <div className="state loading">
               <svg width="24" height="24" viewBox="0 0 24 24" className="spin" aria-hidden="true">
@@ -85,11 +107,11 @@ export default function RecipePage() {
             <div className="state empty">추천 결과가 없습니다.</div>
           )}
 
-          {/* 레시피 카드 리스트 */}
+          {/* 리스트 */}
           {!loading && !err && recipes.length > 0 && (
             <ul className="recipe-list" aria-label="추천 레시피 목록">
               {recipes.map((r, idx) => (
-                <li key={`${r.food}-${idx}`} className="recipe-card">
+                <li key={`${r.food ?? "recipe"}-${idx}`} className="recipe-card">
                   <div className="card-head">
                     <h2 className="food">{r.food || "이름 없는 레시피"}</h2>
                     <div className="meta">
@@ -116,11 +138,10 @@ export default function RecipePage() {
               ))}
             </ul>
           )}
-
-          <div className="bottom-space" />
         </main>
       </div>
 
+      {/* TabBar는 페이지 최하단 고정 느낌으로 사용 */}
       <TabBar />
     </div>
   );
