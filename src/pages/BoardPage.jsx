@@ -21,7 +21,36 @@ const formatDate = (dateStr) => {
   }
 };
 
+/** 실제 기기 높이 기반 --vh + safe-area 갱신 */
+function useFixVh() {
+  useEffect(() => {
+    const setVh = () => {
+      const vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty("--vh", `${vh}px`);
+      document.documentElement.style.setProperty(
+        "--safe-top",
+        "env(safe-area-inset-top, 0px)"
+      );
+      document.documentElement.style.setProperty(
+        "--safe-bottom",
+        "env(safe-area-inset-bottom, 0px)"
+      );
+    };
+    setVh();
+    window.addEventListener("resize", setVh);
+    window.addEventListener("orientationchange", setVh);
+    document.addEventListener("visibilitychange", setVh);
+    return () => {
+      window.removeEventListener("resize", setVh);
+      window.removeEventListener("orientationchange", setVh);
+      document.removeEventListener("visibilitychange", setVh);
+    };
+  }, []);
+}
+
 const BoardPage = () => {
+  useFixVh();
+
   const navigate = useNavigate();
   const location = useLocation();
 

@@ -7,14 +7,18 @@
 
   --top-h: 56px;  /* TopBar */
   --nav-h: 48px;  /* TopNav */
-  --tab-h: 72px;  /* TabBar */
+  --tab-h: 64px;  /* TabBar */
+
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --vh: 1vh;
 }
 
 /* 페이지 전체 */
 .board-page {
   width: 100%;
   max-width: var(--container-w, 100%);
-  min-height: 100vh;
+  min-height: calc(var(--vh) * 100);
   background: var(--bg, #faf7f0);
   display: flex;
   justify-content: flex-start;
@@ -25,29 +29,30 @@
 /* 내부 컨테이너 */
 .board-wrap {
   width: 100%;
-  max-width: 430px;
+  max-width: var(--container-w, 100%);
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  min-height: 100%;
+  padding-top: calc(var(--top-h) + var(--nav-h) + var(--safe-top));
+  padding-bottom: calc(var(--tab-h) + var(--safe-bottom));
 }
 
 /* 중앙 스크롤 영역 */
 .board-content {
-  height: calc(100vh - var(--tab-h));
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-
-  padding-top: 0; /* TopBar, TopNav는 문서 흐름에 포함됨 */
-  padding-bottom: calc(var(--tab-h) + 100px); /* TabBar + 여유 */
-
-  padding-left: 16px;
-  padding-right: 16px;
-
+  flex: 1 1 auto;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  box-sizing: border-box;
+  align-items: stretch; /* ✅ 리스트는 가로 꽉 차게 */
+  justify-content: flex-start;
+
+  min-height: calc(
+    (var(--vh) * 100) - var(--top-h) - var(--nav-h) - var(--tab-h) - var(--safe-top) - var(--safe-bottom)
+  );
+
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  padding: 16px;
 }
 
 /* TabBar 고정 */
@@ -105,6 +110,7 @@
   border: 1px solid var(--bd);
   overflow: hidden;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+  margin-bottom: 16px;
 }
 
 /* 헤더 */
