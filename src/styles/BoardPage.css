@@ -1,53 +1,79 @@
 :root {
+  /* 공통 컬러/치수 */
   --card-bg: #f7f3eb;
   --panel-bg: #f2eee6;
   --ink: #111;
   --muted: #6f6a60;
   --bd: #e8e3da;
 
-  --top-h: 56px;  /* TopBar */
-  --nav-h: 48px;  /* TopNav */
-  --tab-h: 64px;  /* TabBar */
+  --bg: #ffffff;            /* 페이지 배경 기본값 */
+  --container-w: 430px;     /* ✅ 누락 보완: 모바일 퍼스트 최대폭 */
+
+  --top-h: 56px;
+  --nav-h: 48px;
+  --tab-h: 64px;
 
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
+
   --vh: 1vh;
+}
+
+html, body, #root {
+  height: 100%;
 }
 
 /* 페이지 전체 */
 .board-page {
   width: 100%;
-  max-width: var(--container-w, 100%);
-  min-height: calc(var(--vh) * 100);
-  background: var(--bg, #faf7f0);
+  max-width: var(--container-w);
+
+  /* ✅ 스크롤 기준을 명확히: 고정 높이로 */
+  height: calc(var(--vh) * 100);
+  min-height: 0; /* ✅ 내부 스크롤 허용 */
+
   display: flex;
-  justify-content: flex-start;
+  flex-direction: column;
   align-items: stretch;
-  overflow: hidden;
+  justify-content: flex-start;
+  overflow: hidden;          /* 실제 스크롤은 내부 main에서만 */
+  background: var(--bg);
+  margin: 0 auto;
 }
 
 /* 내부 컨테이너 */
 .board-wrap {
   width: 100%;
-  max-width: var(--container-w, 100%);
+  max-width: var(--container-w);
   margin: 0 auto;
   display: flex;
   flex-direction: column;
+  box-sizing: border-box;
+
+  /* ✅ 내부 스크롤 허용을 위해 필수 */
+  min-height: 0;
+
+  /* 상단바 + 네비 + 안전영역 확보 */
   padding-top: calc(var(--top-h) + var(--nav-h) + var(--safe-top));
+  /* 하단 탭바 + 안전영역 확보 */
   padding-bottom: calc(var(--tab-h) + var(--safe-bottom));
 }
 
 /* 중앙 스크롤 영역 */
 .board-content {
-  flex: 1 1 auto;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch; /* ✅ 리스트는 가로 꽉 차게 */
-  justify-content: flex-start;
-
-  min-height: calc(
+  /* 스크롤 영역은 고정 높이로 계산해 주는 게 안전 */
+  height: calc(
     (var(--vh) * 100) - var(--top-h) - var(--nav-h) - var(--tab-h) - var(--safe-top) - var(--safe-bottom)
   );
+
+  /* flex 항목으로 두되 내부 스크롤 우선 */
+  flex: 1 1 auto;
+  min-height: 0; /* ✅ flex 자식 스크롤 필수 */
+
+  display: flex;
+  flex-direction: column;
+  align-items: stretch; /* 리스트를 가로 꽉 차게 */
+  justify-content: flex-start;
 
   overflow: auto;
   -webkit-overflow-scrolling: touch;
@@ -62,7 +88,7 @@
   transform: translateX(-50%);
   bottom: 0;
   width: 100%;
-  max-width: 430px;
+  max-width: var(--container-w);
   height: var(--tab-h);
   background: #fff;
   z-index: 100;
@@ -75,7 +101,7 @@
   transform: translateX(-50%);
   bottom: calc(var(--tab-h) + 12px);
   width: 100%;
-  max-width: 430px;
+  max-width: var(--container-w);
   display: flex;
   justify-content: center;
   z-index: 110;
@@ -111,6 +137,9 @@
   overflow: hidden;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
   margin-bottom: 16px;
+
+  /* ✅ flex 컨테이너 안에서 카드가 눌리지 않게 */
+  flex: 0 0 auto;
 }
 
 /* 헤더 */

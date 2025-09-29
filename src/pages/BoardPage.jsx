@@ -159,7 +159,7 @@ const BoardPage = () => {
               const createdAt = formatDate(
                 pick(post, ["created_at", "createdAt", "regDate"], "")
               );
-              const likeCount = pick(post, ["like_count"], 0);
+              const likeCount = pick(post, ["like_count", "likes", "likeCount"], 0);
               const imageUrl = pick(post, ["image", "imgUrl", "photo"], null);
 
               return (
