@@ -10,16 +10,22 @@
   --card:#e5e5e5;
   --shadow:0 8px 24px rgba(0,0,0,.08);
 
-  /* TopBar 실제 높이에 맞게 조정 (56~72px 권장) */
-  --topbar-h: 64px;
-  /* TabBar 실제 높이 */
-  --tabbar-h: 72px;
+  --top-h: 56px;
+  --tab-h: 64px;
+
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+
+  --vh: 1vh;
 }
 
 .box-page{
   width: 100%;
   max-width: var(--container);
-  min-height:100dvh;
+  
+  height: calc(var(--vh) * 100);
+  min-height: 0;
+
   background: var(--bg);
   color: var(--ink);
   display:flex;
@@ -30,11 +36,11 @@
   width:100%;
   max-width: var(--container);
   margin:0 auto;
-  padding-top: var(--topbar-h);   /* TopBar 공간 확보 */
-  padding-bottom: var(--tabbar-h);/* TabBar 공간 확보 */
+  padding-top: calc(var(--top-h) + var(--safe-top));  
+  padding-bottom: calc(var(--tab-h) + var(--safe-bottom));
   display: flex;
   flex-direction: column;
-  flex: 1;                        /* 남는 공간 채우기 */
+  flex: 1;                    
 }
 
 /* 검색 영역 */
@@ -90,7 +96,7 @@
 
 /* 재료 추가 큰 버튼 */
 .add-btn-wrap{
-  padding: 8px 16px 0;
+  padding: 0px 16px 0;
   display:flex; justify-content:center;
 }
 .add-btn{
@@ -190,13 +196,11 @@
   color: var(--muted);
 }
 
-/* ───────────── 모달(중앙 정렬 & Bar 색상 변화 방지) ───────────── */
-
 .modal-backdrop{
   position:fixed;
   left:0; right:0;
-  top: var(--topbar-h);          /* TopBar 아래부터 */
-  bottom: var(--tabbar-h);       /* TabBar 위까지 */
+  top: var(--top-h);          /* TopBar 아래부터 */
+  bottom: var(--tab-h);       /* TabBar 위까지 */
   display:flex;
   align-items:center;            /* 수직 중앙 */
   justify-content:center;        /* 수평 중앙 */
@@ -209,8 +213,8 @@
 .modal-backdrop{
   position:fixed;
   left:0; right:0;
-  top: var(--topbar-h);
-  bottom: var(--tabbar-h);
+  top: var(--top-h);
+  bottom: var(--tab-h);
   display:flex;
   align-items:center;
   justify-content:center;
