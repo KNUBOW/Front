@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import "./../styles/findid.css";
+import "../styles/FindId.css";
 import logo from "./../assets/FoodThing.png";
 
 const FindIdResult = () => {

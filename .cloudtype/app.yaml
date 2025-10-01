@@ -1,0 +1,13 @@
+name: react
+app: web
+options:
+  docbase: /build
+  nodeversion: "20"
+  spa: true
+  install: npm ci --no-audit --fund=false
+  build: npm run build
+context:
+  git:
+    url: https://github.com/KNUBOW/Front.git
+    branch: main
+  preset: react

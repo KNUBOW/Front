@@ -1,19 +1,20 @@
-// vite.config.js
 import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react-swc'
+import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
+  build: {
+    outDir: 'build', // Cloudtype docbase(/build)와 일치
+  },
   server: {
     proxy: {
       '/api': {
         target: 'https://augustzero.mooo.com',
         changeOrigin: true,
-        secure: true,
+        secure: true, // 로컬 개발에서 자체서명 인증서면 false로
         rewrite: (path) => path.replace(/^\/api/, ''),
-        // ★ 쿠키 도메인/경로 재작성 (http-proxy 옵션)
-        cookieDomainRewrite: 'localhost', // 또는 '127.0.0.1'
-        cookiePathRewrite: '/',           // 보통 '/' 유지
+        cookieDomainRewrite: 'localhost',
+        cookiePathRewrite: '/',
       },
     },
   },

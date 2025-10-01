@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../lib/api";
-import "./../styles/findid.css";
+import "./../styles/FindId.css";
 import logo from "./../assets/FoodThing.png";
 
 function maskEmail(email) {
