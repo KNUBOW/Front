@@ -1,34 +1,32 @@
 // src/lib/api.js
 import axios from "axios";
 
-/**
- * 개발(dev): Vite 프록시를 통해 /api로 우회
- * 배포(prod): VITE_API_BASE(절대 URL)로 직접 호출
- *
- * .env.production 예) VITE_API_BASE=https://your-backend.sel3.cloudtype.app
- * .env.development 예) 필요 없음 (프록시 사용)
- */
-const baseURL = import.meta.env.PROD
-  ? import.meta.env.VITE_API_BASE?.replace(/\/+$/, "") // 끝 슬래시 제거
-  : "/api";
+// .env 파일에 반드시 아래처럼 세팅되어 있어야 합니다:
+// VITE_API_BASE=https://augustzero.mooo.com
+const baseURL = import.meta.env.VITE_API_BASE?.replace(/\/+$/, "");
+
+if (!baseURL) {
+  console.error("[API] VITE_API_BASE 환경변수가 비어있습니다.");
+  throw new Error("VITE_API_BASE 환경변수를 .env 파일에 설정해주세요.");
+}
 
 const api = axios.create({
   baseURL,
   timeout: 10000,
   headers: { "Content-Type": "application/json" },
-  // 인증이 필요하면 아래 주석 해제
-  // withCredentials: true,
+  // withCredentials: true, // 쿠키 인증 쓰면 주석 해제
 });
 
-// 간단 로깅(문제 시 추적)
+// 요청/응답 로깅
 api.interceptors.request.use((cfg) => {
-  console.debug("[API req]", cfg.method?.toUpperCase(), cfg.baseURL + cfg.url);
+  console.debug("[API req]", (cfg.method || "GET").toUpperCase(), `${cfg.baseURL}${cfg.url}`);
   return cfg;
 });
+
 api.interceptors.response.use(
   (res) => res,
   (err) => {
-    console.error("[API err]", err?.response?.status, err?.config?.url, err);
+    console.error("[API err]", err?.response?.status, `${err?.config?.baseURL}${err?.config?.url}`, err);
     throw err;
   }
 );
