@@ -53,9 +53,7 @@ html, body, #root {
   /* ✅ 내부 스크롤 허용을 위해 필수 */
   min-height: 0;
 
-  /* 상단바 + 네비 + 안전영역 확보 */
   padding-top: calc(var(--top-h) + var(--nav-h) + var(--safe-top));
-  /* 하단 탭바 + 안전영역 확보 */
   padding-bottom: calc(var(--tab-h) + var(--safe-bottom));
 }
 

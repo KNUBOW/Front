@@ -106,9 +106,6 @@ export default function RecommendResultPage() {
 
         <main className="result-content" role="main">
           <header className="result-header">
-            <div className="small">
-              입력 재료: {query ? String(query) : "—"}
-            </div>
             <h1 className="title">{toText(food) || "추천 요리"}</h1>
 
             {/* 필요 시 메타 노출 */}

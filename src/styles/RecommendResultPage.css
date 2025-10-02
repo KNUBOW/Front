@@ -1,17 +1,49 @@
+:ROOT {
+  --bg: #fff;
+  
+  --container: 430px;
+
+  --top-h: 56px;
+  --nav-h: 48px;
+  --tab-h: 64px;
+
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+
+  --vh: 1vh;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
 .result-page {
   width: 100%;
+  max-width: var(--container);
+
+  height: calc(var(--vh) * 100);
+  min-height: 0;
+
+  display: flex;
   min-height: 100dvh;
-  background: var(--bg, #f6f1e8);
+  overflow: hidden;
+  background: var(--bg);
   color: var(--ink, #111);
+  margin: 0 auto;
 }
 
 .result-wrap {
   width: 100%;
-  max-width: var(--container, 430px);
+  max-width: var(--container);
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  min-height: 100dvh;
+  box-sizing: border-box;
+
+  min-height: 0;
+
+  padding-top: calc(var(--top-h) + var(--nav-h) + var(--safe-top));
+  padding-bottom: calc(var(--tab-h) + var(--safe-bottom));
 }
 
 /* 중앙 스크롤 영역 */
