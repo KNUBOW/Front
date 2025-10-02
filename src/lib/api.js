@@ -2,132 +2,73 @@
 import axios from "axios";
 
 /**
- * ✅ BASE URL 해석 로직
- * - 배포: VITE_API_BASE 이면 그걸 사용 (예: https://augustzero.mooo.com)
- * - 개발: VITE_API_BASE 없으면 프록시(/api)로 동작하도록 상대 경로를 사용
- *   → vite.config.js에서 /api 프록시 설정 권장
+ * BASE URL
+ * - 배포: .env의 VITE_API_BASE (ex: https://augustzero.mooo.com)
+ * - 개발: 없으면 상대경로 /api (vite proxy 권장)
  */
 const ENV_BASE = import.meta.env.VITE_API_BASE?.replace(/\/+$/, "");
-const USE_RELATIVE = !ENV_BASE; // .env에 VITE_API_BASE 없으면 상대경로 모드
-const baseURL = USE_RELATIVE ? "/api" : ENV_BASE;
+const baseURL = ENV_BASE || "/api";
 
-// 간단한 가드(선택): 절대 URL만 강제하고 싶다면 아래 주석 해제
-// if (!ENV_BASE) {
-//   console.error("[API] VITE_API_BASE가 비어있습니다. (개발은 프록시 /api 사용)");
-// }
+/** 쿠키에서 특정 이름의 값을 읽는 유틸
+ *  - access_token 쿠키가 JS에서 보이도록 서버가 httpOnly:false 로 세팅돼 있어야 함
+ */
+function getCookie(name) {
+  if (typeof document === "undefined") return null;
+  const match = document.cookie
+    ?.split(";")
+    ?.map((v) => v.trim())
+    ?.find((v) => v.startsWith(`${name}=`));
+  return match ? decodeURIComponent(match.split("=")[1]) : null;
+}
+
+// 쿠키 이름을 프로젝트에 맞게 지정해 주세요.
+const COOKIE_TOKEN_NAME = "access_token"; // ex) 'access_token' / 'token' 등
 
 const api = axios.create({
   baseURL,
   timeout: 15000,
   headers: { "Content-Type": "application/json" },
-  withCredentials: true, // ✅ 쿠키 인증 필수
-  // XSRF를 서버가 요구한다면 주석 해제하고 이름 맞추세요
-  // xsrfCookieName: "XSRF-TOKEN",
-  // xsrfHeaderName: "X-XSRF-TOKEN",
+  withCredentials: true, // 쿠키 인증 병행
 });
 
-/** (선택) Authorization 병행 지원
- * 서버가 "쿠키"만 읽는다면 굳이 필요 없음.
- * 다만 과거 코드가 Bearer도 허용한다면 양쪽 다 붙여도 무방.
- */
+// === 요청 인터셉터 ===
+// 쿠키 → Authorization 헤더 주입 (없으면 localStorage 백업)
 api.interceptors.request.use((cfg) => {
-  // 필요 시 로컬 토큰도 붙임 (없으면 무시)
-  const token = localStorage.getItem("access_token");
+  const cookieToken = getCookie(COOKIE_TOKEN_NAME);
+  const lsToken = localStorage.getItem("access_token");
+  const token = cookieToken || lsToken;
+
   if (token) {
+    cfg.headers = cfg.headers || {};
     cfg.headers.Authorization = `Bearer ${token}`;
   }
 
-  // 디버그 로그
+  // 디버깅 로그
   const method = (cfg.method || "GET").toUpperCase();
   const full = `${cfg.baseURL}${cfg.url}`;
   console.debug("[API req]", method, full, {
+    attachedAuth: !!token,
     withCredentials: cfg.withCredentials,
-    // 쿠키는 HttpOnly면 브라우저에서 못 읽으니 여기서 노출 불가(정상)
   });
 
   return cfg;
 });
 
-/**
- * ✅ 401 자동 복구:
- * - 가정: 서버가 /auth/refresh 를 제공하고, 리프레시 토큰은 **HttpOnly 쿠키**로 저장됨
- * - 동시 다발 401을 큐로 직렬화 처리
- */
-let isRefreshing = false;
-let waitQueue = [];
-
-async function refreshToken() {
-  // 동일 인스턴스 쓰면 인터셉터에 또 걸릴 수 있어 별도 axios 사용
-  const res = await axios.post(
-    `${baseURL}/auth/refresh`,
-    {},
-    { withCredentials: true }
-  );
-  const newAccess = res?.data?.accessToken;
-  if (newAccess) localStorage.setItem("access_token", newAccess);
-  return newAccess;
-}
-
+// === 응답 인터셉터 ===
+// 401이어도 /auth/refresh 호출하지 않음 (요구사항)
 api.interceptors.response.use(
   (res) => res,
-  async (err) => {
+  (err) => {
     const status = err?.response?.status;
-    const original = err?.config;
+    const url = `${err?.config?.baseURL || baseURL}${err?.config?.url || ""}`;
+    console.error("[API err]", status, url, err);
 
-    console.error(
-      "[API err]",
-      status,
-      `${original?.baseURL || baseURL}${original?.url || ""}`,
-      err
-    );
+    // 필요 시 401 공통 처리(전역 알림/로그아웃/리다이렉트 훅)
+    // if (status === 401) {
+    //   // 예: 라우팅 라이브러리에서 로그인 페이지로 보내기
+    //   // window.location.href = "/login";
+    // }
 
-    // 401 처리
-    if (status === 401 && original && !original._retry) {
-      original._retry = true;
-
-      // 이미 갱신 중이면 큐에 합류
-      if (isRefreshing) {
-        return new Promise((resolve, reject) => {
-          waitQueue.push({ resolve, reject });
-        })
-          .then((newAccess) => {
-            if (newAccess) {
-              original.headers = original.headers || {};
-              original.headers.Authorization = `Bearer ${newAccess}`;
-            }
-            return api(original);
-          })
-          .catch((e) => Promise.reject(e));
-      }
-
-      try {
-        isRefreshing = true;
-        const newAccess = await refreshToken();
-
-        // 대기중 요청 재개
-        waitQueue.forEach(({ resolve }) => resolve(newAccess));
-        waitQueue = [];
-
-        // 재시도
-        if (newAccess) {
-          original.headers = original.headers || {};
-          original.headers.Authorization = `Bearer ${newAccess}`;
-        }
-        return api(original);
-      } catch (e) {
-        // 대기중 실패 전파
-        waitQueue.forEach(({ reject }) => reject(e));
-        waitQueue = [];
-
-        // 액세스 토큰 폐기(있다면)
-        localStorage.removeItem("access_token");
-        return Promise.reject(e);
-      } finally {
-        isRefreshing = false;
-      }
-    }
-
-    // 그 외 에러는 통과
     throw err;
   }
 );
