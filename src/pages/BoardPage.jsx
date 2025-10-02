@@ -167,7 +167,6 @@ const BoardPage = () => {
                   {/* 헤더 */}
                   <header className="post-head">
                     <div className="post-author">
-                      <div className="avatar" aria-hidden="true" />
                       <div className="meta">
                         <strong className="name">{author}</strong>
                         {createdAt && <span className="time">• {createdAt}</span>}
@@ -197,17 +196,12 @@ const BoardPage = () => {
 
                   {/* 본문/액션 */}
                   <div className="post-body">
-                    <div className="likes" aria-label="좋아요 수">
-                      <span className="heart" role="img" aria-label="좋아요">
-                        ❤️
-                      </span>
-                      <strong>{likeCount}</strong>
-                    </div>
                     {content && <p className="comment">{content}</p>}
                     <div className="actions">
                       <button className="btn-like" type="button" aria-label="좋아요">
                         ❤️
                       </button>
+                      <strong>{likeCount}</strong>
                       <button className="btn-reply" type="button" aria-label="답글">
                         ⟳
                       </button>

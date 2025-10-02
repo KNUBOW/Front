@@ -156,8 +156,8 @@ html, body, #root {
   gap: 10px;
 }
 .avatar {
-  width: 36px;
-  height: 36px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
   background: #ded7cc;
 }
@@ -253,16 +253,6 @@ html, body, #root {
 .post-body {
   padding: 12px;
   background: #fff;
-}
-.likes {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 14px;
-  color: var(--ink);
-}
-.heart {
-  font-size: 16px;
 }
 .comment {
   margin: 8px 0 10px;
