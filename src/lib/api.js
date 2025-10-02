@@ -14,7 +14,7 @@ const api = axios.create({
   baseURL,
   timeout: 10000,
   headers: { "Content-Type": "application/json" },
-  // withCredentials: true, // 쿠키 인증 쓰면 주석 해제
+  withCredentials: true, // 쿠키 인증 쓰면 주석 해제
 });
 
 // 요청/응답 로깅
