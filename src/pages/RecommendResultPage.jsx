@@ -87,7 +87,7 @@ export default function RecommendResultPage() {
     difficulty,
     cooking_time,
     use_ingredients,
-    step,
+    steps,
     tip,
     video,
     tag,
@@ -95,7 +95,7 @@ export default function RecommendResultPage() {
 
   // ✅ 방어적 정규화
   const ingredientsList = toArray(use_ingredients).map(toText).filter(Boolean);
-  const stepsList = toArray(step).map(toText).filter(Boolean);
+  const stepsList = toArray(steps).map(toText).filter(Boolean);
   const tagsList = toArray(tag).map(toText).filter(Boolean);
 
   return (
@@ -140,11 +140,11 @@ export default function RecommendResultPage() {
           <section className="card">
             <h2 className="card-title">요리 순서</h2>
             {stepsList.length > 0 ? (
-              <ol className="steps">
+              <ul className="steps">
                 {stepsList.map((line, idx) => (
                   <li key={idx}>{line}</li>
                 ))}
-              </ol>
+              </ul>
             ) : (
               <p className="muted">요리 순서가 없어요.</p>
             )}

@@ -125,6 +125,7 @@ html, body, #root {
 
 /* 단계 목록 */
 .steps {
+  list-style-type: none;
   margin: 0;
   padding-left: 20px;
   display: grid;
