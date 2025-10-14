@@ -1,56 +1,138 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import TopBar from "../components/TopBar";
 import TopNav from "../components/TopNav";
 import TabBar from "../components/TabBar";
 import api from "../lib/api";
-import "../styles/TopShell.css";
 import "../styles/BoardPage.css";
 
-/** 안전한 필드 추출 */
-const pick = (obj, keys, fallback = "") =>
-  keys.reduce((v, k) => (v ?? obj?.[k]), undefined) ?? fallback;
-
 /** YYYY-MM-DD */
-const formatDate = (dateStr) => {
-  if (!dateStr) return "";
+const fmtDate = (iso) => {
+  if (!iso) return "";
   try {
-    return new Date(dateStr).toISOString().split("T")[0];
+    return new Date(iso).toISOString().split("T")[0];
   } catch {
-    return dateStr;
+    return iso;
   }
 };
 
-/** 실제 기기 높이 기반 --vh + safe-area 갱신 */
-function useFixVh() {
-  useEffect(() => {
-    const setVh = () => {
-      const vh = window.innerHeight * 0.01;
-      document.documentElement.style.setProperty("--vh", `${vh}px`);
-      document.documentElement.style.setProperty(
-        "--safe-top",
-        "env(safe-area-inset-top, 0px)"
-      );
-      document.documentElement.style.setProperty(
-        "--safe-bottom",
-        "env(safe-area-inset-bottom, 0px)"
-      );
-    };
-    setVh();
-    window.addEventListener("resize", setVh);
-    window.addEventListener("orientationchange", setVh);
-    document.addEventListener("visibilitychange", setVh);
-    return () => {
-      window.removeEventListener("resize", setVh);
-      window.removeEventListener("orientationchange", setVh);
-      document.removeEventListener("visibilitychange", setVh);
-    };
-  }, []);
+/** 안전 키 생성 (id 없을 때 fallback) */
+const safeKey = (id) => id ?? crypto.randomUUID();
+
+function PostCard({ post }) {
+  const nickname = post?.author?.nickname ?? "익명";
+  const title = post?.title ?? "";
+  const content = post?.content ?? "";
+  const likeCount = post?.like_count ?? 0;
+  const created = fmtDate(post?.created_at);
+  const images = useMemo(
+    () => (Array.isArray(post?.image_urls) ? post.image_urls.filter(Boolean) : []),
+    [post?.image_urls]
+  );
+
+  console.log(images);
+
+  // 여러 장일 때 간단한 인덱스 이동
+  const [idx, setIdx] = useState(0);
+  const hasImage = images.length > 0;
+  const curImg = hasImage ? images[Math.min(idx, images.length - 1)] : null;
+
+  const prev = () => setIdx((v) => (v - 1 + images.length) % images.length);
+  const next = () => setIdx((v) => (v + 1) % images.length);
+
+  return (
+    <article className="post-card">
+      {/* 헤더 */}
+      <header className="post-head">
+        <div className="post-author">
+          <div className="avatar" aria-hidden />
+          <div className="meta">
+            <div className="name">{nickname}</div>
+            <div className="time">{created}</div>
+          </div>
+        </div>
+
+        <button type="button" className="post-more" aria-label="더보기">
+          ⋯
+        </button>
+      </header>
+
+      {/* 미디어: 정사각형 영역, 이미지가 없어도 자리 유지 */}
+      <div className="post-media">
+        {hasImage ? (
+          <>
+            <img
+              className="post-img"
+              src={curImg}
+              alt="게시물 이미지"
+              loading="lazy"
+              onError={(e) => {
+                // 이미지가 깨져도 영역 유지
+                e.currentTarget.style.display = "none";
+                const cap = e.currentTarget.parentElement.querySelector(".media-inner");
+                if (cap) cap.style.display = "flex";
+              }}
+            />
+            {/* 좌/우 네비게이션 (여러 장일 때만) */}
+            {images.length > 1 && (
+              <>
+                <button className="media-nav prev" onClick={prev} aria-label="이전 이미지">
+                  ‹
+                </button>
+                <button className="media-nav next" onClick={next} aria-label="다음 이미지">
+                  ›
+                </button>
+              </>
+            )}
+            {/* 점 인디케이터 */}
+            {images.length > 1 && (
+              <div className="dots">
+                {images.map((_, i) => (
+                  <div key={i} className={`dot ${i === idx ? "active" : ""}`} />
+                ))}
+              </div>
+            )}
+            {/* 이미지 로드 실패 시 보여줄 캡션 (기본 숨김) */}
+            <div className="media-inner" style={{ display: "none" }}>
+              <div className="media-caption">이미지를 불러오지 못했습니다.</div>
+            </div>
+          </>
+        ) : (
+          <div className="media-inner">
+            <div className="media-caption">이미지가 첨부되지 않은 게시물입니다.</div>
+          </div>
+        )}
+      </div>
+
+      {/* 본문/액션 */}
+      <div className="post-body">
+        {title && <div className="comment" style={{ fontWeight: 700 }}>{title}</div>}
+        {content && <div className="comment">{content}</div>}
+
+        <div className="actions">
+          <button type="button" onClick={() => { /* TODO: 좋아요 API */ }}>
+            ❤️ 좋아요 {likeCount}
+          </button>
+          <button type="button" onClick={() => { /* TODO: 댓글 이동 */ }}>
+            💬 댓글
+          </button>
+        </div>
+      </div>
+    </article>
+  );
 }
 
-const BoardPage = () => {
-  useFixVh();
+/** 간단 에러 표시 */
+function ErrorBox({ error }) {
+  if (!error) return null;
+  const msg =
+    error?.code === "ERR_CANCELED"
+      ? "요청이 취소되었습니다. (개발모드/HMR 중복 호출일 수 있어요)"
+      : error?.message || String(error);
+  return <div className="error-box">⚠ {msg}</div>;
+}
 
+export default function BoardPage() {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -58,176 +140,86 @@ const BoardPage = () => {
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState(null);
 
-  const abortRef = useRef(null);
-  const mountedRef = useRef(true);
+  // 최신 요청만 반영
+  const reqIdRef = useRef(0);
 
-  const navItems = useMemo(
-    () => [
-      { label: "오늘 뭐 해먹지?", to: "/" },
-      { label: "추천 요리", to: "/recommend" },
-      { label: "게시판", to: "/board" },
-      { label: "랭킹", to: "/rank" },
-    ],
-    []
-  );
-
-  /** 목록 가져오기 */
-  const fetchList = async ({ skip = 0, limit = 100 } = {}) => {
-    if (abortRef.current) abortRef.current.abort();
-    const controller = new AbortController();
-    abortRef.current = controller;
-
-    setLoading(true);
-    setErr(null);
-
-    try {
-      const res = await api.get("/board/list", {
-        params: { skip, limit },
-        signal: controller.signal,
-      });
-      const list = Array.isArray(res.data) ? res.data : res.data?.items ?? [];
-      if (!mountedRef.current) return;
-      setPosts(list);
-    } catch (e) {
-      if (!mountedRef.current) return;
-      if (e.name === "CanceledError") return;
-      console.error("[게시판 목록 실패]", e);
-      setErr(
-        e?.response?.status === 401
-          ? "로그인이 필요해요. 로그인 후 다시 시도해 주세요."
-          : "게시글을 불러오지 못했어요. 잠시 후 다시 시도해 주세요."
-      );
-    } finally {
-      if (mountedRef.current) setLoading(false);
-    }
-  };
-
-  // 라우트 진입/복귀 시마다 최신 목록
   useEffect(() => {
-    mountedRef.current = true;
-    fetchList({ skip: 0, limit: 100 });
-    return () => {
-      mountedRef.current = false;
-      if (abortRef.current) abortRef.current.abort();
-    };
-  }, [location.pathname]);
+    const ac = new AbortController();
+    const myReqId = ++reqIdRef.current;
 
-  const handleRetry = () => fetchList({ skip: 0, limit: 100 });
+    async function fetchList() {
+      try {
+        setLoading(true);
+        setErr(null);
+
+        const res = await api.get("/board/list", {
+          signal: ac.signal,
+          withCredentials: true,
+        });
+
+        // 백엔드가 배열 or {data:[…]}
+        const list = Array.isArray(res.data) ? res.data : res.data?.data ?? [];
+
+        if (reqIdRef.current === myReqId) {
+          setPosts(list);
+        }
+      } catch (e) {
+        if (e?.code === "ERR_CANCELED") {
+          return;
+        }
+        if (reqIdRef.current === myReqId) {
+          setErr(e);
+        }
+      } finally {
+        if (reqIdRef.current === myReqId) {
+          setLoading(false);
+        }
+      }
+    }
+
+    fetchList();
+    return () => ac.abort();
+  }, []);
+
+  const navItems = [
+    { label: "오늘 뭐 해먹지?", to: "/" },
+    { label: "추천 요리", to: "/recommend" },
+    { label: "게시판", to: "/board" },
+    { label: "랭킹", to: "/rank" },
+  ];
 
   return (
     <div className="board-page">
+      <TopBar />
+      <TopNav items={navItems} />
+
       <div className="board-wrap">
-        {/* 상단 */}
-        <TopBar />
-        <TopNav items={navItems} />
+        <main className="board-content">
+          {loading && <div className="loading">로딩 중…</div>}
+          <ErrorBox error={err} />
 
-        {/* 중앙 스크롤 영역 */}
-        <main className="board-content" role="main" aria-label="게시판 피드">
-          {loading && <p>로딩 중…</p>}
-
-          {!loading && err && (
-            <div className="error-area" role="alert">
-              <p>{err}</p>
-              <div className="error-actions">
-                <button className="retry-btn" type="button" onClick={handleRetry}>
-                  다시 시도
-                </button>
-                <button
-                  className="login-btn"
-                  type="button"
-                  onClick={() => navigate("/login")}
-                >
-                  로그인 하러 가기
-                </button>
-              </div>
-            </div>
+          {!loading && !err && posts.length === 0 && (
+            <div className="empty">게시물이 없습니다.</div>
           )}
 
-          {!loading && !err && posts.length === 0 && <p>게시글이 없습니다.</p>}
-
-          {!loading &&
-            !err &&
-            posts.map((post) => {
-              const id = pick(
-                post,
-                ["id", "board_id", "boardId", "_id"],
-                Math.random().toString(36)
-              );
-              const title = pick(post, ["title"], "제목 없음");
-              const content = pick(post, ["content", "body"], "");
-              const author = pick(post, ["author", "writer", "nickname"], "익명");
-              const createdAt = formatDate(
-                pick(post, ["created_at", "createdAt", "regDate"], "")
-              );
-              const likeCount = pick(post, ["like_count", "likes", "likeCount"], 0);
-              const imageUrl = pick(post, ["image", "imgUrl", "photo"], null);
-
-              return (
-                <article key={id} className="post-card" aria-label="피드 게시글">
-                  {/* 헤더 */}
-                  <header className="post-head">
-                    <div className="post-author">
-                      <div className="meta">
-                        <strong className="name">{author}</strong>
-                        {createdAt && <span className="time">• {createdAt}</span>}
-                      </div>
-                    </div>
-                    <button className="post-more" aria-label="더보기 메뉴">
-                      •••
-                    </button>
-                  </header>
-
-                  {/* 미디어: 항상 정사각형 */}
-                  <div className="post-media" role="img" aria-label="게시 미디어">
-                    {imageUrl ? (
-                      <img src={imageUrl} alt={title} className="post-img" />
-                    ) : (
-                      <div className="media-inner">
-                        <p className="media-caption">{title}</p>
-                      </div>
-                    )}
-                    <div className="dots" aria-hidden="true">
-                      <span className="dot active" />
-                      <span className="dot" />
-                      <span className="dot" />
-                      <span className="dot" />
-                    </div>
-                  </div>
-
-                  {/* 본문/액션 */}
-                  <div className="post-body">
-                    {content && <p className="comment">{content}</p>}
-                    <div className="actions">
-                      <button className="btn-like" type="button" aria-label="좋아요">
-                        ❤️
-                      </button>
-                      <strong>{likeCount}</strong>
-                      <button className="btn-reply" type="button" aria-label="답글">
-                        ⟳
-                      </button>
-                    </div>
-                  </div>
-                </article>
-              );
-            })}
+          {!loading && !err && posts.map((p) => <PostCard key={safeKey(p.id)} post={p} />)}
         </main>
+      </div>
 
-        {/* 하단 */}
-        <div className="write-area">
-          <button
-            className="write-btn"
-            type="button"
-            onClick={() => navigate("/board/write")}
-          >
-            글 쓰기
-          </button>
-        </div>
-        <div className="tabbar-fixed">
-          <TabBar />
-        </div>
+      <div className="write-area">
+        <button
+          className="write-btn"
+          onClick={() => navigate("/board/write")}
+          type="button"
+        >
+          ✍️ 글쓰기
+        </button>
+      </div>
+
+      {/* 하단 탭 고정 */}
+      <div className="tabbar-fixed">
+        <TabBar />
       </div>
     </div>
   );
-};
-
-export default BoardPage;
+}

@@ -1,4 +1,3 @@
-// src/lib/api.js
 import axios from "axios";
 
 /**
@@ -21,8 +20,9 @@ function getCookie(name) {
   return match ? decodeURIComponent(match.split("=")[1]) : null;
 }
 
-// 쿠키 이름을 프로젝트에 맞게 지정해 주세요.
+// 쿠키 이름을 프로젝트에 맞게 지정
 const COOKIE_TOKEN_NAME = "access_token"; // ex) 'access_token' / 'token' 등
+const isDev = import.meta.env.DEV === true;
 
 const api = axios.create({
   baseURL,
@@ -35,41 +35,67 @@ const api = axios.create({
 // 쿠키 → Authorization 헤더 주입 (없으면 localStorage 백업)
 api.interceptors.request.use((cfg) => {
   const cookieToken = getCookie(COOKIE_TOKEN_NAME);
-  const lsToken = localStorage.getItem("access_token");
+  const lsToken = typeof localStorage !== "undefined" ? localStorage.getItem("access_token") : null;
   const token = cookieToken || lsToken;
 
-  if (token) {
+  // 요청에 이미 Authorization이 없다면 설정
+  if (token && !cfg.headers?.Authorization) {
     cfg.headers = cfg.headers || {};
     cfg.headers.Authorization = `Bearer ${token}`;
   }
 
-  // 디버깅 로그
-  const method = (cfg.method || "GET").toUpperCase();
-  const full = `${cfg.baseURL}${cfg.url}`;
-  console.debug("[API req]", method, full, {
-    attachedAuth: !!token,
-    withCredentials: cfg.withCredentials,
-  });
+  if (isDev) {
+    const method = (cfg.method || "GET").toUpperCase();
+    // baseURL과 url이 둘 다 슬래시로 끝/시작하는 경우를 정리
+    const urlPath = String(cfg.url || "").replace(/^\/+/, "");
+    const full = `${(cfg.baseURL || "").replace(/\/+$/, "")}/${urlPath}`;
+    console.debug("[API req]", method, full, {
+      attachedAuth: !!token,
+      withCredentials: cfg.withCredentials === true,
+    });
+  }
 
   return cfg;
 });
 
 // === 응답 인터셉터 ===
-// 401이어도 /auth/refresh 호출하지 않음 (요구사항)
+// 401이어도 /auth/refresh 호출하지 않음 (요구사항 유지)
 api.interceptors.response.use(
-  (res) => res,
+  (res) => {
+    if (isDev) {
+      const urlPath = String(res.config?.url || "").replace(/^\/+/, "");
+      const full = `${(res.config?.baseURL || baseURL).replace(/\/+$/, "")}/${urlPath}`;
+      console.debug("[API res]", res.status, full);
+    }
+    return res;
+  },
   (err) => {
-    const status = err?.response?.status;
-    const url = `${err?.config?.baseURL || baseURL}${err?.config?.url || ""}`;
-    console.error("[API err]", status, url, err);
+    // ✅ 취소(AbortController)면 시끄러운 에러 로그를 남기지 않음
+    const isCanceled =
+      axios.isCancel?.(err) || err?.code === "ERR_CANCELED" || err?.message === "canceled";
 
-    // 필요 시 401 공통 처리(전역 알림/로그아웃/리다이렉트 훅)
+    if (isCanceled) {
+      if (isDev) {
+        const urlPath = String(err?.config?.url || "").replace(/^\/+/, "");
+        const full = `${(err?.config?.baseURL || baseURL).replace(/\/+$/, "")}/${urlPath}`;
+        console.debug("[API canceled]", full);
+      }
+      return Promise.reject(err); // 호출부에서 취소는 에러로 취급하지 않도록 처리
+    }
+
+    // 그 외 에러만 보기 좋게 로깅
+    const status = err?.response?.status;
+    const urlPath = String(err?.config?.url || "").replace(/^\/+/, "");
+    const full = `${(err?.config?.baseURL || baseURL).replace(/\/+$/, "")}/${urlPath}`;
+    console.error("[API err]", status, full, err);
+
+    // 필요 시 401 공통 처리 훅
     // if (status === 401) {
-    //   // 예: 라우팅 라이브러리에서 로그인 페이지로 보내기
+    //   // 예: 라우팅 라이브러리로 로그인 페이지로 이동
     //   // window.location.href = "/login";
     // }
 
-    throw err;
+    return Promise.reject(err);
   }
 );
 

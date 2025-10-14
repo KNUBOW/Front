@@ -272,3 +272,38 @@ html, body, #root {
   font-size: 16px;
   line-height: 1;
 }
+
+/* ▽ 추가: 이미지 좌/우 네비 버튼 (여러 장일 때 표시) */
+.media-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 36px;
+  min-width: 36px;
+  padding: 0 8px;
+  border: 1px solid var(--bd);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.85);
+  font-size: 22px;
+  line-height: 34px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  user-select: none;
+}
+.media-nav.prev { left: 8px; }
+.media-nav.next { right: 8px; }
+
+/* 반응형 (모바일 퍼스트) */
+@media (min-width: 768px) {
+  body { font-size: 18px; }
+  .board-page { max-width: 720px; }
+}
+@media (min-width: 1024px) {
+  body { font-size: 18px; }
+  .board-page { max-width: 960px; }
+}
+@media (min-width: 1440px) {
+  body { font-size: 20px; }
+  .board-page { max-width: 1200px; }
+}
