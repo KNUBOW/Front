@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import TopBar from "../components/TopBar";
 import TabBar from "../components/TabBar";
 import api from "../lib/api";
@@ -28,6 +29,8 @@ function useFixVh() {
 
 export default function RecipePage() {
   useFixVh();
+
+  const navigate = useNavigate();
 
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -97,6 +100,11 @@ export default function RecipePage() {
     };
   }, []);
 
+  const handleRecipeClick = (foodName) => {
+    if(!foodName) return;
+    navigate('/recipe-detail', { state: { food: foodName } });
+  }
+
   return (
     <div className="recipe-page">
       <div className="recipe-wrap">
@@ -134,28 +142,35 @@ export default function RecipePage() {
             <ul className="recipe-list" aria-label="추천 레시피 목록">
               {recipes.map((r, idx) => (
                 <li key={`${r.food ?? "recipe"}-${idx}`} className="recipe-card">
-                  <div className="card-head">
-                    <h2 className="food">{r.food || "이름 없는 레시피"}</h2>
-                    <div className="meta">
-                      <span className={diffClass(r.difficulty)}>Lv.{r.difficulty ?? "-"}</span>
-                      <span className="time">{r.cooking_time ? `${r.cooking_time} min` : "-"}</span>
+                  <button
+                    type="button"
+                    className="recipe-btn"
+                    onClick={() => handleRecipeClick(r.food)}
+                    style={{ width: "100%", textAlign: "left", background: "none", border: "none", padding: 0 }}
+                  >
+                    <div className="card-head">
+                      <h2 className="food">{r.food || "이름 없는 레시피"}</h2>
+                      <div className="meta">
+                        <span className={diffClass(r.difficulty)}>Lv.{r.difficulty ?? "-"}</span>
+                        <span className="time">{r.cooking_time ? `${r.cooking_time} min` : "-"}</span>
+                      </div>
                     </div>
-                  </div>
 
-                  {r.describe && <p className="desc">{r.describe}</p>}
+                    {r.describe && <p className="desc">{r.describe}</p>}
 
-                  <div className="ing">
-                    <p className="ing-title">사용 재료</p>
-                    {Array.isArray(r.use_ingredients) && r.use_ingredients.length > 0 ? (
-                      <ul className="chips">
-                        {r.use_ingredients.map((ing, i) => (
-                          <li className="chip" key={`${ing}-${i}`}>{ing}</li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <p className="muted">표시할 재료가 없어요.</p>
-                    )}
-                  </div>
+                    <div className="ing">
+                      <p className="ing-title">사용 재료</p>
+                      {Array.isArray(r.use_ingredients) && r.use_ingredients.length > 0 ? (
+                        <ul className="chips">
+                          {r.use_ingredients.map((ing, i) => (
+                            <li className="chip" key={`${ing}-${i}`}>{ing}</li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p className="muted">표시할 재료가 없어요.</p>
+                      )}
+                    </div>
+                  </button>
                 </li>
               ))}
             </ul>
