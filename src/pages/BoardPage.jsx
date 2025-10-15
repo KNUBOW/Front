@@ -30,8 +30,6 @@ function PostCard({ post }) {
     [post?.image_urls]
   );
 
-  console.log(images);
-
   // 여러 장일 때 간단한 인덱스 이동
   const [idx, setIdx] = useState(0);
   const hasImage = images.length > 0;

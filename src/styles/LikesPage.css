@@ -1,0 +1,12 @@
+:root {
+    --cotainer: 430px;
+    --bg: #ffffff;
+
+    --top-h: 56px;
+    --nav-h: 44px;
+    --tab-h: 64px;
+    --safe-top: 0px;
+    --safe-bottom: 0px;
+
+    overflow: hidden;
+}
