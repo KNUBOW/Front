@@ -38,6 +38,8 @@ export default function RecipePage() {
 
   // 동시 호출 방지
   const inFlight = useRef(false);
+  // 개별 레시피 상세 호출 방지
+  const clickInFlight = useRef(false);
 
   const diffClass = (d) => {
     const n = Number(d) || 0;
@@ -100,10 +102,35 @@ export default function RecipePage() {
     };
   }, []);
 
-  const handleRecipeClick = (foodName) => {
-    if(!foodName) return;
-    navigate('/recipe-detail', { state: { food: foodName } });
-  }
+  const handleRecipeClick = async (foodName) => {
+    if (!foodName) return;
+    if (clickInFlight.current) return;
+    clickInFlight.current = true;
+
+    try {
+      setErr("");
+      // /recipe/food-cook API에 food 파라미터로 요청 (서버가 다르면 적절히 조정)
+      const res = await api.get("/recipe/food-cook", {
+        params: { food: foodName },
+        headers: { accept: "application/json" },
+      });
+
+      // 응답 shape에 따라 안전하게 추출
+      const data = res?.data?.recipe ?? res?.data?.result ?? res?.data ?? null;
+      if (!data) {
+        setErr("레시피 상세를 불러오지 못했습니다.");
+        return;
+      }
+
+      // RecommendResultPage와 동일한 형태로 전달
+      navigate("/recommend/result", { state: { result: data, query: foodName } });
+    } catch (e) {
+      console.error(e);
+      setErr("레시피 상세를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.");
+    } finally {
+      clickInFlight.current = false;
+    }
+  };
 
   return (
     <div className="recipe-page">
