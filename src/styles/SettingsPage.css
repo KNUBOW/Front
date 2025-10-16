@@ -1,7 +1,7 @@
 /* 모바일 퍼스트 (<= 430px) */
 :root{
   --container: 430px;
-  --bg: #f8f4ea;                 /* 본문 배경(스크린샷 톤) */
+  --bg: #ffffff;                 /* 본문 배경(스크린샷 톤) */
   --ink: #171717;                /* 텍스트 */
   --sub-ink: #6e6a63;            /* 보조 텍스트 */
   --bar: #d9cebf;                /* 상단 바 */
@@ -35,14 +35,60 @@
   display: grid;
   grid-template-columns: 56px 1fr 56px;
   align-items: center;
-  background: var(--bar);
+  background: var(--bg);
   padding: 0 8px;
   z-index: 10;
+  box-shadow: 0 2px 8px rgba(0,0,0,.05);
+
+  /* children가 topbar 전체 높이를 채우도록(세로 정렬 보장) */
+  align-items: stretch;
+}
+
+/* settings-topbar 내부의 모든 직접 자식 요소를 전체 높이로 만들고 flex로 세로 중앙 정렬 */
+.settings-topbar > * {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 타이틀은 왼쪽 정렬을 유지하도록 별도 처리 */
+.settings-topbar > .topbar-title {
+  justify-content: flex-start;
+  padding: 0 8px;
+  text-align: left;
 }
 
 .back-btn{
-  all: unset; display: grid; place-items: center;
-  width: 40px; height: 40px; margin-left: 4px; cursor: pointer;
+  all: unset;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  margin-left: 4px;
+  cursor: pointer;
+
+  background: transparent !important; /* 배경 제거 */
+  box-shadow: none !important;        /* 그림자 제거 */
+  border: none !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+}
+
+/* SVG 내부 채우기/배경 제거, 아이콘 색상은 currentColor를 따르도록 */
+.back-btn svg,
+.back-btn svg * {
+  background: transparent !important;
+  fill: none !important;      /* 아이콘을 투명하게 하려면 none, 색상 유지하려면 currentColor 사용 */
+  stroke: currentColor !important;
+}
+
+/* 혹시 의사요소가 그려져 있을 경우 방지 */
+.back-btn::before,
+.back-btn::after {
+  content: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
 }
 .topbar-title{
   margin: 0;
@@ -165,9 +211,9 @@
   justify-content:center;
 }
 .btn-solid{
-  background: var(--black);
+  background: #FFCC33;
   color: #fff;
-  border: 1px solid #000;
+  border: 1px solid #FFCC33;
   display:flex;
   align-items:center;
   justify-content:center;
