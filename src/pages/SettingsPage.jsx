@@ -6,17 +6,33 @@ import "../styles/SettingsPage.css";
 /** JWT payload 파싱 (라이브러리 없이) */
 function decodeJwtPayload(token) {
   try {
-    const base64Url = token.split(".")[1];
-    if (!base64Url) return null;
-    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+    if (!token) return null;
+    // "Bearer ..." 형태면 토큰만 취함
+    const t = String(token).split(" ").pop();
+    const parts = t.split(".");
+    if (parts.length < 2) return null;
+
+    // payload는 base64url 인코딩되어 있음 -> base64로 변환
+    let payloadB64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+    const pad = payloadB64.length % 4;
+    if (pad) payloadB64 += "=".repeat(4 - pad);
+
+    // atob로 디코드 후 URI 디코딩해서 안전하게 JSON 파싱
     const json = decodeURIComponent(
-      atob(base64)
+      atob(payloadB64)
         .split("")
-        .map(c => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+        .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
         .join("")
     );
-    return JSON.parse(json);
-  } catch {
+
+    const obj = JSON.parse(json);
+
+    // debugging: payload 내용 콘솔에 찍히도록 함(개발 시에만 유용)
+    console.debug("decoded JWT payload:", obj);
+
+    return obj;
+  } catch (err) {
+    console.error("decodeJwtPayload error:", err);
     return null;
   }
 }
@@ -42,14 +58,18 @@ const SettingsPage = () => {
       ""; // 없으면 빈 문자열
 
     const payload = token ? decodeJwtPayload(token) : null;
+
+    console.log("JWT payload:", payload); // payload 전체를 확인
+
     if (payload) {
-      // 흔히 쓰는 키 순서대로 시도
+      // 우선순위: nickname -> preferred_username -> name -> username -> email -> sub
       const name =
-        payload.name ||
-        payload.username ||
         payload.nickname ||
         payload.preferred_username ||
-        payload.sub || // 마지막 fallback
+        payload.name ||
+        payload.username ||
+        payload.email ||
+        payload.sub ||
         "게스트";
       setProfileName(String(name));
     }
