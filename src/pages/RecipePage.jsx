@@ -109,24 +109,46 @@ export default function RecipePage() {
 
     try {
       setErr("");
-      // /recipe/food-cook API에 food 파라미터로 요청 (서버가 다르면 적절히 조정)
-      const res = await api.get("/recipe/food-cook", {
-        params: { food: foodName },
-        headers: { accept: "application/json" },
-      });
 
-      // 응답 shape에 따라 안전하게 추출
-      const data = res?.data?.recipe ?? res?.data?.result ?? res?.data ?? null;
-      if (!data) {
+      const res = await api.post(
+        "/recipe/food-cook",
+        { chat: foodName },
+        {
+          headers: {
+            accept: "application/json",
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const resData = res?.data;
+      if (!resData) {
         setErr("레시피 상세를 불러오지 못했습니다.");
         return;
       }
 
-      // RecommendResultPage와 동일한 형태로 전달
-      navigate("/recommend/result", { state: { result: data, query: foodName } });
+      // 서버 샘플 스키마에 맞춰 정규화 (step 혹은 steps 처리)
+      const normalized = {
+        food: resData.food ?? foodName,
+        difficulty: resData.difficulty ?? null,
+        cooking_time: resData.cooking_time ?? null,
+        use_ingredients: Array.isArray(resData.use_ingredients) ? resData.use_ingredients : [],
+        steps: Array.isArray(resData.steps)
+          ? resData.steps
+          : Array.isArray(resData.step)
+          ? resData.step
+          : [],
+        tip: resData.tip ?? "",
+        video: resData.video ?? "",
+        tag: resData.tag ?? "",
+      };
+
+      navigate("/recommend/result", { state: { result: normalized, query: foodName } });
     } catch (e) {
       console.error(e);
-      setErr("레시피 상세를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.");
+      const resp = e?.response;
+      if (resp?.data) setErr(resp.data.message ?? JSON.stringify(resp.data));
+      else setErr("레시피 상세를 불러오지 못했습니다.");
     } finally {
       clickInFlight.current = false;
     }
