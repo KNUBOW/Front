@@ -1,18 +1,15 @@
-// src/pages/SettingsPage.jsx
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/SettingsPage.css";
 
-/** JWT payload 파싱 (라이브러리 없이) */
 function decodeJwtPayload(token) {
   try {
     if (!token) return null;
-    // "Bearer ..." 형태면 토큰만 취함
+
     const t = String(token).split(" ").pop();
     const parts = t.split(".");
     if (parts.length < 2) return null;
 
-    // payload는 base64url 인코딩되어 있음 -> base64로 변환
     let payloadB64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
     const pad = payloadB64.length % 4;
     if (pad) payloadB64 += "=".repeat(4 - pad);
@@ -27,9 +24,6 @@ function decodeJwtPayload(token) {
 
     const obj = JSON.parse(json);
 
-    // debugging: payload 내용 콘솔에 찍히도록 함(개발 시에만 유용)
-    console.debug("decoded JWT payload:", obj);
-
     return obj;
   } catch (err) {
     console.error("decodeJwtPayload error:", err);
@@ -37,7 +31,6 @@ function decodeJwtPayload(token) {
   }
 }
 
-/** 쿠키 읽기 (access_token이 쿠키에 있을 수도 있음) */
 function getCookie(name) {
   const m = document.cookie.match("(^|;)\\s*" + name + "\\s*=\\s*([^;]+)");
   return m ? m.pop() : "";
@@ -77,7 +70,6 @@ const SettingsPage = () => {
 
   const onBack = () => nav(-1);
 
-  // 닫기/저장 누르면 홈으로
   const onClose = () => nav("/");
   const onSave = () => {
     // TODO: 서버 저장 API 연동 시 여기서 호출
