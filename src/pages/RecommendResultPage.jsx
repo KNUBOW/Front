@@ -172,6 +172,14 @@ export default function RecommendResultPage() {
           )}
 
           <div className="spacer" />
+
+          <div className="like-button-wrap">
+            <button 
+              type="button"
+              className="like-button">
+                좋아요 ❤️
+              </button>
+          </div>
         </main>
 
         <TabBar />
