@@ -45,6 +45,10 @@ function toArray(v) {
   return [v];
 }
 
+function handleAddLike() {
+  // to do: 좋아요 기능 구현
+}
+
 export default function RecommendResultPage() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -176,7 +180,8 @@ export default function RecommendResultPage() {
           <div className="like-button-wrap">
             <button 
               type="button"
-              className="like-button">
+              className="like-button"
+              onClick={handleAddLike}>
                 좋아요 ❤️
               </button>
           </div>
