@@ -1,7 +1,9 @@
 import { useLocation, useNavigate } from "react-router-dom";
+import { useState } from "react";
 import TopBar from "../components/TopBar";
 import TopNav from "../components/TopNav";
 import TabBar from "../components/TabBar";
+import api from "../lib/api";
 import "../styles/TopShell.css";
 import "../styles/RecommendResultPage.css";
 
@@ -45,13 +47,11 @@ function toArray(v) {
   return [v];
 }
 
-function handleAddLike() {
-  // to do: 좋아요 기능 구현
-}
-
 export default function RecommendResultPage() {
   const location = useLocation();
   const navigate = useNavigate();
+  const [isLiking, setIsLiking] = useState(false);
+  const [liked, setLiked] = useState(false);
   const data = location.state?.result || null;
   const query = location.state?.query || "";
 
@@ -101,6 +101,42 @@ export default function RecommendResultPage() {
   const ingredientsList = toArray(use_ingredients).map(toText).filter(Boolean);
   const stepsList = toArray(steps).map(toText).filter(Boolean);
   const tagsList = toArray(tag).map(toText).filter(Boolean);
+
+  // 좋아요 추가 핸들러 — 백엔드가 기대하는 필드 형태로 payload 구성
+  const handleAddLike = async () => {
+    if (isLiking || liked) return; // 중복 요청 방지
+    setIsLiking(true);
+
+    try {
+      // use_ingredients가 배열(객체 배열)인지 우선 사용, 아니면 문자열 배열에서 name으로 변환
+      const normalizedIngredients = Array.isArray(use_ingredients)
+        ? use_ingredients
+        : ingredientsList.map((txt) => ({ name: txt }));
+
+      // 서버가 예시로 준 구조에 맞춰 명시적으로 필드 전달
+      const payload = {
+        food: food ?? toText(food),
+        use_ingredients: normalizedIngredients,
+        steps: stepsList,
+        tip: tip ?? null,
+        _ai_provider: data._ai_provider ?? "ollama",
+      };
+
+      console.info("POST /recipe/like payload:", payload);
+      const res = await api.post("/recipe/like", payload);
+      console.info("좋아요 응답:", res?.data);
+
+      setLiked(true);
+    } catch (err) {
+      // 서버가 반환한 검증 메시지 확인 (422일 경우 거부 이유가 들어있음)
+      console.error("좋아요 처리 중 오류 발생:", err);
+      if (err?.response?.data) {
+        console.error("서버 응답(검증 오류 등):", err.response.data);
+      }
+    } finally {
+      setIsLiking(false);
+    }
+  };
 
   return (
     <div className="result-page">
@@ -181,9 +217,11 @@ export default function RecommendResultPage() {
             <button 
               type="button"
               className="like-button"
-              onClick={handleAddLike}>
-                좋아요 ❤️
-              </button>
+              onClick={handleAddLike}
+              disabled={isLiking || liked}
+            >
+              {isLiking ? "전송중..." : liked ? "좋아요 완료 ❤️" : "좋아요 ❤️"}
+            </button>
           </div>
         </main>
 
