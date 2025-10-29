@@ -51,7 +51,7 @@ const MainPage = () => {
                         <div className="card-icon" aria-hidden="true">🍳</div>
                         <h2 id="todayTitle" className="card-title">오늘 뭐 해먹지?</h2>
 
-                        <form className="search-form" onSubmit={onSubmit} role="search" aria-label="재료 검색">
+                        <form className="search-form" onSubmit={onSubmitTodayWhatEat} role="search" aria-label="재료 검색">
                             <div className="search-field">
                                 {/* 좌측 돋보기 (input 내부, absolute) */}
                                 <svg className="icon-left" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
@@ -91,9 +91,18 @@ const MainPage = () => {
 
                         {err && <p className="error-text" role="alert">{err}</p>}
                     </section>
-                    <h1>추천 요리</h1>
-                    <h1>랭킹</h1>
-                    <h1>게시판</h1>
+
+                    <div className="recommend-card card">
+                        <h1>오늘의 추천</h1>
+                    </div>
+                    
+                    <div className="ranking-card card">
+                        <h1>랭킹</h1>
+                    </div>
+
+                    <div className="board-card card">
+                        <h1>게시판</h1>
+                    </div>
                 </div>
                 <TabBar />
             </div>

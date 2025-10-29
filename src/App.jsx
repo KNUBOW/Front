@@ -9,6 +9,7 @@ import FindIdResult from './pages/FindIdResult';
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 
+import Main from './pages/MainPage';
 import TodayWhatEat from './pages/TodayWhatEat';
 import Recommend from './pages/RecommendPage';
 import Board from './pages/BoardPage';
@@ -58,6 +59,7 @@ function App() {
 
           {/* 보호 라우트(로그인 필요) */}
           <Route element={<ProtectedRoute />}>
+            <Route path="/main" element={<Main />} />
             <Route path="/" element={<TodayWhatEat />} />
             <Route path="/recommend" element={<Recommend />} />
             <Route path="/board" element={<Board />} />
