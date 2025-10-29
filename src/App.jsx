@@ -59,8 +59,8 @@ function App() {
 
           {/* 보호 라우트(로그인 필요) */}
           <Route element={<ProtectedRoute />}>
-            <Route path="/main" element={<Main />} />
-            <Route path="/" element={<TodayWhatEat />} />
+            <Route path="/" element={<Main />} />
+            <Route path="/todayWhatEat" element={<TodayWhatEat />} />
             <Route path="/recommend" element={<Recommend />} />
             <Route path="/board" element={<Board />} />
             <Route path="/rank" element={<Ranking />} />
