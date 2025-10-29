@@ -21,6 +21,24 @@ const MainPage = () => {
         { food: "오므라이스", time: "25분", ingredients: "밥, 계란, 케찹" },
     ];
 
+    // 샘플 랭킹 (나중에 API로 교체)
+    const sampleRanking = [
+        { title: "비빔밥", score: 5 },
+        { title: "라면", score: 4 },
+        { title: "잡채", score: 5 },
+        { title: "찌개", score: 3 },
+        { title: "김밥", score: 3 },
+    ];
+
+    // 샘플 게시판 (나중에 API로 교체)
+    const sampleBoard = [
+        { title: "맛집 추천", author: "홍길동", summary: "최근 방문한 맛집과 후기입니다." },
+        { title: "새로운 레시피", author: "김영희", summary: "간단하게 만들 수 있는 디저트 레시피 공유합니다." },
+        { title: "다이어트 식단", author: "이순신", summary: "수개월간의 다이어트 성공 후기입니다." },
+        { title: "최고의 국물", author: "박사장", summary: "국물 맛이 뛰어난 집을 추천합니다." },
+        { title: "가족과의 저녁", author: "최지우", summary: "가족과 함께한 맛있는 저녁 후기입니다." },
+    ];
+
     // 오늘 뭐 해먹지
     const onSubmitTodayWhatEat = async (e) => {
         e.preventDefault();
@@ -53,9 +71,15 @@ const MainPage = () => {
     };
     return (
         <div className="main-page">
-            <div className="main-wrap">
+            {/* main-wrap을 화면 전체 높이로 잡아 TopBar/TabBar 사이의 영역을 flex로 분배 */}
+            <div className="main-wrap" style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
                 <TopBar />
-                <div className="main-content" role="main">
+                {/* main-content는 TopBar/TabBar 사이의 영역을 차지, 내부는 열 방향, overflow hidden */}
+                <div
+                    className="main-content"
+                    role="main"
+                    style={{ display: 'flex', flexDirection: 'column', gap: 16, padding: 16, flex: 1, overflow: 'auto' }}
+                >
                     <section className="main-today-what-eat">
                         <div className="card-icon" aria-hidden="true">🍳</div>
                         <h2 id="todayTitle" className="card-title">오늘 뭐 해먹지?</h2>
@@ -101,7 +125,8 @@ const MainPage = () => {
                         {err && <p className="error-text" role="alert">{err}</p>}
                     </section>
 
-                    <div className="recommend-card main-card">
+                    {/* 추천 카드: 남은 공간 중 1/3 (flex 설정으로 동일 비율 분배), 내부 스크롤 가능 */}
+                    <div className="recommend-card main-card" style={{ flex: '0 0 auto' }}>
                         <div className="badge">추천 요리</div>
                         <ul className="recommend-list" role="list">
                             {sampleRecommendations.map((it, idx) => (
@@ -118,13 +143,38 @@ const MainPage = () => {
                         </ul>
                     </div>
                     
-                    <div className="ranking-card main-card">
-                        <h1>랭킹</h1>
+                    {/* 랭킹 카드: 내부 스크롤 가능 */}
+                    <div className="ranking-card main-card" style={{ flex: '0 0 auto' }}>
+                        <div className="badge">랭킹</div>
+                        <ul className="ranking-list" role="list">
+                            {sampleRanking.map((it, idx) => (
+                                <li key={idx} className="ranking-item" role="listitem">
+                                    <div className="rank-left">
+                                        <div className="rank-title">{idx + 1}위: {it.title}</div>
+                                        <div className="rank-sub">별점: <span className="stars">{'★'.repeat(it.score)}</span></div>
+                                    </div>
+                                </li>
+                            ))}
+                        </ul>
                     </div>
-
-                    <div className="board-card main-card">
-                        <h1>게시판</h1>
-                    </div>
+ 
+                    {/* 게시판 카드: 내부 스크롤 가능 */}
+                    <div className="board-card main-card" style={{ flex: '0 0 auto' }}>
+                        <div className="badge">게시판</div>
+                        <ul className="board-list" role="list">
+                            {sampleBoard.map((it, idx) => (
+                                <li key={idx} className="board-item" role="listitem">
+                                    <div className="board-left">
+                                        <div className="board-title">{it.title}</div>
+                                        <div className="board-author">작성자: {it.author}</div>
+                                    </div>
+                                    <div className="board-right">
+                                        <div className="board-summary">{it.summary}</div>
+                                    </div>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>  
                 </div>
                 <TabBar />
             </div>
