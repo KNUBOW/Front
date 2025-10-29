@@ -12,6 +12,15 @@ const MainPage = () => {
     const [err, setErr] = useState("");
     const navigate = useNavigate();
 
+    // 샘플 추천 리스트 (백엔드 연동 시 상태로 교체)
+    const sampleRecommendations = [
+        { food: "된장찌개", time: "30분", ingredients: "두부, 호박, 양파, 된장" },
+        { food: "김치 볶음밥", time: "20분", ingredients: "밥, 김치, 계란" },
+        { food: "닭갈비", time: "40분", ingredients: "닭고기, 고구마, 양배추" },
+        { food: "불고기", time: "35분", ingredients: "소고기, 양파, 당근" },
+        { food: "오므라이스", time: "25분", ingredients: "밥, 계란, 케찹" },
+    ];
+
     // 오늘 뭐 해먹지
     const onSubmitTodayWhatEat = async (e) => {
         e.preventDefault();
@@ -92,15 +101,28 @@ const MainPage = () => {
                         {err && <p className="error-text" role="alert">{err}</p>}
                     </section>
 
-                    <div className="recommend-card card">
-                        <h1>오늘의 추천</h1>
+                    <div className="recommend-card main-card">
+                        <div className="badge">추천 요리</div>
+                        <ul className="recommend-list" role="list">
+                            {sampleRecommendations.map((it, idx) => (
+                                <li className="recommend-item" key={idx} role="listitem" onClick={() => { /* 상세 이동 등 */ }}>
+                                    <div className="item-left">
+                                        <div className="title">{it.food}</div>
+                                        <div className="sub">조리 시간: <span className="time">{it.time}</span></div>
+                                    </div>
+                                    <div className="item-right">
+                                        {it.ingredients}
+                                    </div>
+                                </li>
+                            ))}
+                        </ul>
                     </div>
                     
-                    <div className="ranking-card card">
+                    <div className="ranking-card main-card">
                         <h1>랭킹</h1>
                     </div>
 
-                    <div className="board-card card">
+                    <div className="board-card main-card">
                         <h1>게시판</h1>
                     </div>
                 </div>
