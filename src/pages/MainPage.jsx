@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import TopBar from "../components/TopBar";
 import TabBar from "../components/TabBar";
@@ -11,6 +11,11 @@ const MainPage = () => {
     const [loading, setLoading] = useState(false);
     const [err, setErr] = useState("");
     const navigate = useNavigate();
+
+    const [posts, setPosts] = useState([]);
+    const [ranks, setRanks] = useState([]);
+
+    const limit = 5; // 랭킹 표시 개수
 
     // 샘플 추천 리스트 (백엔드 연동 시 상태로 교체)
     const sampleRecommendations = [
@@ -69,6 +74,45 @@ const MainPage = () => {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        const ac = new AbortController();
+
+        async function fetchInitialData() {
+
+            try {
+                // 게시판 데이터 불러오기
+                const boardRes = await api.get("/board/list", {
+                    params: { limit },
+                    signal: ac.signal,
+                    withCredentials: true,
+                });
+
+                const list = Array.isArray(boardRes.data) ? boardRes.data : boardRes.data?.data ?? [];
+
+                setPosts(list);
+
+                console.log("게시판 데이터:", list);
+
+                // 랭킹
+                const res = await api.get("/recipe/ranking", {
+                    params: { limit }, 
+                    headers: { accept: "application/json" },
+                    signal: ac.signal                 
+                });
+                
+                console.log(res.data);
+                setRanks(res.data);
+
+            } catch(e) {
+                console.error(e);
+            }
+        }
+
+        fetchInitialData();
+        return () => ac.abort();
+    }, []);
+
     return (
         <div className="main-page">
             {/* main-wrap을 화면 전체 높이로 잡아 TopBar/TabBar 사이의 영역을 flex로 분배 */}
