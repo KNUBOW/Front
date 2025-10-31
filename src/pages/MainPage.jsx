@@ -81,8 +81,10 @@ const MainPage = () => {
                     style={{ display: 'flex', flexDirection: 'column', gap: 16, padding: 16, flex: 1, overflow: 'auto' }}
                 >
                     <section className="main-today-what-eat">
-                        <div className="card-icon" aria-hidden="true">🍳</div>
-                        <h2 id="todayTitle" className="card-title">오늘 뭐 해먹지?</h2>
+                        <div className="card-header">
+                            <div className="card-icon" aria-hidden="true">🍳</div>
+                            <h2 id="todayTitle" className="card-title">오늘 뭐 해먹지?</h2>
+                        </div>
 
                         <form className="search-form" onSubmit={onSubmitTodayWhatEat} role="search" aria-label="재료 검색">
                             <div className="search-field">

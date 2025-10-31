@@ -66,6 +66,12 @@
     overflow: auto;
 }
 
+.card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
 .main-today-what-eat {
     width: 100%;
     display: flex;
@@ -78,7 +84,7 @@
     border: 2px solid var(--accent);
     background: var(--bg);
     border-radius: 12px;
-    padding: 14px;
+    padding: 8px;
     display: flex;
     align-items: center;
     gap: 12px;
@@ -90,8 +96,17 @@
 .card-title { margin: 0; font-size: 18px; font-weight: 700; }
 
 /* 검색 필드 */
+.search-form {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+}
+
 .search-form .search-field {
+    width: 100%;
     position: relative;
+    display: flex;
     flex: 1;
     margin-left: 8px;
 }
