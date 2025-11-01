@@ -6,18 +6,23 @@ import api from "../lib/api";
 import "../styles/TopShell.css";
 import "../styles/MainPage.css";
 
+import searchIcon from "../assets/search_icon.svg";
+import sendIcon from "../assets/arrow_circle_icon.svg";
+import today_what_eat_icon from "../assets/today_what_eat_icon.png";
+
 const MainPage = () => {
   const [q, setQ] = useState("");
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
   const navigate = useNavigate();
 
-  const [posts, setPosts] = useState([]);  // 게시판 API 데이터
-  const [ranks, setRanks] = useState([]);  // 랭킹 API 데이터
+  const [posts, setPosts] = useState([]);   // 게시판 API 데이터
+  const [ranks, setRanks] = useState([]);   // 랭킹 API 데이터
+  const [listsLoading, setListsLoading] = useState(false); // 목록 로딩
 
   const limit = 5; // 랭킹/게시판 표시 개수
 
-  // 🔸 샘플(백업용) — API 데이터가 비어있을 때만 사용
+  // 🔸 추천 샘플(요청과 무관) — 유지
   const sampleRecommendations = [
     { food: "된장찌개", time: "30분", ingredients: "두부, 호박, 양파, 된장" },
     { food: "김치 볶음밥", time: "20분", ingredients: "밥, 김치, 계란" },
@@ -76,6 +81,8 @@ const MainPage = () => {
 
     async function fetchInitialData() {
       try {
+        setListsLoading(true);
+
         const boardRes = await api.get("/board/list", {
           params: { limit },
           signal: ac.signal,
@@ -85,7 +92,7 @@ const MainPage = () => {
         const list = Array.isArray(boardRes.data)
           ? boardRes.data
           : boardRes.data?.data ?? [];
-        setPosts(list);
+        setPosts(Array.isArray(list) ? list : []);
 
         const rankRes = await api.get("/recipe/ranking", {
           params: { limit },
@@ -96,6 +103,11 @@ const MainPage = () => {
         setRanks(Array.isArray(rankRes.data) ? rankRes.data : []);
       } catch (e) {
         console.error("[fetchInitialData]", e?.name || e, e?.message || "");
+        // 실패해도 샘플로 대체하지 않음 (요청사항)
+        setPosts([]);
+        setRanks([]);
+      } finally {
+        setListsLoading(false);
       }
     }
 
@@ -127,19 +139,15 @@ const MainPage = () => {
           {/* 오늘 뭐 해먹지? */}
           <section className="main-today-what-eat">
             <div className="card-header">
-              <div className="card-icon" aria-hidden="true">🍳</div>
+              <div className="card-icon" aria-hidden="true">
+                <img src={today_what_eat_icon} alt="" width="32" height="32"/>
+              </div>
               <h2 id="todayTitle" className="card-title">오늘 뭐 해먹지?</h2>
             </div>
 
             <form className="search-form" onSubmit={onSubmitTodayWhatEat} role="search" aria-label="재료 검색">
               <div className="search-field">
-                {/* 좌측 돋보기 */}
-                <svg className="icon-left" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
-                  <path
-                    d="M10 2a8 8 0 015.66 13.66l3.34 3.34a1 1 0 11-1.41 1.41l-3.34-3.34A8 8 0 1110 2zm0 2a6 6 0 100 12A6 6 0 0010 4z"
-                    fill="currentColor"
-                  />
-                </svg>
+                <img src={searchIcon} alt="검색 아이콘" className="icon-left" width="20" height="20"/>
 
                 <input
                   type="text"
@@ -153,18 +161,8 @@ const MainPage = () => {
                   disabled={loading}
                 />
 
-                {/* 우측 제출 버튼 */}
-                <button type="submit" className="icon-right" aria-label="레시피 추천 검색" disabled={loading}>
-                  {loading ? (
-                    <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" className="spin">
-                      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" fill="none" opacity="0.2" />
-                      <path d="M22 12a10 10 0 00-10-10" stroke="currentColor" strokeWidth="3" fill="none" />
-                    </svg>
-                  ) : (
-                    <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
-                      <path d="M2 21l19-9L2 3v7l13 2-13 2v7z" fill="currentColor" />
-                    </svg>
-                  )}
+                <button type="submit" className="icon-button" aria-label="추천 요청" disabled={loading}>
+                  <img src={sendIcon} alt="전송 아이콘" className="icon-right" width="24" height="24"/>
                 </button>
               </div>
             </form>
@@ -172,6 +170,7 @@ const MainPage = () => {
             {err && <p className="error-text" role="alert">{err}</p>}
           </section>
 
+          {/* 추천 카드 (샘플 유지) */}
           <div className="recommend-card main-card" style={{ flex: '0 0 auto' }}>
             <div className="badge">추천 요리</div>
             <ul className="recommend-list" role="list">
@@ -189,72 +188,84 @@ const MainPage = () => {
             </ul>
           </div>
 
+          {/* 랭킹 — 샘플 제거, 빈 상태 처리 */}
           <div className="ranking-card main-card" style={{ flex: '0 0 auto' }}>
             <div className="badge">랭킹</div>
-            <ul className="ranking-list" role="list">
-              {(rankItems.length ? rankItems : sampleRanking).map((it, idx) => {
-                const title = it.food_name ?? it.title ?? "-";
-                const rawScore = typeof it.count === "number" ? it.count : it.score ?? 0;
-                const score = Math.max(0, Math.min(5, Math.round(rawScore)));
-                return (
-                  <li key={title + idx} className="ranking-item" role="listitem">
-                    <div className="rank-left">
-                      <div className="rank-title">{idx + 1}위: {title}</div>
-                      <div className="rank-sub">
-                        별점: <span className="stars">{'★'.repeat(score)}{'☆'.repeat(5 - score)}</span>
-                        {typeof it.count === "number" && <span className="count"> </span>}
+
+            {listsLoading ? (
+              <div className="empty" aria-live="polite">랭킹을 불러오는 중…</div>
+            ) : rankItems.length > 0 ? (
+              <ul className="ranking-list" role="list">
+                {rankItems.map((it, idx) => {
+                  const title = it.food_name ?? it.title ?? "-";
+                  const rawScore = typeof it.count === "number" ? it.count : (typeof it.score === "number" ? it.score : 0);
+                  const score = Math.max(0, Math.min(5, Math.round(rawScore)));
+                  const reviewCount = typeof it.count === "number" ? it.count : undefined;
+
+                  return (
+                    <li key={title + idx} className="ranking-item" role="listitem">
+                      <div className="rank-left">
+                        <div className="rank-title">{idx + 1}위: {title}</div>
+                        <div className="rank-sub">
+                          별점: <span className="stars">{'★'.repeat(score)}{'☆'.repeat(5 - score)}</span>
+                          {typeof reviewCount === "number" && (
+                            <span className="count" aria-label={`리뷰 ${reviewCount}개`}>&nbsp;(리뷰 {reviewCount}개)</span>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
+                    </li>
+                  );
+                })}
+              </ul>
+            ) : (
+              <div className="empty" aria-live="polite">아직 랭킹 데이터가 없어요.</div>
+            )}
           </div>
 
+          {/* 게시판 — 샘플 제거, 빈 상태 처리 */}
           <div className="board-card main-card" style={{ flex: '0 0 auto' }}>
             <div className="badge">게시판</div>
-            <ul className="board-list" role="list">
-              {(boardItems.length ? boardItems : sampleBoard).map((it, idx) => {
-                const isApiItem = typeof it.id !== "undefined";
-                const key = isApiItem ? it.id : `sample-${idx}`;
-                const title = it.title;
-                const nickname = isApiItem ? (it.author?.nickname ?? "-") : (it.author ?? "-");
-                const created = isApiItem ? formatKST(it.created_at) : undefined;
-                const likeCount = isApiItem ? it.like_count ?? 0 : undefined;
-                const hasImage = isApiItem ? !!it.exist_image : false;
 
-                return (
-                  <li
-                    key={key}
-                    className="board-item"
-                    role="listitem"
-                    onClick={() => {
-                      if (isApiItem) {
-                        navigate(`/board/${it.id}`);
-                      }
-                    }}
-                    style={{ cursor: isApiItem ? 'pointer' : 'default' }}
-                  >
-                    <div className="board-left">
-                      <div className="board-title">
-                        {title} {hasImage && <span className="img-badge" aria-label="이미지 포함">🖼️</span>}
+            {listsLoading ? (
+              <div className="empty" aria-live="polite">게시글을 불러오는 중…</div>
+            ) : boardItems.length > 0 ? (
+              <ul className="board-list" role="list">
+                {boardItems.map((it) => {
+                  const isApiItem = typeof it.id !== "undefined";
+                  const key = isApiItem ? it.id : String(Math.random());
+                  const title = it.title ?? "-";
+                  const nickname = isApiItem ? (it.author?.nickname ?? "-") : (it.author ?? "-");
+                  const created = isApiItem ? formatKST(it.created_at) : "-";
+                  const likeCount = isApiItem ? (it.like_count ?? 0) : 0;
+                  const hasImage = isApiItem ? !!it.exist_image : false;
+
+                  return (
+                    <li
+                      key={key}
+                      className="board-item"
+                      role="listitem"
+                      onClick={() => { if (isApiItem) navigate(`/board/${it.id}`); }}
+                      style={{ cursor: isApiItem ? 'pointer' : 'default' }}
+                    >
+                      <div className="board-left">
+                        <div className="board-title">
+                          {title} {hasImage && <span className="img-badge" aria-label="이미지 포함">🖼️</span>}
+                        </div>
+                        <div className="board-author">작성자: {nickname}</div>
                       </div>
-                      <div className="board-author">작성자: {nickname}</div>
-                    </div>
-                    <div className="board-right">
-                      {isApiItem ? (
+                      <div className="board-right">
                         <div className="board-meta">
                           <span className="created-at">{created}</span>
                           <span className="likes">♥ {likeCount}</span>
                         </div>
-                      ) : (
-                        <div className="board-summary">{it.summary}</div>
-                      )}
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            ) : (
+              <div className="empty" aria-live="polite">게시글이 아직 없습니다.</div>
+            )}
           </div>
         </div>
 
