@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import TopBar from "../components/TopBar";
 import TabBar from "../components/TabBar";
@@ -7,225 +7,261 @@ import "../styles/TopShell.css";
 import "../styles/MainPage.css";
 
 const MainPage = () => {
-    const [q, setQ] = useState("");
-    const [loading, setLoading] = useState(false);
-    const [err, setErr] = useState("");
-    const navigate = useNavigate();
+  const [q, setQ] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState("");
+  const navigate = useNavigate();
 
-    const [posts, setPosts] = useState([]);
-    const [ranks, setRanks] = useState([]);
+  const [posts, setPosts] = useState([]);  // 게시판 API 데이터
+  const [ranks, setRanks] = useState([]);  // 랭킹 API 데이터
 
-    const limit = 5; // 랭킹 표시 개수
+  const limit = 5; // 랭킹/게시판 표시 개수
 
-    // 샘플 추천 리스트 (백엔드 연동 시 상태로 교체)
-    const sampleRecommendations = [
-        { food: "된장찌개", time: "30분", ingredients: "두부, 호박, 양파, 된장" },
-        { food: "김치 볶음밥", time: "20분", ingredients: "밥, 김치, 계란" },
-        { food: "닭갈비", time: "40분", ingredients: "닭고기, 고구마, 양배추" },
-        { food: "불고기", time: "35분", ingredients: "소고기, 양파, 당근" },
-        { food: "오므라이스", time: "25분", ingredients: "밥, 계란, 케찹" },
-    ];
+  // 🔸 샘플(백업용) — API 데이터가 비어있을 때만 사용
+  const sampleRecommendations = [
+    { food: "된장찌개", time: "30분", ingredients: "두부, 호박, 양파, 된장" },
+    { food: "김치 볶음밥", time: "20분", ingredients: "밥, 김치, 계란" },
+    { food: "닭갈비", time: "40분", ingredients: "닭고기, 고구마, 양배추" },
+    { food: "불고기", time: "35분", ingredients: "소고기, 양파, 당근" },
+    { food: "오므라이스", time: "25분", ingredients: "밥, 계란, 케찹" },
+  ];
 
-    // 샘플 랭킹 (나중에 API로 교체)
-    const sampleRanking = [
-        { title: "비빔밥", score: 5 },
-        { title: "라면", score: 4 },
-        { title: "잡채", score: 5 },
-        { title: "찌개", score: 3 },
-        { title: "김밥", score: 3 },
-    ];
+  // ✅ KST 표시 유틸
+  const formatKST = (iso) => {
+    if (!iso) return "-";
+    try {
+      return new Date(iso).toLocaleString("ko-KR", {
+        timeZone: "Asia/Seoul",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    } catch {
+      return iso;
+    }
+  };
 
-    // 샘플 게시판 (나중에 API로 교체)
-    const sampleBoard = [
-        { title: "맛집 추천", author: "홍길동", summary: "최근 방문한 맛집과 후기입니다." },
-        { title: "새로운 레시피", author: "김영희", summary: "간단하게 만들 수 있는 디저트 레시피 공유합니다." },
-        { title: "다이어트 식단", author: "이순신", summary: "수개월간의 다이어트 성공 후기입니다." },
-        { title: "최고의 국물", author: "박사장", summary: "국물 맛이 뛰어난 집을 추천합니다." },
-        { title: "가족과의 저녁", author: "최지우", summary: "가족과 함께한 맛있는 저녁 후기입니다." },
-    ];
+  // 오늘 뭐 해먹지
+  const onSubmitTodayWhatEat = async (e) => {
+    e.preventDefault();
+    setErr("");
+    const chat = q.trim();
+    if (!chat) return;
 
-    // 오늘 뭐 해먹지
-    const onSubmitTodayWhatEat = async (e) => {
-        e.preventDefault();
-        setErr("");
-        const chat = q.trim();
-
-        if (!chat) return;
-
-        try {
-            setLoading(true);
-
-            const res = await api.post(
-                "/recipe/ingredient-cook",
-                { chat },
-                {
-                    headers: {
-                        accept: "application/json",
-                        "Content-Type": "application/json",
-                    },
-                }
-            )
-
-            navigate("/recommend/result", { state: { result: res.data, query: chat } });
-        } catch (e) {
-            console.error("[ingredient-cook 실패]", e);
-            setErr("추천 요청에 실패했어요. 잠시 후 다시 시도해주세요.");
-        } finally {
-            setLoading(false);
+    try {
+      setLoading(true);
+      const res = await api.post(
+        "/recipe/ingredient-cook",
+        { chat },
+        {
+          headers: {
+            accept: "application/json",
+            "Content-Type": "application/json",
+          },
         }
-    };
+      );
+      navigate("/recommend/result", { state: { result: res.data, query: chat } });
+    } catch (e) {
+      console.error("[ingredient-cook 실패]", e);
+      setErr("추천 요청에 실패했어요. 잠시 후 다시 시도해주세요.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    useEffect(() => {
-        const ac = new AbortController();
+  useEffect(() => {
+    const ac = new AbortController();
 
-        async function fetchInitialData() {
+    async function fetchInitialData() {
+      try {
+        const boardRes = await api.get("/board/list", {
+          params: { limit },
+          signal: ac.signal,
+          withCredentials: true,
+        });
 
-            try {
-                // 게시판 데이터 불러오기
-                const boardRes = await api.get("/board/list", {
-                    params: { limit },
-                    signal: ac.signal,
-                    withCredentials: true,
-                });
+        const list = Array.isArray(boardRes.data)
+          ? boardRes.data
+          : boardRes.data?.data ?? [];
+        setPosts(list);
 
-                const list = Array.isArray(boardRes.data) ? boardRes.data : boardRes.data?.data ?? [];
+        const rankRes = await api.get("/recipe/ranking", {
+          params: { limit },
+          headers: { accept: "application/json" },
+          signal: ac.signal,
+        });
 
-                setPosts(list);
+        setRanks(Array.isArray(rankRes.data) ? rankRes.data : []);
+      } catch (e) {
+        console.error("[fetchInitialData]", e?.name || e, e?.message || "");
+      }
+    }
 
-                console.log("게시판 데이터:", list);
+    fetchInitialData();
+    return () => ac.abort();
+  }, []);
 
-                // 랭킹
-                const res = await api.get("/recipe/ranking", {
-                    params: { limit }, 
-                    headers: { accept: "application/json" },
-                    signal: ac.signal                 
-                });
-                
-                console.log(res.data);
-                setRanks(res.data);
+  // ✅ 렌더링용 파생 데이터
+  const boardItems = useMemo(
+    () => (posts && posts.length ? posts.slice(0, limit) : []),
+    [posts]
+  );
 
-            } catch(e) {
-                console.error(e);
-            }
-        }
+  const rankItems = useMemo(
+    () => (ranks && ranks.length ? ranks.slice(0, limit) : []),
+    [ranks]
+  );
 
-        fetchInitialData();
-        return () => ac.abort();
-    }, []);
+  return (
+    <div className="main-page">
+      <div className="main-wrap" style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+        <TopBar />
 
-    return (
-        <div className="main-page">
-            {/* main-wrap을 화면 전체 높이로 잡아 TopBar/TabBar 사이의 영역을 flex로 분배 */}
-            <div className="main-wrap" style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
-                <TopBar />
-                {/* main-content는 TopBar/TabBar 사이의 영역을 차지, 내부는 열 방향, overflow hidden */}
-                <div
-                    className="main-content"
-                    role="main"
-                    style={{ display: 'flex', flexDirection: 'column', gap: 16, padding: 16, flex: 1, overflow: 'auto' }}
-                >
-                    <section className="main-today-what-eat">
-                        <div className="card-header">
-                            <div className="card-icon" aria-hidden="true">🍳</div>
-                            <h2 id="todayTitle" className="card-title">오늘 뭐 해먹지?</h2>
-                        </div>
-
-                        <form className="search-form" onSubmit={onSubmitTodayWhatEat} role="search" aria-label="재료 검색">
-                            <div className="search-field">
-                                {/* 좌측 돋보기 (input 내부, absolute) */}
-                                <svg className="icon-left" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
-                                    <path
-                                        d="M10 2a8 8 0 015.66 13.66l3.34 3.34a1 1 0 11-1.41 1.41l-3.34-3.34A8 8 0 1110 2zm0 2a6 6 0 100 12A6 6 0 0010 4z"
-                                        fill="currentColor"
-                                    />
-                                </svg>
-
-                                <input
-                                    type="text"
-                                    name="ingredients"
-                                    placeholder="재료를 입력해 보세요 (예: 양파, 베이컨, 새우)"
-                                    value={q}
-                                    onChange={(e) => setQ(e.target.value)}
-                                    autoComplete="off"
-                                    inputMode="text"
-                                    aria-label="재료 입력"
-                                    disabled={loading}
-                                />
-
-                                {/* 우측 제출 버튼 (input 내부, absolute) */}
-                                <button type="submit" className="icon-right" aria-label="레시피 추천 검색" disabled={loading}>
-                                    {loading ? (
-                                        <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" className="spin">
-                                            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" fill="none" opacity="0.2" />
-                                            <path d="M22 12a10 10 0 00-10-10" stroke="currentColor" strokeWidth="3" fill="none" />
-                                        </svg>
-                                    ) : (
-                                        <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
-                                            <path d="M2 21l19-9L2 3v7l13 2-13 2v7z" fill="currentColor" />
-                                        </svg>
-                                    )}
-                                </button>
-                            </div>
-                        </form>
-
-                        {err && <p className="error-text" role="alert">{err}</p>}
-                    </section>
-
-                    {/* 추천 카드: 남은 공간 중 1/3 (flex 설정으로 동일 비율 분배), 내부 스크롤 가능 */}
-                    <div className="recommend-card main-card" style={{ flex: '0 0 auto' }}>
-                        <div className="badge">추천 요리</div>
-                        <ul className="recommend-list" role="list">
-                            {sampleRecommendations.map((it, idx) => (
-                                <li className="recommend-item" key={idx} role="listitem" onClick={() => { /* 상세 이동 등 */ }}>
-                                    <div className="item-left">
-                                        <div className="title">{it.food}</div>
-                                        <div className="sub">조리 시간: <span className="time">{it.time}</span></div>
-                                    </div>
-                                    <div className="item-right">
-                                        {it.ingredients}
-                                    </div>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-                    
-                    {/* 랭킹 카드: 내부 스크롤 가능 */}
-                    <div className="ranking-card main-card" style={{ flex: '0 0 auto' }}>
-                        <div className="badge">랭킹</div>
-                        <ul className="ranking-list" role="list">
-                            {sampleRanking.map((it, idx) => (
-                                <li key={idx} className="ranking-item" role="listitem">
-                                    <div className="rank-left">
-                                        <div className="rank-title">{idx + 1}위: {it.title}</div>
-                                        <div className="rank-sub">별점: <span className="stars">{'★'.repeat(it.score)}</span></div>
-                                    </div>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
- 
-                    {/* 게시판 카드: 내부 스크롤 가능 */}
-                    <div className="board-card main-card" style={{ flex: '0 0 auto' }}>
-                        <div className="badge">게시판</div>
-                        <ul className="board-list" role="list">
-                            {sampleBoard.map((it, idx) => (
-                                <li key={idx} className="board-item" role="listitem">
-                                    <div className="board-left">
-                                        <div className="board-title">{it.title}</div>
-                                        <div className="board-author">작성자: {it.author}</div>
-                                    </div>
-                                    <div className="board-right">
-                                        <div className="board-summary">{it.summary}</div>
-                                    </div>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>  
-                </div>
-                <TabBar />
+        <div
+          className="main-content"
+          role="main"
+          style={{ display: 'flex', flexDirection: 'column', gap: 16, padding: 16, flex: 1, overflow: 'auto' }}
+        >
+          {/* 오늘 뭐 해먹지? */}
+          <section className="main-today-what-eat">
+            <div className="card-header">
+              <div className="card-icon" aria-hidden="true">🍳</div>
+              <h2 id="todayTitle" className="card-title">오늘 뭐 해먹지?</h2>
             </div>
+
+            <form className="search-form" onSubmit={onSubmitTodayWhatEat} role="search" aria-label="재료 검색">
+              <div className="search-field">
+                {/* 좌측 돋보기 */}
+                <svg className="icon-left" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
+                  <path
+                    d="M10 2a8 8 0 015.66 13.66l3.34 3.34a1 1 0 11-1.41 1.41l-3.34-3.34A8 8 0 1110 2zm0 2a6 6 0 100 12A6 6 0 0010 4z"
+                    fill="currentColor"
+                  />
+                </svg>
+
+                <input
+                  type="text"
+                  name="ingredients"
+                  placeholder="재료를 입력해 보세요 (예: 양파, 베이컨, 새우)"
+                  value={q}
+                  onChange={(e) => setQ(e.target.value)}
+                  autoComplete="off"
+                  inputMode="text"
+                  aria-label="재료 입력"
+                  disabled={loading}
+                />
+
+                {/* 우측 제출 버튼 */}
+                <button type="submit" className="icon-right" aria-label="레시피 추천 검색" disabled={loading}>
+                  {loading ? (
+                    <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" className="spin">
+                      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" fill="none" opacity="0.2" />
+                      <path d="M22 12a10 10 0 00-10-10" stroke="currentColor" strokeWidth="3" fill="none" />
+                    </svg>
+                  ) : (
+                    <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M2 21l19-9L2 3v7l13 2-13 2v7z" fill="currentColor" />
+                    </svg>
+                  )}
+                </button>
+              </div>
+            </form>
+
+            {err && <p className="error-text" role="alert">{err}</p>}
+          </section>
+
+          <div className="recommend-card main-card" style={{ flex: '0 0 auto' }}>
+            <div className="badge">추천 요리</div>
+            <ul className="recommend-list" role="list">
+              {sampleRecommendations.map((it, idx) => (
+                <li className="recommend-item" key={idx} role="listitem" onClick={() => { /* 상세 이동 등 */ }}>
+                  <div className="item-left">
+                    <div className="title">{it.food}</div>
+                    <div className="sub">조리 시간: <span className="time">{it.time}</span></div>
+                  </div>
+                  <div className="item-right">
+                    {it.ingredients}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="ranking-card main-card" style={{ flex: '0 0 auto' }}>
+            <div className="badge">랭킹</div>
+            <ul className="ranking-list" role="list">
+              {(rankItems.length ? rankItems : sampleRanking).map((it, idx) => {
+                const title = it.food_name ?? it.title ?? "-";
+                const rawScore = typeof it.count === "number" ? it.count : it.score ?? 0;
+                const score = Math.max(0, Math.min(5, Math.round(rawScore)));
+                return (
+                  <li key={title + idx} className="ranking-item" role="listitem">
+                    <div className="rank-left">
+                      <div className="rank-title">{idx + 1}위: {title}</div>
+                      <div className="rank-sub">
+                        별점: <span className="stars">{'★'.repeat(score)}{'☆'.repeat(5 - score)}</span>
+                        {typeof it.count === "number" && <span className="count"> </span>}
+                      </div>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+
+          <div className="board-card main-card" style={{ flex: '0 0 auto' }}>
+            <div className="badge">게시판</div>
+            <ul className="board-list" role="list">
+              {(boardItems.length ? boardItems : sampleBoard).map((it, idx) => {
+                const isApiItem = typeof it.id !== "undefined";
+                const key = isApiItem ? it.id : `sample-${idx}`;
+                const title = it.title;
+                const nickname = isApiItem ? (it.author?.nickname ?? "-") : (it.author ?? "-");
+                const created = isApiItem ? formatKST(it.created_at) : undefined;
+                const likeCount = isApiItem ? it.like_count ?? 0 : undefined;
+                const hasImage = isApiItem ? !!it.exist_image : false;
+
+                return (
+                  <li
+                    key={key}
+                    className="board-item"
+                    role="listitem"
+                    onClick={() => {
+                      if (isApiItem) {
+                        navigate(`/board/${it.id}`);
+                      }
+                    }}
+                    style={{ cursor: isApiItem ? 'pointer' : 'default' }}
+                  >
+                    <div className="board-left">
+                      <div className="board-title">
+                        {title} {hasImage && <span className="img-badge" aria-label="이미지 포함">🖼️</span>}
+                      </div>
+                      <div className="board-author">작성자: {nickname}</div>
+                    </div>
+                    <div className="board-right">
+                      {isApiItem ? (
+                        <div className="board-meta">
+                          <span className="created-at">{created}</span>
+                          <span className="likes">♥ {likeCount}</span>
+                        </div>
+                      ) : (
+                        <div className="board-summary">{it.summary}</div>
+                      )}
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
         </div>
-    );
-}
+
+        <TabBar />
+      </div>
+    </div>
+  );
+};
 
 export default MainPage;
