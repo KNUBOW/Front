@@ -19,299 +19,128 @@
   --vh: 1vh;
 }
 
-.box-page{
+/* 전체 레이아웃 */
+html, body, #root { height: 100%; }
+
+.receipt-page {
   width: 100%;
   max-width: var(--container);
-  
   height: calc(var(--vh) * 100);
   min-height: 0;
-
-  background: var(--bg);
-  color: var(--ink);
-  display:flex;
-  flex-direction:column;
-}
-
-.box-wrap{
-  width:100%;
-  max-width: var(--container);
-  margin:0 auto;
-  padding-top: calc(var(--top-h) + var(--safe-top));  
-  padding-bottom: calc(var(--tab-h) + var(--safe-bottom));
   display: flex;
   flex-direction: column;
-  flex: 1;                    
-}
-
-/* 검색 영역 */
-.box-search{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  padding: 8px 16px 6px;
-
-  /* TopBar 바로 아래 고정 */
-  position: sticky;
-  top: var(--topbar-h);
-  z-index: 10;
-  background: var(--bg);
-}
-.search-input{
-  flex:1;
-  position:relative;
-  height:44px;
-  color: rgba(0, 0, 0, 0.5);
-}
-.search-input input{
-  width:100%;
-  height:44px;
-  padding: 0 44px 0 14px;
-  border-radius: 22px;
-  border:1px solid var(--line);
-  background:#fff;
-  font-size:16px;
-  color: rgba(0, 0, 0, 0.5);
-  outline:none;
-}
-.search-btn{
-  position:absolute;
-  right:6px; top:50%;
-  transform: translateY(-50%);
-  width:36px; height:36px;
-  display:grid; place-items:center;
-  border:none; background:transparent; cursor:pointer;
-}
-.right-icons{
-  display:flex; gap:8px; align-items:center;
-}
-.round-ico{
-  width:36px; height:36px;
-  border-radius:12px;
-  background:#f0eadf;
-  border:1px solid var(--line);
-  display:grid; place-items:center;
-  cursor:pointer;
-}
-
-/* 재료 추가 큰 버튼 */
-.add-btn-wrap{
-  padding: 0px 16px 0;
-  display:flex; justify-content:center;
-}
-.add-btn{
-  width: 68%;
-  height: 36px;
-  border-radius: 14px;
-  background: var(--accent);
-  border:1px solid var(--accent-d);
-  font-size: 18px; font-weight: 700;
-  cursor:pointer;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-
-/* 아이템 그리드 */
-.grid-area{
-  padding: 10px 10px 10px;
-  display:grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 6px;
-}
-.grid-area.list{
-  grid-template-columns: 1fr; /* 리스트 전환 */
-}
-
-.grid-area.list .card{
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px;
-  height: 100px;
-}
-.grid-area.list .thumb {
-  flex: 0 0 80px;         /* 썸네일 크기 고정 */
-  aspect-ratio: 1/1;
-}
-.grid-area.list .title {
-  flex: 1;                /* 남은 공간 채우기 */
+  align-items: stretch;
   justify-content: flex-start;
+  overflow: hidden;
+  background: var(--bg);
+  margin: 0 auto;
+  box-sizing: border-box;
 }
 
-.thumb{
-  width:100%;
-  aspect-ratio:1/1;
-  background:#d9d9d9; /* 회색 박스 */
-  border-radius: 4px;
-  position:relative;
-}
-.close-x{
-  position:absolute;
-  right:6px; top:6px;
-  width:22px; height:22px;
-  border-radius:4px;
-  background: #dcdcdc;
-  border:1px solid #cfcfcf;
-  font-size:16px; line-height:1;
-  display:grid; place-items:center;
-  cursor:pointer;
-}
-.title{
-  margin-top:8px;
-  font-size:16px; font-weight:600;
-  display: flex;
-  justify-content: center; 
-  align-items: center;   
-}
-.title.danger{ color:#e53935; }
-
-.qty-ctrl{
-  margin-top:6px;
-  display:flex; align-items:center; gap:6px;
-  display: flex;
-  justify-content: center; 
-  align-items: center;   
-}
-.sq{
-  width:20px; height:20px;
-  border:1px solid #bdb7aa;
-  background:#f5f2ea;
-  display:grid; place-items:center;
-  cursor:pointer;
-}
-.count{ min-width:18px; text-align:center; }
-
-/* 유통기한 지난 재료: 항상 하단(TabBar 위) */
-.expired{
-  border-top:1px solid #333;
-  margin-top: auto;   /* 남은 공간을 위에 두고 하단으로 밀착 */
-}
-.expired-head{
-  width:100%;
+/* 래퍼: header + content 사이에서 스크롤 가능하도록 설정 */
+.receipt-wrap {
+  width: 100%;
   max-width: var(--container);
   margin: 0 auto;
-  display:flex; align-items:center;
-  padding: 10px 16px;
-  background:transparent;
-  border:none; cursor:pointer;
-  font-size:18px; font-weight:700;
-}
-.chev{ transition: transform .2s ease; }
-.chev.open{ transform: rotate(180deg); }
-
-.expired-panel{
-  max-height:0;
-  overflow:hidden;
-  transition:max-height .25s ease;
-  background: transparent;
-}
-.expired-panel.show{ max-height: 600px; }
-
-.expired-grid{
-  padding: 10px 16px 16px;
-  display:grid; grid-template-columns: 1fr 1fr;
-  gap: 18px;
-}
-.empty{
-  margin: 8px 16px 16px;
-  color: var(--muted);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  min-height: 0;
+  padding-bottom: calc(var(--tab-h) + var(--safe-bottom)); /* TabBar 자리를 확보 */
 }
 
-.modal-backdrop{
-  position:fixed;
-  left:0; right:0;
-  top: var(--top-h);          /* TopBar 아래부터 */
-  bottom: var(--tab-h);       /* TabBar 위까지 */
-  display:flex;
-  align-items:center;            /* 수직 중앙 */
-  justify-content:center;        /* 수평 중앙 */
-  padding: 0 16px;               /* 좌우 여백만 */
-  z-index: 999;
-  overscroll-behavior: contain;  /* 스크롤 체이닝 방지 */
-}
-
-/* 모달 */
-.modal-backdrop{
-  position:fixed;
-  left:0; right:0;
-  top: var(--top-h);
-  bottom: var(--tab-h);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding: 0 16px;
-  z-index: 999;
-}
-
-.modal{
-  width: 100%;
-  max-width: 420px;
+/* 헤더: 좌중우 레이아웃 (아이콘 왼쪽, 타이틀 중앙, 추가 우측) */
+.receipt-header {
+  position: sticky;
+  top: 0;
   background: var(--bg);
-  border-radius: 26px;
+  z-index: 10;
   box-shadow: var(--shadow);
-  padding: 18px 16px 0;
-  max-height: calc(100% - 32px);
-  overflow: auto;
-}
-
-.modal .row{
-  display:flex; align-items:center; gap:10px;
-  padding: 10px 12px;
-}
-.modal label{
-  width: 90px; font-weight:700;
-}
-
-/* ✅ 모든 입력칸 글씨 색상을 검은색으로 */
-.modal input,
-.modal select,
-.modal textarea {
-  flex:1;
-  height: 38px;
-  border-radius: 12px;
-  border:1px solid #e3d7b5;
-  background: #fff;
-  padding: 0 12px;
-  font-size: 16px;
-  outline:none;
-  color: #000;         /* 글자색 검은색 */
-}
-
-.modal-actions{
   display: flex;
-  justify-content: center;
+  align-items: center;
+  justify-content: space-between;
   gap: 12px;
-  border-top: 1px solid rgba(0,0,0, 0..1);
-  margin: 8px;
-  padding-top: 8px;
-}
-.modal .btn {
-  min-width: 100px;       /* 버튼 가로폭 최소 */
-  padding: 0 16px;        /* 좌우 여백 */
-  height: 44px;
-  font-size: 16px;
-  font-weight: 700;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  border-radius: 20px;    /* 둥글게 */
-  border: 1px solid rgba(0,0,0, 0..1);
-  background: var(--accent);
-  display: flex;
-  justify-content: center; 
-  align-items: center;     
-}
-.modal .btn.left{
-  border-radius: 26px;
-}
-.modal .btn.right{
-  border-radius: 26px;
+  padding: 0 12px;
+  height: var(--top-h);
+  box-sizing: border-box;
 }
 
-/* 카드 내부 여백 제거(전역 .card 규칙 무력화) */
-.grid-area .card,
-.expired-grid .card{
-  padding: 0 !important;
-  margin: 0 !important;
+/* 왼쪽 아이콘 (money_icon) */
+.receipt-header-icon {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex: 0 0 auto;
+  height: 100%;
+  padding: 6px 8px 6px 0;
 }
+.receipt-header-icon img {
+  display: block;
+  width: 38px;
+  height: 38px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+/* 중앙 텍스트: 가운데 정렬, 넘침은 말줄임 */
+.receipt-header-text {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 2px;
+  padding: 0 8px;
+  min-width: 0; /* overflow text-truncation 위해 필요 */
+}
+.receipt-header-text h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--ink);
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.receipt-header-text p {
+  margin: 0;
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 우측 추가 버튼 영역 */
+.add-receipt-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+  background: linear-gradient(90deg, var(--accent-d), var(--accent));
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  transition: transform .08s ease, box-shadow .12s ease;
+}
+.add-receipt-wrap img {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+  display: block;
+}
+
+/* 추가 버튼 스타일 */
+.add-receipt-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  color: #222;
+  font-weight: 700;
+  font-size: 13px;
+}
+.add-receipt-btn:active { transform: translateY(1px); box-shadow: 0 2px 6px rgba(0,0,0,0.06); }
