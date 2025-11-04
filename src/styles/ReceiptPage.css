@@ -151,12 +151,83 @@ html, body, #root { height: 100%; }
   overflow-y: auto;
   padding: 12px;
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .receipt-group {
+  width: 90%;
   display: flex;
   align-items: center;
-  margin-bottom: 24px;
+  gap: 12px;
+  margin-bottom: 16px;
   border: 2px solid var(--line);
   border-radius: 16px;
+  padding: 8px;
+  box-sizing: border-box;
+  min-width: 0;
+  min-height: 72px;
+}
+
+.receipt-group-icon-wrap {
+  width: 44px;
+  height: 44px;
+  background: var(--accent);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+}
+
+.receipt-group-icon {
+  width: 28px;
+  height: 28px;
+  margin: 0 12px 0 12px;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.receipt-group-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.receipt-group-info h4,
+.receipt-group-info p {
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.receipt-group-info h4 {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--ink);
+  line-height: 1;
+}
+
+.receipt-group-info p {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1;
+}
+
+.receipt-arrow-btn {
+  margin-left: auto;
+  flex: 0 0 auto;
+  background: none;
+  border: none;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
 }

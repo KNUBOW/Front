@@ -7,6 +7,7 @@ import "../styles/ReceiptPage.css";
 import money_icon from "../assets/money_icon.png";
 import add_button_icon from "../assets/add_button.svg";
 import calendar_icon from "../assets/calendar_icon.png";
+import arrow_icon from "../assets/arrow_circle_icon.svg";
 
 const ReceiptPage = () => {
   const [receipts, setReceipts] = useState([]); // 날짜별로 그룹화된 영수증 데이터
@@ -71,9 +72,16 @@ const ReceiptPage = () => {
         <div className="receipt-content">
           {receipts.map(group => (
             <div key={group.date} className="receipt-group">
-              <img src={calendar_icon} alt="calendar icon" className="receipt-group-icon" />
-              <h4 className="receipt-date">{group.date}</h4>
-              <div className="receipt-count">{group.items.length}개의 품목</div>
+              <div className="receipt-group-icon-wrap">
+                <img src={calendar_icon} alt="calendar icon" className="receipt-group-icon" />
+              </div>
+              <div className="receipt-group-info">
+                <h4 className="receipt-date">{group.date}</h4>
+                <p className="receipt-count">{group.items.length}개의 품목</p>
+              </div>
+              <button className="receipt-arrow-btn">
+                <img src={arrow_icon} alt="arrow icon" />
+              </button>            
             </div>
           ))}
         </div>
