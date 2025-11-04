@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { useNavigate, useLocation } from "react-router-dom";
+import { useEffect, useState } from 'react';
 import TabBar from "../components/TabBar";
 import api from "../lib/api";
 import "../styles/ReceiptPage.css";
@@ -9,7 +8,23 @@ import money_icon from "../assets/money_icon.png";
 import add_button_icon from "../assets/add_button.svg";
 
 const ReceiptPage = () => {
-  const nav = useNavigate();
+  
+  const [recipts, setReceipts] = useState([]);
+
+  useEffect(() => {
+    // Fetch receipts from the API
+    const fetchReceipts = async () => {
+      try {
+        const response = await api.get('/receipts');
+        setReceipts(response.data);
+      } catch (error) {
+        console.error('Error fetching receipts:', error);
+      }
+    };
+
+    fetchReceipts();
+  }, []);
+
   return (
     <div className="receipt-page">
       <div className="receipt-wrap">
