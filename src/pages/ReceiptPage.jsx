@@ -3,7 +3,7 @@ import TopBar from "../components/TopBar";
 import TabBar from "../components/TabBar";
 import api from "../lib/api"; // 토큰 포함된 axios 인스턴스
 import "../styles/TopShell.css";
-import "../styles/BoxPage.css";
+import "../styles/ReceiptPage.css";
 
 const CATEGORIES = [
   { id: "1", name: "곡류·빵류" }, { id: "2", name: "채소류" }, { id: "3", name: "과일류" },

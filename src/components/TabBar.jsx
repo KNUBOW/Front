@@ -18,8 +18,8 @@ const TabBar = () => {
       <div className="tab-inner">
         <button
           type="button"
-          className={`tab-item ${isActive("/box") ? "active" : ""}`}
-          onClick={() => navigate("/box")}
+          className={`tab-item ${isActive("/receipt") ? "active" : ""}`}
+          onClick={() => navigate("/receipt")}
         >
           <div className="tab-icon" aria-hidden="true">
             <img src={boxIcon} alt="" width="36" height="36" />

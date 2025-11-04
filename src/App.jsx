@@ -15,7 +15,7 @@ import Recommend from './pages/RecommendPage';
 import Board from './pages/BoardPage';
 import Ranking from './pages/RankingPage';
 import SettingsPage from './pages/SettingsPage';
-import BoxPage from './pages/BoxPage';
+import ReceiptPage from './pages/ReceiptPage';
 import RecipePage from './pages/RecipePage';
 import RecommendResultPage from './pages/RecommendResultPage';
 import BoardWritePage from './pages/BoardWritePage';
@@ -65,7 +65,7 @@ function App() {
             <Route path="/board" element={<Board />} />
             <Route path="/rank" element={<Ranking />} />
             <Route path="/settings" element={<SettingsPage />} />
-            <Route path="/box" element={<BoxPage />} />
+            <Route path="/receipt" element={<ReceiptPage />} />
             <Route path="/recipe" element={<RecipePage />} />
             <Route path="/recommend/result" element={<RecommendResultPage />} />
             <Route path="/board/write" element={<BoardWritePage />} />
