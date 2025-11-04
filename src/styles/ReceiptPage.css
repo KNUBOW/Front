@@ -251,8 +251,8 @@ html, body, #root { height: 100%; }
 }
 
 .receipt-modal {
-  width: 100%;
-  max-width: 520px;
+  width: var(--container);
+  max-width: 380px;
   max-height: 80vh;
   background: #fff;
   border-radius: 12px;
@@ -268,6 +268,7 @@ html, body, #root { height: 100%; }
   justify-content: space-between;
   padding: 14px 16px;
   border-bottom: 1px solid var(--line);
+  background: var(--accent);
 }
 .receipt-modal-header h3 {
   margin: 0;
@@ -297,9 +298,16 @@ html, body, #root { height: 100%; }
   justify-content: space-between;
   align-items: center;
   padding: 10px;
-  border-radius: 10px;
   background: #fafafa;
-  border: 1px solid rgba(0,0,0,0.03);
+  border-bottom: 2px solid var(--accent);
+  margin-bottom: 12px;
 }
 .receipt-modal-item-name { font-weight: 700; }
 .receipt-modal-item-meta { font-size: 12px; color: var(--muted); }
+
+.receipt-modal-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0px 8px;
+}

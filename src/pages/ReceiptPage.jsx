@@ -116,10 +116,13 @@ const ReceiptPage = () => {
                   {selectedGroup.items.map(item => (
                     <li key={item.id} className="receipt-modal-item">
                       <div className="receipt-modal-item-name">{item.ingredient_name}</div>
-                      <div className="receipt-modal-item-meta">카테고리: {item.category_id}</div>
                     </li>
                   ))}
                 </ul>
+                <div className="receipt-modal-summary">
+                  <p className="receipt-modal-summary-text">총 품목 수:</p>
+                  <p className="receipt-modal-summary-count">{selectedGroup.items.length}개</p>
+                </div>
               </div>
             </div>
           </div>
