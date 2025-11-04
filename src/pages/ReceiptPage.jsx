@@ -6,6 +6,7 @@ import "../styles/ReceiptPage.css";
 // assets
 import money_icon from "../assets/money_icon.png";
 import add_button_icon from "../assets/add_button.svg";
+import calendar_icon from "../assets/calendar_icon.png";
 
 const ReceiptPage = () => {
   const [receipts, setReceipts] = useState([]); // 날짜별로 그룹화된 영수증 데이터
@@ -39,6 +40,8 @@ const ReceiptPage = () => {
           .sort((a, b) => new Date(b.date) - new Date(a.date)); // 최신 날짜순 정렬
 
         setReceipts(sortedReceipts);
+
+        console.log(sortedReceipts);
       } catch (error) {
         console.error('Error fetching receipts:', error);
       }
@@ -68,14 +71,9 @@ const ReceiptPage = () => {
         <div className="receipt-content">
           {receipts.map(group => (
             <div key={group.date} className="receipt-group">
+              <img src={calendar_icon} alt="calendar icon" className="receipt-group-icon" />
               <h4 className="receipt-date">{group.date}</h4>
-              <ul className="receipt-list">
-                {group.items.map(item => (
-                  <li key={item.id} className="receipt-item">
-                    {item.ingredient_name}
-                  </li>
-                ))}
-              </ul>
+              <div className="receipt-count">{group.items.length}개의 품목</div>
             </div>
           ))}
         </div>
