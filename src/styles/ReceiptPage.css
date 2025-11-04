@@ -37,7 +37,6 @@ html, body, #root { height: 100%; }
   box-sizing: border-box;
 }
 
-/* 래퍼: header + content 사이에서 스크롤 가능하도록 설정 */
 .receipt-wrap {
   width: 100%;
   max-width: var(--container);
@@ -46,10 +45,9 @@ html, body, #root { height: 100%; }
   flex-direction: column;
   box-sizing: border-box;
   min-height: 0;
-  padding-bottom: calc(var(--tab-h) + var(--safe-bottom)); /* TabBar 자리를 확보 */
+  padding-bottom: calc(var(--tab-h) + var(--safe-bottom));
 }
 
-/* 헤더: 좌중우 레이아웃 (아이콘 왼쪽, 타이틀 중앙, 추가 우측) */
 .receipt-header {
   position: sticky;
   top: 0;
@@ -63,26 +61,29 @@ html, body, #root { height: 100%; }
   padding: 0 12px;
   height: var(--top-h);
   box-sizing: border-box;
+  border-bottom: 1px solid var(--line);
 }
 
-/* 왼쪽 아이콘 (money_icon) */
 .receipt-header-icon {
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
   flex: 0 0 auto;
-  height: 100%;
-  padding: 6px 8px 6px 0;
+  padding: 6px;
+  background: var(--accent);;
+  border-radius: 10px;
 }
 .receipt-header-icon img {
   display: block;
+  align-items: center;
   width: 38px;
   height: 38px;
   object-fit: cover;
   border-radius: 8px;
 }
 
-/* 중앙 텍스트: 가운데 정렬, 넘침은 말줄임 */
 .receipt-header-text {
   flex: 1 1 auto;
   display: flex;
@@ -91,7 +92,7 @@ html, body, #root { height: 100%; }
   align-items: center;
   gap: 2px;
   padding: 0 8px;
-  min-width: 0; /* overflow text-truncation 위해 필요 */
+  min-width: 0;
 }
 .receipt-header-text h3 {
   margin: 0;
@@ -113,7 +114,6 @@ html, body, #root { height: 100%; }
   text-overflow: ellipsis;
 }
 
-/* 우측 추가 버튼 영역 */
 .add-receipt-wrap {
   display: inline-flex;
   align-items: center;
@@ -133,7 +133,6 @@ html, body, #root { height: 100%; }
   display: block;
 }
 
-/* 추가 버튼 스타일 */
 .add-receipt-btn {
   display: inline-flex;
   align-items: center;

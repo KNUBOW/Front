@@ -9,6 +9,7 @@ import money_icon from "../assets/money_icon.png";
 import add_button_icon from "../assets/add_button.svg";
 
 const ReceiptPage = () => {
+  const nav = useNavigate();
   return (
     <div className="receipt-page">
       <div className="receipt-wrap">
@@ -18,7 +19,7 @@ const ReceiptPage = () => {
           </div>
           <div className="receipt-header-text">
             <h3>재료 보관함</h3>
-            <p>n개의 영수증</p>
+            <p>n개의 영수증</p> {/* 영수증 개수 동적 표시 예정 */}
           </div>
           <div className="add-receipt-wrap">
             <img src={add_button_icon} alt="add receipt icon" />
