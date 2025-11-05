@@ -12,7 +12,7 @@ import arrow_icon from "../assets/arrow_circle_icon.svg";
 const ReceiptPage = () => {
   const [receipts, setReceipts] = useState([]); // 날짜별로 그룹화된 영수증 데이터
   const [selectedGroup, setSelectedGroup] = useState(null); // modal에 보여줄 그룹
-  const [selectedReceipt, setSelectedReceipt] = useState(null); // modal에 보여줄 영수증
+  const [addReceipt, setAddReceipt] = useState(null); // modal에 보여줄 영수증
 
   useEffect(() => {
     const fetchReceipts = async () => {
@@ -78,7 +78,7 @@ const ReceiptPage = () => {
           <button 
             className="add-receipt-btn"
             type="button"
-            onClick={() => setSelectedReceipt({})}
+            onClick={() => setAddReceipt({})}
             aria-label="영수증 추가"
           >
             <img src={add_button_icon} alt="add receipt icon" />
@@ -135,7 +135,7 @@ const ReceiptPage = () => {
         )}
 
         {/* modal: 추가할 영수증 모달 띄우기 */}
-        {selectedReceipt && (
+        {addReceipt && (
           <div className="receipt-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="add-receipt-modal-title" onClick={() => setSelectedReceipt(null)}>
             <div className="receipt-modal" onClick={(e) => e.stopPropagation()}>
               <header className="receipt-modal-header">
