@@ -73,7 +73,6 @@ img, svg {
   padding: 12px;
   border-radius: 12px;
   background: linear-gradient(180deg,#fffef8,#fff);
-  border: 2px solid #ffcc33;
 }
 .settingsPage-avatar {
   width: 52px;
@@ -118,11 +117,10 @@ img, svg {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 100%;                  /* 부모(430px) 범위 고정 */
+  width: 90%;                  /* 부모(430px) 범위 고정 */
   padding: 10px;
   border-radius: 10px;
   background: #fff;
-  border: 1px solid rgba(0,0,0,0.03);
   cursor: pointer;
   overflow: hidden;             /* 시각효과 튀어나옴 방지 */
 }
@@ -207,15 +205,48 @@ img, svg {
   min-width: 0;                 /* 버튼 텍스트 길어도 줄바꿈 허용 */
 }
 
+.btn-ghost {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  font-weight: 700;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--ink);
+}
+
+.btn-solid {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  font-weight: 700;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent);
+  color: #fff;
+  border: 1px solid var(--accent);
+}
+
 /* 로그아웃 */
 .settingsPage-logout {
   margin-top: 8px;
-  width: 100%;
+  width: 95%;
   padding: 10px;
   border-radius: 10px;
-  border: 1px solid rgba(0,0,0,0.06);
-  background: transparent;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  text-decoration: underline;
+  border: none;
+  background: #fff;
 }
 
 /* 모달 */
