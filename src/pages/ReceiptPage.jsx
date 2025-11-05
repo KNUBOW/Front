@@ -140,11 +140,45 @@ const ReceiptPage = () => {
             <div className="receipt-modal" onClick={(e) => e.stopPropagation()}>
               <header className="receipt-modal-header">
                 <h3 id="add-receipt-modal-title">영수증 추가</h3>
-                <button className="receipt-modal-close" onClick={() => setSelectedReceipt(null)} aria-label="닫기">✕</button>
+                <button className="receipt-modal-close" onClick={() => setAddReceipt(null)} aria-label="닫기">✕</button>
               </header>
               <div className="receipt-modal-body">
                 {/* 영수증 추가 폼 또는 내용 */}
-                <p>영수증 추가 기능은 현재 개발 중입니다.</p>
+                <div className="receipt-add-date">
+                  <label htmlFor="purchase-date">등록 날짜:</label>
+                  <input type="date" id="purchase-date" name="purchase-date" />
+                </div>
+                <div className="receipt-add-items">
+                  <div className="receipt-add-items-header">
+                    <label>품목 추가:</label>
+                    <button 
+                      type="button"
+                      className="receipt-add-item-btn"
+                      onClick={() => { /* 품목 추가 로직 */ }}
+                    >
+                      + 품목 추가
+                    </button>
+                  </div>
+                  <ul className="receipt-add-items-list">
+                    {/* 동적으로 추가된 품목들 */}
+                    <li className="receipt-add-item">
+                      <input type="text" placeholder="품목 이름" />
+                      <input type="number" placeholder="수량" min="1" />
+                    </li>
+                  </ul>
+                </div>
+                <div className="receipt-add-actions">
+                  <button 
+                    type="button" 
+                    className="receipt-add-cancel-btn"
+                    onClick={() => setAddReceipt(null)}
+                  >뒤로가기</button>
+                  <button 
+                    type="button"
+                    className="receipt-add-submit-btn"
+                    onClick={() => { /* 영수증 추가 제출 로직 */ }}
+                  >영수증 추가</button>
+                </div>
               </div>
             </div>
           </div>
