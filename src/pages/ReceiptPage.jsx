@@ -12,6 +12,7 @@ import arrow_icon from "../assets/arrow_circle_icon.svg";
 const ReceiptPage = () => {
   const [receipts, setReceipts] = useState([]); // 날짜별로 그룹화된 영수증 데이터
   const [selectedGroup, setSelectedGroup] = useState(null); // modal에 보여줄 그룹
+  const [selectedReceipt, setSelectedReceipt] = useState(null); // modal에 보여줄 영수증
 
   useEffect(() => {
     const fetchReceipts = async () => {
@@ -74,7 +75,12 @@ const ReceiptPage = () => {
             <h3>재료 보관함</h3>
             <p>{receipts.length}개의 영수증</p>
           </div>
-          <button className="add-receipt-btn">
+          <button 
+            className="add-receipt-btn"
+            type="button"
+            onClick={() => setSelectedReceipt({})}
+            aria-label="영수증 추가"
+          >
             <img src={add_button_icon} alt="add receipt icon" />
             <div className="add-receipt-btn-text">영수증 추가</div>
           </button>
@@ -127,8 +133,23 @@ const ReceiptPage = () => {
             </div>
           </div>
         )}
-      </div>
 
+        {/* modal: 추가할 영수증 모달 띄우기 */}
+        {selectedReceipt && (
+          <div className="receipt-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="add-receipt-modal-title" onClick={() => setSelectedReceipt(null)}>
+            <div className="receipt-modal" onClick={(e) => e.stopPropagation()}>
+              <header className="receipt-modal-header">
+                <h3 id="add-receipt-modal-title">영수증 추가</h3>
+                <button className="receipt-modal-close" onClick={() => setSelectedReceipt(null)} aria-label="닫기">✕</button>
+              </header>
+              <div className="receipt-modal-body">
+                {/* 영수증 추가 폼 또는 내용 */}
+                <p>영수증 추가 기능은 현재 개발 중입니다.</p>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
       <TabBar />
     </div>
   );
