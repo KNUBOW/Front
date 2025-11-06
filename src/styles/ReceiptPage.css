@@ -395,7 +395,7 @@ html, body, #root { height: 100%; }
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 4px;
+  padding: 8px;
   background: var(--bg);
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -404,7 +404,47 @@ html, body, #root { height: 100%; }
 
 .receipt-add.item .p {
   height: 16px;
-  margin: 0;
+  margin: 8px;
   font-size: 14px;
   font-weight: 500;
+}
+
+.receipt-add-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.receipt-add-cancel-btn{
+  background: var(--bg);
+  border: none;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: black;
+  cursor: pointer;
+  width: 40%;
+}
+
+.receipt-add-submit-btn{
+  background: var(--accent);
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: black;
+  cursor: pointer;
+  width: 40%;
+}
+
+.receipt-add-cancel-btn,
+.receipt-add-submit-btn{
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }

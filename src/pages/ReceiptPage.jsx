@@ -14,6 +14,34 @@ const ReceiptPage = () => {
   const [selectedGroup, setSelectedGroup] = useState(null); // modal에 보여줄 그룹
   const [addReceipt, setAddReceipt] = useState(null); // modal에 보여줄 영수증
 
+  // addReceipt modal helpers
+  const handleAddItem = () => {
+    setAddReceipt(prev => ({
+      ...prev,
+      items: [
+        ...(prev?.items || []),
+        { id: Date.now(), name: '', quantity: 1 }
+      ]
+    }));
+  };
+
+  const handleItemChange = (id, field, value) => {
+    setAddReceipt(prev => ({
+      ...prev,
+      items: (prev?.items || []).map(item => item.id === id ? { ...item, [field]: value } : item)
+    }));
+  };
+
+  // Ensure modal shows at least one item when opened
+  useEffect(() => {
+    if (addReceipt && (!addReceipt.items || addReceipt.items.length === 0)) {
+      setAddReceipt(prev => ({
+        ...prev,
+        items: [{ id: Date.now(), name: '', quantity: 1 }]
+      }));
+    }
+  }, [addReceipt]);
+
   useEffect(() => {
     const fetchReceipts = async () => {
       try {
@@ -76,7 +104,7 @@ const ReceiptPage = () => {
           <button 
             className="add-receipt-btn"
             type="button"
-            onClick={() => setAddReceipt({})}
+            onClick={() => setAddReceipt({ items: [{ id: Date.now(), name: '', quantity: 1 }] })}
             aria-label="영수증 추가"
           >
             <img src={add_button_icon} alt="add receipt icon" />
@@ -134,7 +162,7 @@ const ReceiptPage = () => {
 
         {/* modal: 추가할 영수증 모달 띄우기 */}
         {addReceipt && (
-          <div className="receipt-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="add-receipt-modal-title" onClick={() => setSelectedReceipt(null)}>
+          <div className="receipt-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="add-receipt-modal-title" onClick={() => setAddReceipt(null)}>
             <div className="receipt-modal" onClick={(e) => e.stopPropagation()}>
               <header className="receipt-modal-header">
                 <h3 id="add-receipt-modal-title">영수증 추가</h3>
@@ -152,23 +180,39 @@ const ReceiptPage = () => {
                     <button 
                       type="button"
                       className="receipt-add-item-btn"
-                      onClick={() => { /* 품목 추가 로직 */ }}
+                      onClick={handleAddItem}
                     > + </button>
                   </div>
+
                   <ul className="receipt-add-items-list">
                     {/* 동적으로 추가된 품목들 */}
-                    <li className="receipt-add-item">
-                      <div className="receipt-add-item-name">
-                        <p>품목 이름</p>
-                        <input type="text" placeholder="ex) 고기" />
-                      </div>
-                      <div className="receipt-add-item-quantity">
-                        <p>수량</p>
-                        <input type="number" placeholder="ex) 100" min="1" />
-                      </div>
-                    </li>
+                    {(addReceipt?.items || []).map(item => (
+                      <li key={item.id} className="receipt-add-item">
+                        <div className="receipt-add-item-name">
+                          <p>품목 이름</p>
+                          <input
+                            type="text"
+                            placeholder="ex) 고기"
+                            value={item.name}
+                            onChange={(e) => handleItemChange(item.id, 'name', e.target.value)}
+                          />
+                        </div>
+                        <div className="receipt-add-item-quantity">
+                          <p>수량</p>
+                          <input
+                            type="number"
+                            placeholder="ex) 100"
+                            min="1"
+                            value={item.quantity}
+                            onChange={(e) => handleItemChange(item.id, 'quantity', e.target.value ? Number(e.target.value) : '')}
+                          />
+                        </div>
+                      </li>
+                    ))}
                   </ul>
+
                 </div>
+
                 <div className="receipt-add-actions">
                   <button 
                     type="button" 
