@@ -311,3 +311,27 @@ html, body, #root { height: 100%; }
   align-items: center;
   padding: 0px 8px;
 }
+
+.receipt-add-date {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 0;
+}
+
+.purchase-date {
+  margin: 0;
+}
+
+.purchase-date-input {
+  width: 90%;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-size: 16px;  
+  display: block;
+  margin: 0 auto;
+}

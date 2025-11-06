@@ -145,8 +145,8 @@ const ReceiptPage = () => {
               <div className="receipt-modal-body">
                 {/* 영수증 추가 폼 또는 내용 */}
                 <div className="receipt-add-date">
-                  <label htmlFor="purchase-date">등록 날짜:</label>
-                  <input type="date" id="purchase-date" name="purchase-date" />
+                  <p className="purchase-date">등록 날짜:</p>
+                  <input type="date" id="purchase-date" name="purchase-date" className="purchase-date-input" />
                 </div>
                 <div className="receipt-add-items">
                   <div className="receipt-add-items-header">
