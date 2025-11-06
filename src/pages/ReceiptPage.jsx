@@ -148,7 +148,7 @@ const ReceiptPage = () => {
                 </div>
                 <div className="receipt-add-items">
                   <div className="receipt-add-items-header">
-                    <p className="receipt-add-itmes-label">품목 추가</p>
+                    <p className="receipt-add-items-label">품목 추가</p>
                     <button 
                       type="button"
                       className="receipt-add-item-btn"

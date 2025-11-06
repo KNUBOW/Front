@@ -312,14 +312,14 @@ html, body, #root { height: 100%; }
   padding: 0px 8px;
 }
 
-.receipt-add-date {
+.receipt-add-date,
+.receipt-add-items {
   font-size: 18px;
   font-weight: 700;
   color: var(--ink);
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 12px 0;
+  padding: 6px 0;
 }
 
 .purchase-date {
@@ -336,13 +336,48 @@ html, body, #root { height: 100%; }
   margin: 0 auto;
 }
 
-/* Receipt add items - make inputs 70% width for consistent layout */
 .receipt-add-items-list .receipt-add-item input {
   width: 85%;
   box-sizing: border-box;
 }
 
+/* Make label <p> only occupy text height and remove extra spacing */
+.receipt-add-items-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.receipt-add-item {
+  display: flex;
+  gap: 12px;
+  align-items: center; /* align label and input vertically centered */
+  padding: 6px 0; /* minimal vertical padding */
+}
+.receipt-add-item-name,
+.receipt-add-item-quantity {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+}
+.receipt-add-item-name p,
+.receipt-add-item-quantity p {
+  margin: 0;
+  padding: 0;
+  font-size: 14px;
+  line-height: 1; /* ensures height equals font-size */
+  display: block;
+}
+.receipt-add-item input {
+  height: auto; /* let padding determine height */
+  padding: 6px 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
 .receipt-add-items-header {
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -360,9 +395,16 @@ html, body, #root { height: 100%; }
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 10px;
-  background: #fafafa;
+  padding: 4px;
+  background: var(--bg);
   border: 1px solid var(--line);
   border-radius: 8px;
   margin-bottom: 10px;
+}
+
+.receipt-add.item .p {
+  height: 16px;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
 }
