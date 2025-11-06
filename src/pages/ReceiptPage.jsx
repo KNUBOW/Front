@@ -43,8 +43,6 @@ const ReceiptPage = () => {
           .sort((a, b) => new Date(b.date) - new Date(a.date)); // 최신 날짜순 정렬
 
         setReceipts(sortedReceipts);
-
-        console.log(sortedReceipts);
       } catch (error) {
         console.error('Error fetching receipts:', error);
       }
@@ -145,25 +143,29 @@ const ReceiptPage = () => {
               <div className="receipt-modal-body">
                 {/* 영수증 추가 폼 또는 내용 */}
                 <div className="receipt-add-date">
-                  <p className="purchase-date">등록 날짜:</p>
+                  <p className="purchase-date">등록 날짜</p>
                   <input type="date" id="purchase-date" name="purchase-date" className="purchase-date-input" />
                 </div>
                 <div className="receipt-add-items">
                   <div className="receipt-add-items-header">
-                    <label>품목 추가:</label>
+                    <p className="receipt-add-itmes-label">품목 추가</p>
                     <button 
                       type="button"
                       className="receipt-add-item-btn"
                       onClick={() => { /* 품목 추가 로직 */ }}
-                    >
-                      + 품목 추가
-                    </button>
+                    > + </button>
                   </div>
                   <ul className="receipt-add-items-list">
                     {/* 동적으로 추가된 품목들 */}
                     <li className="receipt-add-item">
-                      <input type="text" placeholder="품목 이름" />
-                      <input type="number" placeholder="수량" min="1" />
+                      <div className="receipt-add-item-name">
+                        <p>품목 이름</p>
+                        <input type="text" placeholder="ex) 고기" />
+                      </div>
+                      <div className="receipt-add-item-quantity">
+                        <p>수량</p>
+                        <input type="number" placeholder="ex) 100" min="1" />
+                      </div>
                     </li>
                   </ul>
                 </div>
