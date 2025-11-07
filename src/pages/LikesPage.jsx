@@ -47,7 +47,7 @@ const LikePage = () => {
             <div className="likes-wrap">
                 <TopBar />
                 <div className="likes-container">
-                    <h2 className="likes-title">좋아요 랭킹</h2>
+                    <h2 className="likes-title">좋아요</h2>
 
                     {error && (
                         <div className="likes-error">목록을 불러오는 중 오류가 발생했습니다.</div>

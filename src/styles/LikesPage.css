@@ -3,17 +3,22 @@
     --bg: #ffffff;
 
     --top-h: 56px;
-    --nav-h: 44px;
     --tab-h: 64px;
     --safe-top: 0px;
     --safe-bottom: 0px;
 
     --gap: 12px;
+
+    --vh: 1vh;
 }
 
-/* 기본 레이아웃 */
 .likes-page {
-    width: var(--container);
+    width: 100%;
+    max-width: var(--container);
+
+    height: calac(var(--vh) * 100);
+    min-height: 0;
+
     background: var(--bg);
     color: #111;
     height: 100vh;
@@ -21,6 +26,7 @@
     flex-direction: column;
     overflow: hidden;
 }
+@supports (height: 100dvh) { .likes-page { min-height: 100dvh; }}
 
 .likes-wrap {
     max-width: var(--container);
@@ -31,9 +37,13 @@
     overflow: hidden;
     display: flex;
     flex-direction: column;
+
+    padding-top: calc(var(--top-h) + var(--safe-top));
+    padding-bottom: calc(var(--tab-h) + var(--safe-bottom));
 }
 
 .likes-container {
+    min-height: calc(100vh - var(--top-h) - var(--tab-h) - var(--safe-top) - var(--safe-bottom));
     padding: 12px;
     flex: 1;
     overflow: hidden;
@@ -46,6 +56,10 @@
     font-size: 18px;
     font-weight: 800;
     flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 }
 
 .likes-list {
@@ -90,7 +104,7 @@
 .like-card .rank {
     font-weight: 900;
     color: #ff6b6b;
-    font-size: 20px;  /* increased from 14px */
+    font-size: 20px;
 }
 
 .like-card-content {
@@ -131,7 +145,6 @@
     height: 28px;
 }
 
-/* Update skeleton for new layout */
 .skeleton {
     position: relative;
     overflow: hidden;
