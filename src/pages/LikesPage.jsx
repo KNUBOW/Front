@@ -7,6 +7,9 @@ import api from "../lib/api";
 import "../styles/TopShell.css";
 import "../styles/LikesPage.css";
 
+//assets
+import arrow_circle_icon from "../assets/arrow_circle_icon.svg";
+
 const LikePage = () => {
     const navigate = useNavigate();
     const [items, setItems] = useState([]);
@@ -66,14 +69,24 @@ const LikePage = () => {
                                     onClick={() => openDetail(it)}
                                     role="listitem"
                                 >
-                                    <div className="rank">{idx + 1}</div>
-                                    <div className="food">{it.food || "무명 레시피"}</div>
-                                    <div className="meta">
-                                        {(it.use_ingredients || [])
-                                          .slice(0, 2)
-                                          .map(i => (typeof i === "string" ? i : i?.name))
-                                          .filter(Boolean)
-                                          .join(", ")}
+                                    <div className="like-card-left">
+                                        <div className="rank">{idx + 1}</div>
+                                    </div>
+                                    <div className="like-card-content">
+                                        <div className="food">{it.recipe.food || "무명 레시피"}</div>
+                                        <div className="meta">
+                                            {(it.recipe.use_ingredients || [])
+                                              .slice(0, 2)
+                                              .map(i => (typeof i === "string" ? i : i?.name))
+                                              .filter(Boolean)
+                                              .join(", ")}
+                                        </div>
+                                    </div>
+                                    <div className="like-card-right">
+                                        <img 
+                                            src={arrow_circle_icon}  
+                                            className="like-card-image" 
+                                        />
                                     </div>
                                 </button>
                               ))
