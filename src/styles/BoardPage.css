@@ -10,7 +10,6 @@
   --container-w: 430px;     /* ✅ 누락 보완: 모바일 퍼스트 최대폭 */
 
   --top-h: 56px;
-  --nav-h: 48px;
   --tab-h: 64px;
 
   --safe-top: env(safe-area-inset-top, 0px);
@@ -23,25 +22,22 @@ html, body, #root {
   height: 100%;
 }
 
-/* 페이지 전체 */
 .board-page {
   width: 100%;
   max-width: var(--container-w);
 
-  /* ✅ 스크롤 기준을 명확히: 고정 높이로 */
   height: calc(var(--vh) * 100);
-  min-height: 0; /* ✅ 내부 스크롤 허용 */
+  min-height: 0;
 
   display: flex;
   flex-direction: column;
   align-items: stretch;
   justify-content: flex-start;
-  overflow: hidden;          /* 실제 스크롤은 내부 main에서만 */
+  overflow: hidden;
   background: var(--bg);
   margin: 0 auto;
 }
 
-/* 내부 컨테이너 */
 .board-wrap {
   width: 100%;
   max-width: var(--container-w);
@@ -50,27 +46,23 @@ html, body, #root {
   flex-direction: column;
   box-sizing: border-box;
 
-  /* ✅ 내부 스크롤 허용을 위해 필수 */
   min-height: 0;
 
-  padding-top: calc(var(--top-h) + var(--nav-h) + var(--safe-top));
+  padding-top: calc(var(--top-h) + var(--safe-top));
   padding-bottom: calc(var(--tab-h) + var(--safe-bottom));
 }
 
-/* 중앙 스크롤 영역 */
 .board-content {
-  /* 스크롤 영역은 고정 높이로 계산해 주는 게 안전 */
   height: calc(
-    (var(--vh) * 100) - var(--top-h) - var(--nav-h) - var(--tab-h) - var(--safe-top) - var(--safe-bottom)
+    (var(--vh) * 100) - var(--top-h) - var(--tab-h) - var(--safe-top) - var(--safe-bottom)
   );
 
-  /* flex 항목으로 두되 내부 스크롤 우선 */
   flex: 1 1 auto;
-  min-height: 0; /* ✅ flex 자식 스크롤 필수 */
+  min-height: 0;
 
   display: flex;
   flex-direction: column;
-  align-items: stretch; /* 리스트를 가로 꽉 차게 */
+  align-items: stretch;
   justify-content: flex-start;
 
   overflow: auto;
@@ -79,7 +71,6 @@ html, body, #root {
   padding: 16px;
 }
 
-/* TabBar 고정 */
 .tabbar-fixed {
   position: fixed;
   left: 50%;
@@ -92,7 +83,6 @@ html, body, #root {
   z-index: 100;
 }
 
-/* 글쓰기 버튼 */
 .write-area {
   position: fixed;
   left: 50%;
@@ -118,7 +108,6 @@ html, body, #root {
   justify-content: center;
 }
 
-/* 스크롤바 */
 .board-content::-webkit-scrollbar {
   width: 6px;
 }
@@ -127,7 +116,6 @@ html, body, #root {
   border-radius: 999px;
 }
 
-/* ── 피드 카드 ── */
 .post-card {
   background: #fff;
   border-radius: 16px;
@@ -136,11 +124,9 @@ html, body, #root {
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
   margin-bottom: 16px;
 
-  /* ✅ flex 컨테이너 안에서 카드가 눌리지 않게 */
   flex: 0 0 auto;
 }
 
-/* 헤더 */
 .post-head {
   display: flex;
   align-items: center;
@@ -180,7 +166,6 @@ html, body, #root {
   padding: 4px 8px;
 }
 
-/* 미디어 영역: 항상 정사각형 */
 .post-media {
   position: relative;
   width: 100%;
@@ -251,6 +236,7 @@ html, body, #root {
 .post-body {
   padding: 12px;
   background: #fff;
+  border-top: 1px solid var(--line);
 }
 .comment {
   margin: 8px 0 10px;
@@ -293,17 +279,3 @@ html, body, #root {
 }
 .media-nav.prev { left: 8px; }
 .media-nav.next { right: 8px; }
-
-/* 반응형 (모바일 퍼스트) */
-@media (min-width: 768px) {
-  body { font-size: 18px; }
-  .board-page { max-width: 720px; }
-}
-@media (min-width: 1024px) {
-  body { font-size: 18px; }
-  .board-page { max-width: 960px; }
-}
-@media (min-width: 1440px) {
-  body { font-size: 20px; }
-  .board-page { max-width: 1200px; }
-}

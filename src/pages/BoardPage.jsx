@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useMemo } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import TopBar from "../components/TopBar";
-import TopNav from "../components/TopNav";
+
 import TabBar from "../components/TabBar";
 import api from "../lib/api";
 import "../styles/BoardPage.css";
@@ -132,7 +132,6 @@ function ErrorBox({ error }) {
 
 export default function BoardPage() {
   const navigate = useNavigate();
-  const location = useLocation();
 
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -179,17 +178,9 @@ export default function BoardPage() {
     return () => ac.abort();
   }, []);
 
-  const navItems = [
-    { label: "오늘 뭐 해먹지?", to: "/" },
-    { label: "추천 요리", to: "/recommend" },
-    { label: "게시판", to: "/board" },
-    { label: "랭킹", to: "/rank" },
-  ];
-
   return (
     <div className="board-page">
       <TopBar />
-      <TopNav items={navItems} />
 
       <div className="board-wrap">
         <main className="board-content">
