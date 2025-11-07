@@ -181,7 +181,9 @@ const ReceiptPage = () => {
                       type="button"
                       className="receipt-add-item-btn"
                       onClick={handleAddItem}
-                    > + </button>
+                    >
+                      <img src={add_button_icon} alt="add item icon" />
+                    </button>
                   </div>
 
                   <ul className="receipt-add-items-list">
