@@ -115,21 +115,19 @@ html, body, #root { height: 100%; }
 }
 
 .add-receipt-btn {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   flex: 0 0 auto;
-  background: linear-gradient(90deg, var(--accent-d), var(--accent));
+  background: var(--accent);
   border: none;
   border-radius: 10px;
   cursor: pointer;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
   transition: transform .08s ease, box-shadow .12s ease;
 }
 .add-receipt-btn img {
-  width: 26px;
-  height: 26px;
-  object-fit: contain;
-  display: block;
+  margin-left: 4px;
+  width: 16px;
+  height: 16px;
 }
 
 .add-receipt-btn-text {

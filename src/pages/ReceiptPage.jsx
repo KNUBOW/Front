@@ -8,6 +8,7 @@ import money_icon from "../assets/money_icon.png";
 import add_button_icon from "../assets/add_button.svg";
 import calendar_icon from "../assets/calendar_icon.png";
 import arrow_icon from "../assets/arrow_circle_icon.svg";
+import receipt_add_button_icon from "../assets/add_button.png";
 
 const ReceiptPage = () => {
   const [receipts, setReceipts] = useState([]); // 날짜별로 그룹화된 영수증 데이터
@@ -107,7 +108,7 @@ const ReceiptPage = () => {
             onClick={() => setAddReceipt({ items: [{ id: Date.now(), name: '', quantity: 1 }] })}
             aria-label="영수증 추가"
           >
-            <img src={add_button_icon} alt="add receipt icon" />
+            <img src={receipt_add_button_icon} alt="add receipt icon" />
             <div className="add-receipt-btn-text">영수증 추가</div>
           </button>
         </div>
