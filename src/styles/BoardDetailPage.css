@@ -1,0 +1,52 @@
+.board-detail-page {
+  width: 100%;
+  max-width: var(--container-w);
+
+  height: calc(var(--vh) * 100);
+  min-height: 0;
+
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  overflow: hidden;
+  background: var(--bg);
+  margin: 0 auto;
+}
+
+.board-detail-wrap {
+  width: 100%;
+  max-width: var(--container-w);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+
+  min-height: 0;
+
+  padding-top: calc(var(--top-h) + var(--safe-top));
+  padding-bottom: calc(var(--tab-h) + var(--safe-bottom));
+}
+
+.board-detail-content {
+  height: calc(
+    (var(--vh) * 100) - var(--top-h) - var(--tab-h) - var(--safe-top) - var(--safe-bottom)
+  );
+
+  flex: 1 1 auto;
+  min-height: 0;
+
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  overflow: auto;
+}
+
+.board-detail-post {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+  margin-bottom: 16px;
+  padding: 16px; /* Add padding for better spacing */
+}

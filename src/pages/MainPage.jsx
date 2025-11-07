@@ -45,16 +45,12 @@ const MainPage = () => {
   };
 
   const handleBoardItemClick = async (id) => {
-    if(id == null) return;
+    if (id == null) return;
 
     try {
-      const res = await api.get(`/board/${id}`, {
-        withCredentials: true,
-      });
-
-      navigate(`/board`);
-      //navigate(`/board/${id}`, { state: { post: res.data } });
-    } catch(e) {
+      // Navigate to BoardDetailPage with the post ID
+      navigate(`/board/details`, { state: { postId: id } });
+    } catch (e) {
       console.error("[handleBoardItemClick 실패]", e);
     }
   }
@@ -112,9 +108,14 @@ const MainPage = () => {
 
         setRanks(Array.isArray(rankRes.data) ? rankRes.data : []);
       } catch (e) {
-        console.error("[fetchInitialData]", e?.name || e, e?.message || "");
-        setPosts([]);
-        setRanks([]);
+        if (e.name === 'AbortError') {
+          // Ignore the AbortError
+          console.log("[fetchInitialData] fetch canceled");
+        } else {
+          console.error("[fetchInitialData]", e?.name || e, e?.message || "");
+          setPosts([]);
+          setRanks([]);
+        }
       } finally {
         setListsLoading(false);
       }
@@ -240,12 +241,14 @@ const MainPage = () => {
               <ul className="board-list" role="list">
                 {boardItems.map((it) => {
                   const isApiItem = typeof it.id !== "undefined";
+                  const key = isApiItem ? it.id : it.title;
                   const title = it.title ?? "-";
                   const nickname = it.author.nickname;
                   const created = formatKST(it.created_at);
 
                   return (
                     <li
+                      key={key}
                       className="board-item"
                       role="listitem"
                       onClick={() => { handleBoardItemClick(it.id) }}

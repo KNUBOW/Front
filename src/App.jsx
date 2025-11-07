@@ -20,6 +20,7 @@ import RecipePage from './pages/RecipePage';
 import RecommendResultPage from './pages/RecommendResultPage';
 import BoardWritePage from './pages/BoardWritePage';
 import LikesPage from './pages/LikesPage';
+import BoardDetailPage from './pages/BoardDetailPage';
 
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './routes/ProtectedRoute';
@@ -70,6 +71,7 @@ function App() {
             <Route path="/recommend/result" element={<RecommendResultPage />} />
             <Route path="/board/write" element={<BoardWritePage />} />
             <Route path="/likes" element={<LikesPage />} />
+            <Route path="/board/details" element={<BoardDetailPage />} />
           </Route>
 
           {/* 404 등 필요시 추가 */}
