@@ -20,9 +20,8 @@ const MainPage = () => {
   const [ranks, setRanks] = useState([]);   // 랭킹 API 데이터
   const [listsLoading, setListsLoading] = useState(false); // 목록 로딩
 
-  const limit = 5; // 랭킹/게시판 표시 개수
+  const limit = 5;
 
-  // 🔸 추천 샘플(요청과 무관) — 유지
   const sampleRecommendations = [
     { food: "된장찌개", time: "30분", ingredients: "두부, 호박, 양파, 된장" },
     { food: "김치 볶음밥", time: "20분", ingredients: "밥, 김치, 계란" },
@@ -31,7 +30,6 @@ const MainPage = () => {
     { food: "오므라이스", time: "25분", ingredients: "밥, 계란, 케찹" },
   ];
 
-  // ✅ KST 표시 유틸
   const formatKST = (iso) => {
     if (!iso) return "-";
     try {
@@ -40,15 +38,27 @@ const MainPage = () => {
         year: "numeric",
         month: "2-digit",
         day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
       });
     } catch {
       return iso;
     }
   };
 
-  // 오늘 뭐 해먹지
+  const handleBoardItemClick = async (id) => {
+    if(id == null) return;
+
+    try {
+      const res = await api.get(`/board/${id}`, {
+        withCredentials: true,
+      });
+
+      navigate(`/board`);
+      //navigate(`/board/${id}`, { state: { post: res.data } });
+    } catch(e) {
+      console.error("[handleBoardItemClick 실패]", e);
+    }
+  }
+
   const onSubmitTodayWhatEat = async (e) => {
     e.preventDefault();
     setErr("");
@@ -103,7 +113,6 @@ const MainPage = () => {
         setRanks(Array.isArray(rankRes.data) ? rankRes.data : []);
       } catch (e) {
         console.error("[fetchInitialData]", e?.name || e, e?.message || "");
-        // 실패해도 샘플로 대체하지 않음 (요청사항)
         setPosts([]);
         setRanks([]);
       } finally {
@@ -115,7 +124,6 @@ const MainPage = () => {
     return () => ac.abort();
   }, []);
 
-  // ✅ 렌더링용 파생 데이터
   const boardItems = useMemo(
     () => (posts && posts.length ? posts.slice(0, limit) : []),
     [posts]
@@ -188,7 +196,7 @@ const MainPage = () => {
             </ul>
           </div>
 
-          {/* 랭킹 — 샘플 제거, 빈 상태 처리 */}
+          {/* 랭킹 */}
           <div className="ranking-card main-card" style={{ flex: '0 0 auto' }}>
             <div className="badge">랭킹</div>
 
@@ -222,7 +230,7 @@ const MainPage = () => {
             )}
           </div>
 
-          {/* 게시판 — 샘플 제거, 빈 상태 처리 */}
+          {/* 게시판 */}
           <div className="board-card main-card" style={{ flex: '0 0 auto' }}>
             <div className="badge">게시판</div>
 
@@ -232,31 +240,26 @@ const MainPage = () => {
               <ul className="board-list" role="list">
                 {boardItems.map((it) => {
                   const isApiItem = typeof it.id !== "undefined";
-                  const key = isApiItem ? it.id : String(Math.random());
                   const title = it.title ?? "-";
-                  const nickname = isApiItem ? (it.author?.nickname ?? "-") : (it.author ?? "-");
-                  const created = isApiItem ? formatKST(it.created_at) : "-";
-                  const likeCount = isApiItem ? (it.like_count ?? 0) : 0;
-                  const hasImage = isApiItem ? !!it.exist_image : false;
+                  const nickname = it.author.nickname;
+                  const created = formatKST(it.created_at);
 
                   return (
                     <li
-                      key={key}
                       className="board-item"
                       role="listitem"
-                      onClick={() => { if (isApiItem) navigate(`/board/${it.id}`); }}
+                      onClick={() => { handleBoardItemClick(it.id) }}
                       style={{ cursor: isApiItem ? 'pointer' : 'default' }}
                     >
                       <div className="board-left">
                         <div className="board-title">
-                          {title} {hasImage && <span className="img-badge" aria-label="이미지 포함">🖼️</span>}
+                          {title}
                         </div>
                         <div className="board-author">작성자: {nickname}</div>
                       </div>
                       <div className="board-right">
                         <div className="board-meta">
                           <span className="created-at">{created}</span>
-                          <span className="likes">♥ {likeCount}</span>
                         </div>
                       </div>
                     </li>

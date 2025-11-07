@@ -81,7 +81,7 @@
     box-sizing: border-box;
     border-radius: var(--radius-lg);
     border-color: var(--accent);
-    border: 2px solid var(--accent);
+    border: 1px solid var(--accent);
     background: var(--bg);
     border-radius: 12px;
     padding: 8px;
@@ -143,7 +143,7 @@
     border-radius: 12px;
     padding: 12px;
     box-shadow: 0 2px 6px rgba(0,0,0,0.03);
-    border: 2px solid var(--accent);
+    border: 1px solid var(--accent);
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
@@ -213,8 +213,3 @@
 }
 
 .error-text { color: #c0392b; margin-top: 8px; font-size: 13px; }
-
-@media (max-width: 420px) {
-    .item-right, .board-right { display: none; }
-    .search-field input[type="text"] { padding-right: 36px; }
-}
