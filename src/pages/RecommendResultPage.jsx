@@ -1,7 +1,6 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import TopBar from "../components/TopBar";
-import TopNav from "../components/TopNav";
 import TabBar from "../components/TabBar";
 import api from "../lib/api";
 import "../styles/TopShell.css";
@@ -53,14 +52,6 @@ export default function RecommendResultPage() {
   const [isLiking, setIsLiking] = useState(false);
   const [liked, setLiked] = useState(false);
   const data = location.state?.result || null;
-  const query = location.state?.query || "";
-
-  const navItems = [
-    { label: "오늘 뭐 해먹지?", to: "/" },
-    { label: "추천 요리", to: "/recommend" },
-    { label: "게시판", to: "/board" },
-    { label: "랭킹", to: "/rank" },
-  ];
 
   if (!data) {
     return (
@@ -142,14 +133,12 @@ export default function RecommendResultPage() {
     <div className="result-page">
       <div className="result-wrap">
         <TopBar />
-        <TopNav items={navItems} />
 
         <main className="result-content" role="main">
           <header className="result-header">
             <h1 className="title">{toText(food) || "추천 요리"}</h1>
-
-            {/* 필요 시 메타 노출 */}
-            {/* <div className="meta">난이도 {toText(difficulty)} · 조리 {toText(cooking_time)}분</div> */}
+ 
+            <div className="meta">난이도 {toText(difficulty)}</div> 
 
             {tagsList.length > 0 && (
               <ul className="tags" role="list">

@@ -102,17 +102,26 @@ export default function RecipePage() {
     };
   }, []);
 
-  const handleRecipeClick = async (foodName) => {
-    if (!foodName) return;
+  const handleRecipeClick = async (food, use_ingredients, difficulty) => {
+    if (!food) return;
     if (clickInFlight.current) return;
     clickInFlight.current = true;
 
     try {
       setErr("");
 
+      // Create request body matching the expected format
+      const requestBody = {
+        food: food,
+        use_ingredients: Array.isArray(use_ingredients) ? use_ingredients : [],
+        difficulty: Number(difficulty) || 0
+      };
+
+      console.log('Request body:', requestBody); // For debugging
+
       const res = await api.post(
-        "/recipe/food-cook",
-        { chat: foodName },
+        "/recipe/cook",
+        requestBody,
         {
           headers: {
             accept: "application/json",
@@ -127,11 +136,9 @@ export default function RecipePage() {
         return;
       }
 
-      // 서버 샘플 스키마에 맞춰 정규화 (step 혹은 steps 처리)
       const normalized = {
-        food: resData.food ?? foodName,
-        difficulty: resData.difficulty ?? null,
-        cooking_time: resData.cooking_time ?? null,
+        food: resData.food ?? food,
+        difficulty: resData.difficulty ?? difficulty,
         use_ingredients: Array.isArray(resData.use_ingredients) ? resData.use_ingredients : [],
         steps: Array.isArray(resData.steps)
           ? resData.steps
@@ -140,12 +147,11 @@ export default function RecipePage() {
           : [],
         tip: resData.tip ?? "",
         video: resData.video ?? "",
-        tag: resData.tag ?? "",
       };
 
-      navigate("/recommend/result", { state: { result: normalized, query: foodName } });
+      navigate("/recommend/result", { state: { result: normalized} });
     } catch (e) {
-      console.error(e);
+      console.error('API Error:', e.response?.data || e); // Enhanced error logging
       const resp = e?.response;
       if (resp?.data) setErr(resp.data.message ?? JSON.stringify(resp.data));
       else setErr("레시피 상세를 불러오지 못했습니다.");
@@ -194,7 +200,7 @@ export default function RecipePage() {
                   <button
                     type="button"
                     className="recipe-btn"
-                    onClick={() => handleRecipeClick(r.food)}
+                    onClick={() => handleRecipeClick(r.food, r.use_ingredients, r.difficulty)}
                     style={{ width: "100%", textAlign: "left", background: "none", border: "none", padding: 0 }}
                   >
                     <div className="card-head">
