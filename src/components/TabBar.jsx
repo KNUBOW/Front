@@ -24,7 +24,7 @@ const TabBar = () => {
           <div className="tab-icon" aria-hidden="true">
             <img src={boxIcon} alt="" width="36" height="36" />
           </div>
-          <span>Box</span>
+          <span>Receipt</span>
         </button>
 
         <button
