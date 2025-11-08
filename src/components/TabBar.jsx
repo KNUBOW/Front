@@ -2,7 +2,7 @@ import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import boxIcon from "../assets/box.svg";
 import recipeIcon from "../assets/recipe.svg";
-import homeIcon from "../assets/home.svg";
+import homeIcon from "../assets/home.png";
 import likeIcon from "../assets/like.svg";
 import settingsIcon from "../assets/settings.svg";
 import "../styles/TopShell.css";

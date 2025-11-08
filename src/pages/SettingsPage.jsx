@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/SettingsPage.css";
 
+import fork_spoon from "../assets/fork_spoon.png";
+
 function decodeJwtPayload(token) {
   try {
     if (!token) return null;
@@ -154,12 +156,7 @@ const SettingsPage = () => {
           <button className="settingsPage-item-row arrow" onClick={onResetTaste}>
             <div className="settingsPage-item-left">
               <div className="settingsPage-item-icon utensil" aria-hidden="true">
-                <svg width="22" height="22" viewBox="0 0 24 24">
-                  <path
-                    d="M7 2v7a2 2 0 1 1-2 0V2H4v7a4 4 0 1 0 6 0V2H7Zm9 0a4 4 0 0 0-1 7.874V22h2V9.874A4 4 0 0 0 16 2Z"
-                    fill="currentColor"
-                  />
-                </svg>
+                <img src={fork_spoon} className="settingsPage-item-icon-img"/>
               </div>
               <div className="settingsPage-item-texts">
                 <div className="settingsPage-item-title">음식 성향 초기화</div>

@@ -16,19 +16,14 @@ const MainPage = () => {
   const [err, setErr] = useState("");
   const navigate = useNavigate();
 
-  const [posts, setPosts] = useState([]);   // 게시판 API 데이터
-  const [ranks, setRanks] = useState([]);   // 랭킹 API 데이터
-  const [listsLoading, setListsLoading] = useState(false); // 목록 로딩
+  const [recommendations, setRecommendations] = useState([]);
+  const [posts, setPosts] = useState([]);
+  const [ranks, setRanks] = useState([]);
+
+  // 전체 로딩(섹션별로 나눌 수도 있지만 요청대로 전체 하나만 유지)
+  const [listsLoading, setListsLoading] = useState(false);
 
   const limit = 5;
-
-  const sampleRecommendations = [
-    { food: "된장찌개", time: "30분", ingredients: "두부, 호박, 양파, 된장" },
-    { food: "김치 볶음밥", time: "20분", ingredients: "밥, 김치, 계란" },
-    { food: "닭갈비", time: "40분", ingredients: "닭고기, 고구마, 양배추" },
-    { food: "불고기", time: "35분", ingredients: "소고기, 양파, 당근" },
-    { food: "오므라이스", time: "25분", ingredients: "밥, 계란, 케찹" },
-  ];
 
   const formatKST = (iso) => {
     if (!iso) return "-";
@@ -44,16 +39,10 @@ const MainPage = () => {
     }
   };
 
-  const handleBoardItemClick = async (id) => {
+  const handleBoardItemClick = (id) => {
     if (id == null) return;
-
-    try {
-      // Navigate to BoardDetailPage with the post ID
-      navigate(`/board/details`, { state: { postId: id } });
-    } catch (e) {
-      console.error("[handleBoardItemClick 실패]", e);
-    }
-  }
+    navigate(`/board/details`, { state: { postId: id } });
+  };
 
   const onSubmitTodayWhatEat = async (e) => {
     e.preventDefault();
@@ -83,47 +72,75 @@ const MainPage = () => {
   };
 
   useEffect(() => {
+    // ✅ 페이지 진입(마운트) 때마다 fetch 1회
     const ac = new AbortController();
 
-    async function fetchInitialData() {
-      try {
-        setListsLoading(true);
+    const fetchInitialData = async () => {
+      setListsLoading(true);
 
-        const boardRes = await api.get("/board/list", {
-          params: { limit },
-          signal: ac.signal,
-          withCredentials: true,
+      // 동시에 시작 (병렬)
+      /*const recommendPromise = api.get("/recipe/card", {
+        headers: { accept: "application/json" },
+        signal: ac.signal,
+      });*/
+      const boardPromise = api.get("/board/list", {
+        params: { limit },
+        withCredentials: true,
+        signal: ac.signal,
+      });
+      const rankPromise = api.get("/recipe/ranking", {
+        params: { limit },
+        headers: { accept: "application/json" },
+        signal: ac.signal,
+      });
+
+      // 각 응답이 오는 즉시 UI 반영 (체감속도 개선)
+      /*recommendPromise
+        .then((res) => {
+          const rec = Array.isArray(res?.data?.food_list)
+            ? res.data.food_list.slice(0, 5)
+            : [];
+          setRecommendations(rec);
+        })
+        .catch((e) => {
+          if (e?.code !== "ERR_CANCELED") {
+            console.error("[/recipe/card 실패]", e);
+            setRecommendations([]); // 실패 시 빈 값
+          }
+        });*/
+
+      boardPromise
+        .then((res) => {
+          const list = Array.isArray(res.data)
+            ? res.data
+            : res.data?.data ?? [];
+          setPosts(Array.isArray(list) ? list : []);
+        })
+        .catch((e) => {
+          if (e?.code !== "ERR_CANCELED") {
+            console.error("[/board/list 실패]", e);
+            setPosts([]);
+          }
         });
 
-        const list = Array.isArray(boardRes.data)
-          ? boardRes.data
-          : boardRes.data?.data ?? [];
-        setPosts(Array.isArray(list) ? list : []);
-
-        const rankRes = await api.get("/recipe/ranking", {
-          params: { limit },
-          headers: { accept: "application/json" },
-          signal: ac.signal,
+      rankPromise
+        .then((res) => {
+          setRanks(Array.isArray(res.data) ? res.data : []);
+        })
+        .catch((e) => {
+          if (e?.code !== "ERR_CANCELED") {
+            console.error("[/recipe/ranking 실패]", e);
+            setRanks([]);
+          }
         });
 
-        setRanks(Array.isArray(rankRes.data) ? rankRes.data : []);
-      } catch (e) {
-        if (e.name === 'AbortError') {
-          // Ignore the AbortError
-          console.log("[fetchInitialData] fetch canceled");
-        } else {
-          console.error("[fetchInitialData]", e?.name || e, e?.message || "");
-          setPosts([]);
-          setRanks([]);
-        }
-      } finally {
-        setListsLoading(false);
-      }
-    }
+      setListsLoading(false);
+    };
 
     fetchInitialData();
+
     return () => ac.abort();
-  }, []);
+  }, []); // 의도대로, 마운트마다 실행
 
   const boardItems = useMemo(
     () => (posts && posts.length ? posts.slice(0, limit) : []),
@@ -149,15 +166,14 @@ const MainPage = () => {
           <section className="main-today-what-eat">
             <div className="card-header">
               <div className="card-icon" aria-hidden="true">
-                <img src={today_what_eat_icon} alt="" width="32" height="32"/>
+                <img src={today_what_eat_icon} alt="" width="32" height="32" />
               </div>
               <h2 id="todayTitle" className="card-title">오늘 뭐 해먹지?</h2>
             </div>
 
             <form className="search-form" onSubmit={onSubmitTodayWhatEat} role="search" aria-label="재료 검색">
               <div className="search-field">
-                <img src={searchIcon} alt="검색 아이콘" className="icon-left" width="20" height="20"/>
-
+                <img src={searchIcon} alt="검색 아이콘" className="icon-left" width="20" height="20" />
                 <input
                   type="text"
                   name="ingredients"
@@ -169,9 +185,8 @@ const MainPage = () => {
                   aria-label="재료 입력"
                   disabled={loading}
                 />
-
                 <button type="submit" className="icon-button" aria-label="추천 요청" disabled={loading}>
-                  <img src={sendIcon} alt="전송 아이콘" className="icon-right" width="24" height="24"/>
+                  <img src={sendIcon} alt="전송 아이콘" className="icon-right" width="24" height="24" />
                 </button>
               </div>
             </form>
@@ -179,29 +194,30 @@ const MainPage = () => {
             {err && <p className="error-text" role="alert">{err}</p>}
           </section>
 
-          {/* 추천 카드 (샘플 유지) */}
-          <div className="recommend-card main-card" style={{ flex: '0 0 auto' }}>
+          {/* 추천 카드 (앞 5개만 표시) */}
+          {/*<div className="recommend-card main-card" style={{ flex: '0 0 auto' }}>
             <div className="badge">추천 요리</div>
-            <ul className="recommend-list" role="list">
-              {sampleRecommendations.map((it, idx) => (
-                <li className="recommend-item" key={idx} role="listitem" onClick={() => { /* 상세 이동 등 */ }}>
-                  <div className="item-left">
-                    <div className="title">{it.food}</div>
-                    <div className="sub">조리 시간: <span className="time">{it.time}</span></div>
-                  </div>
-                  <div className="item-right">
-                    {it.ingredients}
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
+
+            {listsLoading && recommendations.length === 0 ? (
+              <div className="empty" aria-live="polite">추천 요리를 불러오는 중…</div>
+            ) : recommendations.length > 0 ? (
+              <ul className="recommend-list" role="list">
+                {recommendations.map((it, idx) => (
+                  <li key={idx} className="recommend-item" role="listitem">
+                    <div className="recommend-title">{it.food}</div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div className="empty" aria-live="polite">추천 요리를 불러오는 중…</div>
+            )}
+          </div> */}
 
           {/* 랭킹 */}
           <div className="ranking-card main-card" style={{ flex: '0 0 auto' }}>
             <div className="badge">랭킹</div>
 
-            {listsLoading ? (
+            {listsLoading && rankItems.length === 0 ? (
               <div className="empty" aria-live="polite">랭킹을 불러오는 중…</div>
             ) : rankItems.length > 0 ? (
               <ul className="ranking-list" role="list">
@@ -227,7 +243,7 @@ const MainPage = () => {
                 })}
               </ul>
             ) : (
-              <div className="empty" aria-live="polite">아직 랭킹 데이터가 없어요.</div>
+              <div className="empty" aria-live="polite">랭킹을 불러오는 중…</div>
             )}
           </div>
 
@@ -235,29 +251,25 @@ const MainPage = () => {
           <div className="board-card main-card" style={{ flex: '0 0 auto' }}>
             <div className="badge">게시판</div>
 
-            {listsLoading ? (
+            {listsLoading && boardItems.length === 0 ? (
               <div className="empty" aria-live="polite">게시글을 불러오는 중…</div>
             ) : boardItems.length > 0 ? (
               <ul className="board-list" role="list">
                 {boardItems.map((it) => {
-                  const isApiItem = typeof it.id !== "undefined";
-                  const key = isApiItem ? it.id : it.title;
                   const title = it.title ?? "-";
-                  const nickname = it.author.nickname;
+                  const nickname = it.author?.nickname ?? "-";
                   const created = formatKST(it.created_at);
 
                   return (
                     <li
-                      key={key}
+                      key={it.id ?? title}
                       className="board-item"
                       role="listitem"
-                      onClick={() => { handleBoardItemClick(it.id) }}
-                      style={{ cursor: isApiItem ? 'pointer' : 'default' }}
+                      onClick={() => handleBoardItemClick(it.id)}
+                      style={{ cursor: it.id ? 'pointer' : 'default' }}
                     >
                       <div className="board-left">
-                        <div className="board-title">
-                          {title}
-                        </div>
+                        <div className="board-title">{title}</div>
                         <div className="board-author">작성자: {nickname}</div>
                       </div>
                       <div className="board-right">
@@ -270,7 +282,7 @@ const MainPage = () => {
                 })}
               </ul>
             ) : (
-              <div className="empty" aria-live="polite">게시글이 아직 없습니다.</div>
+              <div className="empty" aria-live="polite">게시글을 불러오는 중…</div>
             )}
           </div>
         </div>
