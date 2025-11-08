@@ -249,8 +249,14 @@ const MainPage = () => {
 
           {/* 게시판 */}
           <div className="board-card main-card" style={{ flex: '0 0 auto' }}>
-            <div className="badge">게시판</div>
-
+            <div className="board-card-header">
+              <div className="badge">게시판</div>
+              <button
+                className="board-navigate-button"
+                type="button"
+                onClick={() => navigate('/board')}>게시판 이동
+              </button>
+            </div>
             {listsLoading && boardItems.length === 0 ? (
               <div className="empty" aria-live="polite">게시글을 불러오는 중…</div>
             ) : boardItems.length > 0 ? (

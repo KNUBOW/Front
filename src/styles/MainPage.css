@@ -150,16 +150,35 @@
     flex: 0 0 auto;
 }
 
-.badge {
-    display: inline-block;
-    background: #FFD95F;
-    color: #2d2d2d;
-    font-weight: 700;
-    padding: 6px 10px;
-    border-radius: 10px;
-    font-size: 13px;
-    align-self: flex-start;
-    margin-bottom: 10px;
+.board-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.badge,
+.board-navigate-button {
+  display: flex;
+  align-items: center;
+  background: #FFD95F;
+  color: #2d2d2d;
+  font-weight: 700;
+  align-self: flex-start;
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-size: 13px;
+  line-height: 1;
+  height: 28px;
+  box-sizing: border-box;
+}
+
+.board-navigate-button {
+  margin-left: auto;
+  cursor: pointer;
+  border: none;
+  outline: none;
+  appearance: none;
 }
 
 /* 리스트 공통 */
